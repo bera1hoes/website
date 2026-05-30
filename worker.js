@@ -26,6 +26,31 @@ export default {
       return env.ASSETS.fetch(new Request(new URL('/Charts.html', url), request));
     }
 
+    // Proxy /userinfo to the separate UserInfo Worker (READ_KEY stored as Wrangler secret)
+    if (url.pathname === '/userinfo') {
+      try {
+        const upstream = await fetch(
+          'https://userinfo-worker.bera1hoes.workers.dev/userinfo' + url.search,
+          { headers: { Authorization: `Bearer ${env.USERINFO_READ_KEY}` }, redirect: 'follow' }
+        );
+        const body = await upstream.text();
+        return new Response(body, {
+          status: upstream.status,
+          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: String(err.message || err) }), {
+          status: 502,
+          headers: { 'content-type': 'application/json; charset=utf-8' },
+        });
+      }
+    }
+
+    // /arena -> Arena.html
+    if (url.pathname === '/arena') {
+      return env.ASSETS.fetch(new Request(new URL('/Arena.html', url), request));
+    }
+
     // Everything else (including /) -> static assets (index.html at root by default).
     return env.ASSETS.fetch(request);
   },

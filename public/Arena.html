@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>(s)hoes · Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0f14;
+    color: #e8eaf0;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px 64px;
+  }
+
+  /* ── Header ─────────────────────────────────────────────────────────────── */
+  header {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 0 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 40px;
+  }
+
+  .site-title {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: #ff5fa2;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+  .site-title span {
+    color: #e8eaf0;
+    font-weight: 400;
+  }
+
+  .back-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #6b7280;
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color .15s ease;
+  }
+  .back-link:hover { color: #ff5fa2; }
+
+  /* ── Main content ────────────────────────────────────────────────────────── */
+  main {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: #e8eaf0;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Search bar ──────────────────────────────────────────────────────────── */
+  .search-bar {
+    display: flex;
+    gap: 12px;
+  }
+
+  #nick-input {
+    flex: 1;
+    background: #161921;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: #e8eaf0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 13px 18px;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  #nick-input::placeholder { color: #6b7280; }
+  #nick-input:focus { border-color: rgba(255,95,162,0.5); }
+
+  #search-btn {
+    background: #ff5fa2;
+    border: none;
+    border-radius: 10px;
+    color: #0d0f14;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 13px 28px;
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+    white-space: nowrap;
+  }
+  #search-btn:hover {
+    background: #ff77b3;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,95,162,0.3);
+  }
+  #search-btn:active { transform: translateY(0); }
+
+  /* ── Results area ────────────────────────────────────────────────────────── */
+  #results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .status {
+    color: #6b7280;
+    text-align: center;
+    font-size: 15px;
+    padding: 24px 0;
+  }
+
+  .error {
+    color: #f87171;
+    font-size: 14px;
+    padding: 16px 20px;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 8px;
+  }
+
+  /* ── Snapshot list ───────────────────────────────────────────────────────── */
+  .snapshots-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: -4px;
+  }
+
+  .snapshot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .snapshot-btn {
+    width: 100%;
+    background: #161921;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    color: #e8eaf0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 20px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+  }
+  .snapshot-btn:hover {
+    border-color: rgba(255,95,162,0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .snapshot-btn.active {
+    border-color: #ff5fa2;
+    box-shadow: 0 0 0 1px #ff5fa2, 0 4px 20px rgba(255,95,162,0.2);
+  }
+
+  .snap-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Stat cards ──────────────────────────────────────────────────────────── */
+  #stat-panel {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .stat-card {
+    flex: 1;
+    min-width: 180px;
+    background: #161921;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+
+  .stat-value {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    color: #ff5fa2;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="site-title" href="/">(s)hoes<span> · Arena</span></a>
+  <a class="back-link" href="/">← Home</a>
+</header>
+
+<main>
+  <h2>Player Lookup</h2>
+
+  <div class="search-bar">
+    <input id="nick-input" type="text" placeholder="Player nick..." autocomplete="off"
+           onkeydown="if(event.key==='Enter') doSearch()">
+    <button id="search-btn" onclick="doSearch()">Look Up</button>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+<script>
+// ── Table loading (lazy, cached in-memory) ──────────────────────────────────
+let _tables = null;
+
+async function loadTables() {
+  if (_tables) return _tables;
+  const base = '/TextAsset/';
+  const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, additionalAbilityOption] =
+    await Promise.all([
+      fetch(base + 'GearOptionTable.txt').then(r => r.json()),
+      fetch(base + 'GearFactorTable.txt').then(r => r.json()),
+      fetch(base + 'StarForceTable.txt').then(r => r.json()),
+      fetch(base + 'GearAbilityOptionTable.txt').then(r => r.json()),
+      fetch(base + 'GearAddAbilityOptionTable.txt').then(r => r.json()),
+      fetch(base + 'GearAdditialAbilityOptionTable.txt').then(r => r.json()),
+    ]);
+  _tables = {
+    gearOption:              Object.fromEntries(gearOption.map(e => [e.OptionIndex, e.StatData])),
+    gearFactor:              Object.fromEntries(gearFactor.map(e => [e.Level, e.Factor.map(Number)])),
+    starForce:               Object.fromEntries(starForce.map(e => [e.StarForce, e])),
+    abilityOption:           Object.fromEntries(abilityOption.map(e => [e.Index, e])),
+    addAbilityOption:        Object.fromEntries(addAbilityOption.map(e => [e.Index, e])),
+    additionalAbilityOption: Object.fromEntries(additionalAbilityOption.map(e => [e.Index, e])),
+  };
+  return _tables;
+}
+
+// ── Stat calculations — ported from calc_stats.py:78–130 ───────────────────
+
+function calcCritResist(userInfo) {
+  let total = 0;
+  for (const hero of (userInfo.HeroInfos || [])) {
+    for (const buff of (hero.BuffInput?.PartyHeroBuffInfoContainer?.BuffInfos || [])) {
+      if (buff.BuffType === 'HeroPowerAbility')
+        total += buff.StatContainer?._stats?.CriticalResist || 0;
+    }
+  }
+  return total / 10;
+}
+
+function _gearOptionValue(optIdx, gl, sf, step, isMain, tables) {
+  const sd = tables.gearOption[String(optIdx)];
+  if (!sd) return [null, 0];
+  const minV = +sd.MinValue, maxV = +sd.MaxValue, maxStep = +sd.OptionStep, factorCol = +sd.Factor;
+  const factors = tables.gearFactor[String(gl)];
+  const F = factors ? factors[factorCol] : 1000;
+  const stepBonus = maxStep ? Math.floor((maxV - minV) * step / maxStep) : 0;
+  const base = Math.floor(minV * F / 1000) + stepBonus;
+  const sfEntry = tables.starForce[String(sf)];
+  const sfBonus = sfEntry ? Math.floor(base * +sfEntry[isMain ? 'MainOptionMultiply' : 'SubOptionMultiply'] / 1000) : 0;
+  return [sd.Type, base + sfBonus];
+}
+
+function _abilityAvoidChance(idx, tables) {
+  const s = String(idx);
+  const add = tables.additionalAbilityOption[s];
+  if (add?.StatType === 'AvoidChance') return +add.StatValue;
+  for (const key of ['abilityOption', 'addAbilityOption']) {
+    const e = tables[key][s];
+    if (e?.StatData?.Type === 'AvoidChance') return +(e.StatData.Value || 0);
+  }
+  return 0;
+}
+
+function calcAvoidChance(userInfo, tables) {
+  let total = 0;
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const bi = hero.BuffInput || {};
+    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
+      if (['HeroPowerAbility', 'Artifact'].includes(buff.BuffType))
+        total += buff.StatContainer?._stats?.AvoidChance || 0;
+    for (const gear of (bi.GearInfos || [])) {
+      const gl = +gear.GearLevel, sf = +gear.StarForce;
+      for (const e of (gear.MainOptionList || [])) {
+        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
+        if (t === 'AvoidChance') total += v;
+      }
+      for (const e of (gear.SubOptionList || [])) {
+        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
+        if (t === 'AvoidChance') total += v;
+      }
+      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
+      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
+    }
+  }
+  return Math.floor(total);
+}
+
+// ── UI ─────────────────────────────────────────────────────────────────────
+
+async function doSearch() {
+  const nick = document.getElementById('nick-input').value.trim();
+  if (!nick) return;
+  const results = document.getElementById('results');
+  results.innerHTML = '<p class="status">Searching…</p>';
+  try {
+    const res = await fetch('/userinfo?nick=' + encodeURIComponent(nick));
+    const { rows, error } = await res.json();
+    if (error) { results.innerHTML = `<p class="error">${error}</p>`; return; }
+    if (!rows || rows.length === 0) { results.innerHTML = '<p class="status">No data found for that nick.</p>'; return; }
+    renderSnapshots(rows);
+  } catch (e) {
+    results.innerHTML = `<p class="error">Request failed: ${e.message}</p>`;
+  }
+}
+
+function renderSnapshots(rows) {
+  const results = document.getElementById('results');
+  const list = rows.map(row => {
+    const date = new Date(row.captured_at * 1000).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    return `<button class="snapshot-btn" onclick="selectSnapshot(${JSON.stringify(row).replace(/"/g, '&quot;')}, event)">${row.short_battle_power} <span class="snap-date">${date}</span></button>`;
+  }).join('');
+  results.innerHTML = `<p class="snapshots-label">Select a snapshot</p><div class="snapshot-list">${list}</div><div id="stat-panel"></div>`;
+}
+
+async function selectSnapshot(row, evt) {
+  const panel = document.getElementById('stat-panel');
+  panel.innerHTML = '<p class="status">Loading tables…</p>';
+  document.querySelectorAll('.snapshot-btn').forEach(b => b.classList.remove('active'));
+  (evt ? evt.currentTarget : event.currentTarget).classList.add('active');
+  try {
+    const tables = await loadTables();
+    const userInfo = JSON.parse(row.raw_json);
+    const avoid = calcAvoidChance(userInfo, tables);
+    const crit = calcCritResist(userInfo);
+    panel.innerHTML = `
+      <div class="stat-card"><span class="stat-label">Avoid Chance</span><span class="stat-value">${avoid}%</span></div>
+      <div class="stat-card"><span class="stat-label">Critical Resist</span><span class="stat-value">${crit.toFixed(1)}%</span></div>`;
+  } catch (e) {
+    panel.innerHTML = `<p class="error">Calc failed: ${e.message}</p>`;
+  }
+}
+</script>
+</body>
+</html>
