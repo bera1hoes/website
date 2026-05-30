@@ -1,4 +1,0 @@
-# Cloudflare Pages routing
-# Landing page at the root, chart app at /charts.
-/          /Home.html    200
-/charts    /Charts.html  200
