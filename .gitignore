@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+
+# Local test artifacts
+*-test.png
+*-preview.png
+index-localtest.png
+home-preview.png
+_chk.js
+_codecheck.js
+*.backup

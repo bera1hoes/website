@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d0f14;
+    color: #e8eaf0;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 48px;
+  }
+
+  .page { width: 100%; max-width: 940px; }
+
+  header { margin-bottom: 20px; }
+  .eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .18em; color: #f0a500; text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-size: 24px; font-weight: 500; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #6b7280; }
+
+  /* Controls bar */
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+  .ctrl-label { font-size: 10px; font-family: 'Space Mono', monospace; color: #6b7280; letter-spacing: .08em; text-transform: uppercase; }
+
+  select {
+    background: #161921;
+    color: #e8eaf0;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 7px 32px 7px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color .15s;
+    min-width: 160px;
+  }
+  select:hover { border-color: rgba(255,255,255,0.25); }
+  select:focus { outline: none; border-color: #f0a500; }
+
+  /* Toggle buttons for color mode */
+  .toggle-group { display: flex; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; }
+  .toggle-btn {
+    background: #161921;
+    color: #6b7280;
+    border: none;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .toggle-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.08); }
+  .toggle-btn.active { background: #f0a500; color: #0d0f14; font-weight: 600; }
+
+  /* Stats row */
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card { background: #161921; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 18px; flex: 1; min-width: 130px; }
+  .card-label { font-size: 10px; color: #6b7280; font-family: 'Space Mono', monospace; letter-spacing: .08em; margin-bottom: 4px; }
+  .card-val { font-size: 17px; font-weight: 500; }
+  .accent { color: #f0a500; }
+  .accent2 { color: #4ecdc4; }
+
+  /* Chart */
+  .chart-wrap { background: #161921; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 20px 12px; }
+
+  .zoom-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: rgba(240,165,0,0.12);
+    border: 1px solid rgba(240,165,0,0.35);
+    border-radius: 6px;
+    padding: 4px 10px 4px 8px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: #f0a500;
+    cursor: pointer;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    transition: background .15s;
+  }
+  .zoom-badge:hover { background: rgba(240,165,0,0.22); }
+
+  .top-bar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+
+  /* Dynamic legend */
+  #legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12px;
+    color: #6b7280;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; cursor: default; transition: opacity .15s; }
+  .legend-item.clickable { cursor: pointer; }
+  .legend-item.clickable:hover { opacity: 0.8; }
+  .legend-item.dimmed { opacity: 0.3; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-line { width: 22px; height: 0; border-top: 2.5px dotted rgba(255,255,255,0.7); flex-shrink: 0; }
+
+  .tick text { fill: #6b7280; font-size: 10px; font-family: 'Space Mono', monospace; }
+  .tick line, .domain { stroke: rgba(255,255,255,0.06); }
+  .grid line { stroke: rgba(255,255,255,0.04); }
+  .grid .domain { display: none; }
+  .fit-line { fill: none; stroke: rgba(255,255,255,0.7); stroke-width: 2; stroke-dasharray: 5 4; }
+  .hint { text-align: center; font-size: 11px; color: #6b7280; font-family: 'Space Mono', monospace; margin-top: 10px; letter-spacing: .04em; }
+
+  /* Info panel */
+  #panel {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    background: #1e2330;
+    border: 1px solid rgba(240,165,0,0.35);
+    border-radius: 12px;
+    padding: 18px 20px;
+    width: 230px;
+  }
+  #panel.pinned { pointer-events: auto; }
+  .p-rank { font-family: 'Space Mono', monospace; font-size: 10px; color: #f0a500; letter-spacing: .1em; margin-bottom: 4px; }
+  .p-name { font-size: 20px; font-weight: 500; margin-bottom: 10px; }
+  .p-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 13px; }
+  .p-row:last-child { border: none; }
+  .p-key { color: #6b7280; font-family: 'Space Mono', monospace; font-size: 11px; }
+  .p-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .close-btn { display: none; position: absolute; top: 10px; right: 12px; background: none; border: none; color: #6b7280; font-size: 18px; cursor: pointer; }
+  #panel.pinned .close-btn { display: block; }
+
+  #loading { color: #6b7280; font-family: 'Space Mono', monospace; padding: 60px; text-align: center; font-size: 12px; }
+
+  /* Pivot table */
+  #pivot-section { margin-top: 24px; }
+  .pivot-wrap { background: #161921; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; }
+  .pivot-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .pivot-table thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .pivot-table thead th:not(:first-child) { text-align: right; }
+  .pivot-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background .1s; }
+  .pivot-table tbody tr:last-child { border-bottom: none; }
+  .pivot-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .pivot-table td { padding: 9px 16px; }
+  .pivot-table td:not(:first-child) { text-align: right; font-family: 'Space Mono', monospace; font-size: 12px; color: #c4c9d4; }
+  .pivot-total-row td { color: #e8eaf0; font-weight: 500; border-top: 1px solid rgba(255,255,255,0.1) !important; }
+
+  .file-btn {
+    display: inline-block;
+    background: #161921;
+    color: #e8eaf0;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color .15s;
+    white-space: nowrap;
+  }
+  .file-btn:hover { border-color: rgba(255,255,255,0.25); }
+
+  /* Player table filter + sort */
+  .player-filter-wrap { padding: 12px 16px 0; }
+  .player-filter {
+    width: 100%;
+    background: #1a1f2e;
+    color: #e8eaf0;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .15s;
+  }
+  .player-filter::placeholder { color: #6b7280; }
+  .player-filter:focus { outline: none; border-color: #f0a500; }
+  .pivot-table thead th.sortable { cursor: pointer; user-select: none; }
+  .pivot-table thead th.sortable:hover { color: #c4c9d4; }
+  .sort-icon { margin-left: 4px; font-size: 9px; color: #4b5563; }
+  .sort-icon.active { color: #f0a500; }
+
+  /* Experiments side panel */
+  #experiments-panel {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(calc(100% - 36px));
+    width: 340px;
+    max-height: 80vh;
+    background: #161921;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    display: flex;
+    z-index: 950;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  #experiments-panel.open {
+    transform: translateY(-50%) translateX(0);
+  }
+  #experiments-tab {
+    width: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    color: #f0a500;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    user-select: none;
+    transition: background .15s;
+    padding: 16px 0;
+  }
+  #experiments-tab:hover { background: rgba(255,255,255,0.04); }
+  #experiments-content {
+    flex: 1;
+    padding: 22px 20px;
+    overflow-y: auto;
+  }
+  .custom-fit-line { fill: none; stroke: rgba(255,255,255,0.28); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .exp-section { margin-bottom: 20px; }
+  .exp-label { font-family: 'Space Mono', monospace; font-size: 10px; color: #6b7280; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+  .dual-slider { position: relative; height: 20px; margin: 8px 0; }
+  .dual-slider input[type="range"] { position: absolute; width: 100%; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; }
+  .dual-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: all; cursor: pointer; width: 16px; height: 16px; border-radius: 50%; background: #f0a500; border: 2px solid #0d0f14; }
+  .dual-slider input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .slider-track-fill { position: absolute; height: 4px; background: #f0a500; top: 50%; transform: translateY(-50%); pointer-events: none; border-radius: 2px; }
+  .slider-vals { display: flex; justify-content: space-between; font-size: 11px; color: #c4c9d4; font-family: 'Space Mono', monospace; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">HOES GW · Regression Analysis</div>
+    <h1>CP vs Score — Power Law</h1>
+    <p class="sub">Click any point for player details</p>
+  </header>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <div class="ctrl-label">Content</div>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="btn-gw"   onclick="loadContentType('Guild Wars')">Guild Wars</button>
+        <button class="toggle-btn" id="btn-gbb"  onclick="loadContentType('Guild Boss Battle')">Guild Boss Battle</button>
+        <button class="toggle-btn" id="btn-ggbb" onclick="loadContentType('Global GBB')">Global GBB</button>
+      </div>
+    </div>
+    <div class="ctrl-group" id="sheet-ctrl-group" style="display:none">
+      <div class="ctrl-label" id="sheet-label">Sheet (date)</div>
+      <select id="sheet-select" onchange="loadSheet(this.value)">
+        <option>Loading...</option>
+      </select>
+    </div>
+    <div class="ctrl-group" id="reload-ctrl" style="display:none">
+      <div class="ctrl-label">Data</div>
+      <button id="reload-btn" class="file-btn" onclick="reloadSheet()">↺ Reload</button>
+    </div>
+    <div class="ctrl-group" id="local-ctrl" style="display:none">
+      <div class="ctrl-label">TSV File</div>
+      <label class="file-btn">
+        Choose file…
+        <input type="file" id="file-input" accept=".tsv,.txt" multiple style="display:none" onchange="loadLocalFiles(this.files)">
+      </label>
+    </div>
+    <div class="ctrl-group" id="updated-ctrl" style="display:none">
+      <div class="ctrl-label">Last updated</div>
+      <div id="last-updated" style="font-size:13px;color:#c4c9d4;padding:7px 0 0;line-height:1">—</div>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Color by</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-guild" onclick="setColorMode('guild')">Guild</button>
+        <button class="toggle-btn" id="btn-class" onclick="setColorMode('class')">Class</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="card"><div class="card-label">MODEL</div><div class="card-val">Power Law</div></div>
+    <div class="card"><div class="card-label">R²</div><div class="card-val accent" id="r2">—</div></div>
+    <div class="card"><div class="card-label">EXPONENT</div><div class="card-val accent2" id="exp">—</div></div>
+    <div class="card" style="flex:2;min-width:200px"><div class="card-label">EQUATION</div><div class="card-val" style="font-size:13px;font-family:'Space Mono',monospace" id="eq">—</div></div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap">
+    <div class="top-bar">
+      <div id="legend"></div>
+      <button id="zoom-indicator" class="zoom-badge" onclick="resetZoom()" style="display:none">↺ &nbsp;Reset zoom</button>
+    </div>
+    <div id="loading">Select a content type to get started</div>
+    <div id="chart"></div>
+    <p class="hint">log–log axes &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; click to pin</p>
+  </div>
+
+  <!-- Guild Pivot Table (GW Points or Score depending on content type) -->
+  <div id="pivot-section" style="display:none">
+    <div class="eyebrow" id="pivot-eyebrow" style="margin: 24px 0 12px">Guild War Points</div>
+    <div class="pivot-wrap">
+      <table class="pivot-table">
+        <thead>
+          <tr>
+            <th>Guild</th>
+            <th>Players</th>
+            <th id="pivot-th-total">Total GW Points</th>
+            <th id="pivot-th-avg">Avg GW Points</th>
+          </tr>
+        </thead>
+        <tbody id="pivot-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Player table -->
+  <div id="player-table-section" style="display:none">
+    <div class="eyebrow" style="margin: 24px 0 12px">Player Data</div>
+    <div class="pivot-wrap">
+      <div class="player-filter-wrap">
+        <input class="player-filter" id="player-filter" type="text" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
+      </div>
+      <table class="pivot-table" id="player-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="rank" style="text-align:right">Rank <span class="sort-icon active">↑</span></th>
+            <th class="sortable" data-col="nick" style="text-align:left">Nick <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="guild" style="text-align:left">Guild <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="cls" style="text-align:left">Class <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="level" style="text-align:right">Level <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="cp" style="text-align:right">CP <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="score" style="text-align:right">Score <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
+            <th class="sortable" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="player-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- Info panel — fixed position, populated by JS -->
+<div id="panel">
+  <button class="close-btn" onclick="closePanel()">×</button>
+  <div class="p-rank" id="p-rank"></div>
+  <div class="p-name" id="p-name"></div>
+  <div class="p-row"><span class="p-key">CLASS</span><span id="p-cls"></span></div>
+  <div class="p-row"><span class="p-key">SCORE</span><span class="accent2" id="p-score"></span></div>
+  <div class="p-row"><span class="p-key">CP</span><span class="accent" id="p-cp"></span></div>
+  <div class="p-row"><span class="p-key">GUILD</span><span id="p-guild"></span></div>
+  <div class="p-row"><span class="p-key">VS FIT</span><span id="p-fitdiff"></span></div>
+  <div class="p-row" id="p-customfit-row" style="display:none"><span class="p-key">VS CUSTOM</span><span id="p-customfitdiff"></span></div>
+  <div class="p-row" id="p-gwpts-row"><span class="p-key">GW PTS</span><span id="p-gwpts"></span></div>
+</div>
+
+<!-- Experiments side panel -->
+<div id="experiments-panel">
+  <div id="experiments-tab" onclick="toggleExperiments()">Experiments</div>
+  <div id="experiments-content">
+    <div class="eyebrow" style="margin-bottom:16px">Experiments</div>
+
+    <!-- Feature 1: Custom Fit Equation -->
+    <div class="exp-section">
+      <div class="exp-label">Custom Fit Equation</div>
+      <input id="custom-eq-input" type="text"
+        placeholder="Score = … × CP^…"
+        style="width:100%;background:#0d0f14;color:#e8eaf0;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 10px;font-size:11px;font-family:'Space Mono',monospace;margin-bottom:8px;box-sizing:border-box">
+      <div style="display:flex;gap:8px">
+        <button class="file-btn" style="flex:1" onclick="applyCustomFit()">Apply</button>
+        <button class="file-btn" style="flex:1;color:#6b7280" onclick="clearCustomFit()">Clear</button>
+      </div>
+      <div id="custom-eq-status" style="font-size:11px;color:#6b7280;font-family:'Space Mono',monospace;margin-top:6px;min-height:14px"></div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
+
+    <!-- Feature 2: CP Range Filter -->
+    <div class="exp-section">
+      <div class="exp-label">CP Range Filter</div>
+      <div class="dual-slider" id="cp-slider-wrap">
+        <div class="slider-track-fill" id="cp-slider-fill" style="left:0%;width:100%"></div>
+        <input type="range" id="cp-slider-low"  min="0" max="1000" value="0"    oninput="onCpSlider()">
+        <input type="range" id="cp-slider-high" min="0" max="1000" value="1000" oninput="onCpSlider()">
+      </div>
+      <div class="slider-vals">
+        <span id="cp-val-low">—</span>
+        <span id="cp-val-high">—</span>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
+
+    <!-- Feature 3: Regression checkbox -->
+    <div class="exp-section" style="display:flex;align-items:flex-start;gap:10px">
+      <input type="checkbox" id="regress-on-filter" style="margin-top:2px;accent-color:#f0a500"
+        onchange="onRegressCheckbox(this.checked)">
+      <label for="regress-on-filter" style="font-size:12px;color:#c4c9d4;cursor:pointer;line-height:1.5">
+        Recalculate regression fit when CP filter is active
+      </label>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+
+// ── Color palettes ─────────────────────────────────────────────────────────
+
+const GUILD_PALETTE = [
+  '#4ecdc4', '#a78bfa', '#f87171', '#fb923c',
+  '#38bdf8', '#4ade80', '#facc15', '#e879f9',
+  '#f97316', '#34d399',
+];
+
+const GUILD_COLORS = { 'hoes': '#ff69b4', 'default': '#94a3b8' };
+
+function assignGuildColors(data) {
+  const guilds = [...new Set(data.map(d => d.guild))].filter(g => g !== 'hoes');
+  guilds.sort();
+  guilds.forEach((g, i) => {
+    GUILD_COLORS[g] = GUILD_PALETTE[i % GUILD_PALETTE.length];
+  });
+}
+
+const CLASS_COLORS = {
+  'Marksman':    '#38bdf8',
+  'Shadower':    '#a78bfa',
+  'Dark Knight': '#f87171',
+  'Bishop':      '#4ade80',
+  'Night Lord':  '#fb923c',
+  'Hero':        '#facc15',
+  'ILM':         '#e879f9',
+  'FPM':         '#2dd4bf',
+  'Bowmaster':   '#f0a500',
+  'Paladin':     '#60a5fa',
+  'Buccaneer':   '#60a5fa',
+  'Corsair':     '#60a5fa',
+  'default':     '#94a3b8'
+};
+
+function getColor(d, mode) {
+  if (mode === 'guild') {
+    return GUILD_COLORS[d.guild] || GUILD_COLORS['default'];
+  } else {
+    return CLASS_COLORS[d.cls] || CLASS_COLORS['default'];
+  }
+}
+
+// ── Guild War Points data (rank → points, same every week) ────────────────
+
+const GW_POINTS_DATA = `Rank	Guild War Points
+0	1,000,000
+1	900,000
+2	800,000
+3	730,000
+4	660,000
+5	610,000
+6	560,000
+7	510,000
+8	460,000
+9	410,000
+10	380,000
+11	350,000
+12	320,000
+13	290,000
+14	260,000
+15	250,000
+16	240,000
+17	230,000
+18	220,000
+19	210,000
+20	205,000
+21	200,000
+22	195,000
+23	190,000
+24	185,000
+25	180,000
+26	175,000
+27	170,000
+28	165,000
+29	160,000
+30	157,000
+31	154,000
+32	151,000
+33	148,000
+34	145,000
+35	142,000
+36	139,000
+37	136,000
+38	133,000
+39	130,000
+40	128,000
+41	126,000
+42	124,000
+43	122,000
+44	120,000
+45	118,000
+46	116,000
+47	114,000
+48	112,000
+49	110,000
+50	109,000
+51	108,000
+52	107,000
+53	106,000
+54	105,000
+55	104,000
+56	103,000
+57	102,000
+58	101,000
+59	100,000
+60	99,000
+61	98,000
+62	97,000
+63	96,000
+64	95,000
+65	94,000
+66	93,000
+67	92,000
+68	91,000
+69	90,000
+70	89,000
+71	88,000
+72	87,000
+73	86,000
+74	85,000
+75	84,000
+76	83,000
+77	82,000
+78	81,000
+79	80,000
+80	79,000
+81	78,000
+82	77,000
+83	76,000
+84	75,000
+85	74,000
+86	73,000
+87	72,000
+88	71,000
+89	70,000
+90	69,000
+91	68,000
+92	67,000
+93	66,000
+94	65,000
+95	64,000
+96	63,000
+97	62,000
+98	61,000
+99	60,300
+100	59,600
+101	58,900
+102	58,200
+103	57,500
+104	56,800
+105	56,100
+106	55,400
+107	54,700
+108	54,000
+109	53,300
+110	52,600
+111	51,900
+112	51,200
+113	50,500
+114	49,800
+115	49,100
+116	48,400
+117	47,700
+118	47,000
+119	46,300
+120	45,600
+121	44,900
+122	44,200
+123	43,500
+124	42,800
+125	42,100
+126	41,400
+127	40,700
+128	40,000
+129	39,300
+130	38,600
+131	37,900
+132	37,200
+133	36,500
+134	35,800
+135	35,100
+136	34,400
+137	33,700
+138	33,000
+139	32,300
+140	31,600
+141	30,900
+142	30,200
+143	29,500
+144	28,800
+145	28,100
+146	27,400
+147	26,700
+148	26,000
+149	25,300
+150	24,600`;
+
+// ── Gaming notation ────────────────────────────────────────────────────────
+
+function toGamingNotation(num) {
+  num = Math.round(num);
+  if (num < 1000) return String(num);
+  const suffixes = [
+    '', 'K', 'M', 'B', 'T',
+    'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ',
+    'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT',
+  ];
+  const parts = [];
+  let group = 0;
+  let n = num;
+  while (n > 0) {
+    const remainder = n % 1000;
+    n = Math.floor(n / 1000);
+    if (remainder > 0) {
+      const suffix = suffixes[group];
+      parts.push(suffix ? `${remainder}${suffix}` : String(remainder));
+    }
+    group++;
+  }
+  parts.reverse();
+  return parts.slice(0, 2).join(' ');
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+
+let colorMode = 'guild';
+let currentData = null;
+let currentSheet = null;
+let activeEl = null;
+let isPinned = false;
+let selectedGroups = new Set();
+let zoomBehavior = null;
+let zoomSvg = null;
+
+let playerTableData = [];
+let playerSortCol = 'rank';
+let playerSortDir = 'asc';
+let playerFilter = '';
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints']);
+
+// ---- Environment detection ----
+// Chart data comes from Google Sheets via the Apps Script JSON API (Code.gs),
+// reached through a same-origin Cloudflare Pages Function proxy (functions/api.js)
+// to avoid CORS. The real Apps Script /exec URL lives in functions/api.js, not here.
+const API_URL = '/api';  // same-origin proxy; see functions/api.js
+
+const HAS_GAS = typeof google !== 'undefined' && !!google.script;
+// Local sample-data mode: file:// or a localhost dev server, with no remote API.
+const IS_LOCAL = !HAS_GAS && (
+  !API_URL ||
+  location.protocol === 'file:' ||
+  location.hostname === 'localhost' ||
+  location.hostname === '127.0.0.1'
+);
+// Remote mode: static page (Cloudflare) fetching JSON from the Apps Script API.
+const IS_REMOTE = !HAS_GAS && !IS_LOCAL;
+
+// Read-only GET wrapper for the Apps Script JSON API (remote mode).
+function apiCall(action, params) {
+  const qs = new URLSearchParams(Object.assign({ action: action }, params || {}));
+  return fetch(API_URL + '?' + qs.toString()).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(json => {
+    if (json && json.error) throw new Error(json.error);
+    return json;
+  });
+}
+
+const localFiles = {};       // contentType -> { sheetName -> data[] }
+const sheetNamesCache = {};  // contentType -> string[]
+const lastUpdatedCache = {}; // contentType -> ISO string
+let currentContentType = null;
+let latestSheet = null;
+let reloadCooldownRemaining = 0;
+let reloadTimerInterval = null;
+
+// Chart internals lifted to module scope (so filter/zoom/custom fit can update them)
+let fitPath = null;
+let fitPts = null;
+let xScale = null;
+let yScale = null;
+let plot = null;
+let frozenA = null, frozenB = null, frozenR2 = null;
+let frozenFitPts = null;
+let chartA = null, chartB = null;
+
+// Experiments — custom fit
+let customA = null, customB = null;
+let customFitPath = null;
+let customFitPts = null;
+
+// Experiments — CP filter
+let cpDataMin = null, cpDataMax = null;
+let cpFilterLow = null, cpFilterHigh = null;
+
+// Experiments — regression checkbox
+let regressOnFilter = false;
+
+// ── Local data helpers ─────────────────────────────────────────────────────
+
+function getLocalData(type) {
+  if (type === 'Guild Wars')        return typeof GW_LOCAL_DATA   !== 'undefined' ? GW_LOCAL_DATA   : {};
+  if (type === 'Guild Boss Battle') return typeof GBB_LOCAL_DATA  !== 'undefined' ? GBB_LOCAL_DATA  : {};
+  if (type === 'Global GBB')        return typeof GGBB_LOCAL_DATA !== 'undefined' ? GGBB_LOCAL_DATA : {};
+  return {};
+}
+
+function populateLocalSheets(type) {
+  const dataObj = getLocalData(type);
+  const names = Object.keys(dataObj);
+  const sel = document.getElementById('sheet-select');
+  sel.innerHTML = '';
+  if (!localFiles[type]) localFiles[type] = {};
+  names.forEach((n, i) => {
+    localFiles[type][n] = parseTSV(dataObj[n]);
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  latestSheet = names.length ? names[0] : null;
+  if (names.length) {
+    loadSheet(names[0]);
+  } else {
+    document.getElementById('loading').textContent = 'No data for this content type.';
+  }
+}
+
+// ── Content type toggle ────────────────────────────────────────────────────
+
+function loadContentType(type) {
+  currentContentType = type;
+  document.getElementById('btn-gw').classList.toggle('active',   type === 'Guild Wars');
+  document.getElementById('btn-gbb').classList.toggle('active',  type === 'Guild Boss Battle');
+  document.getElementById('btn-ggbb').classList.toggle('active', type === 'Global GBB');
+  if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
+  reloadCooldownRemaining = 0;
+  latestSheet = null;
+  const reloadBtn = document.getElementById('reload-btn');
+  if (reloadBtn) { reloadBtn.disabled = false; reloadBtn.textContent = '↺ Reload'; }
+  document.getElementById('reload-ctrl').style.display = 'none';
+  closePanel();
+  document.getElementById('chart').innerHTML = '';
+  document.getElementById('r2').textContent = '—';
+  document.getElementById('exp').textContent = '—';
+  document.getElementById('eq').textContent = '—';
+  document.getElementById('sheet-ctrl-group').style.display = '';
+  document.getElementById('loading').textContent = 'Loading…';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('pivot-section').style.display = 'none';
+  document.getElementById('player-table-section').style.display = 'none';
+  document.getElementById('zoom-indicator').style.display = 'none';
+
+  if (IS_LOCAL) {
+    populateLocalSheets(type);
+  } else {
+    if (sheetNamesCache[type]) {
+      applySheetNames(sheetNamesCache[type]);
+    } else {
+      document.getElementById('sheet-select').innerHTML = '<option>Loading…</option>';
+      const onNames = function(json) {
+        const names = typeof json === 'string' ? JSON.parse(json) : json;
+        sheetNamesCache[type] = names;
+        applySheetNames(names);
+      };
+      const onNamesErr = function(err) {
+        document.getElementById('loading').textContent = 'Error: ' + err.message;
+      };
+      if (HAS_GAS) {
+        google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
+      } else {
+        apiCall('getSheetNames', { contentType: type }).then(onNames).catch(onNamesErr);
+      }
+    }
+
+    if (lastUpdatedCache[type]) {
+      applyLastUpdated(lastUpdatedCache[type]);
+    } else {
+      document.getElementById('updated-ctrl').style.display = 'none';
+      const onUpdated = function(iso) {
+        lastUpdatedCache[type] = iso;
+        applyLastUpdated(iso);
+      };
+      if (HAS_GAS) {
+        google.script.run.withSuccessHandler(onUpdated).withFailureHandler(function() {}).getLastUpdated(type);
+      } else {
+        apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(function() {});
+      }
+    }
+  }
+}
+
+function applySheetNames(names) {
+  const sel = document.getElementById('sheet-select');
+  sel.innerHTML = '';
+  names.forEach((n, i) => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  latestSheet = names.length ? names[0] : null;
+  if (names.length) loadSheet(names[0]);
+}
+
+function applyLastUpdated(iso) {
+  const dt = new Date(iso);
+  const date = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  const time = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('last-updated').textContent = date + ' · ' + time;
+  document.getElementById('updated-ctrl').style.display = 'flex';
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+
+if (IS_LOCAL) {
+  document.getElementById('sheet-label').textContent = 'Loaded files';
+  document.getElementById('sheet-select').innerHTML = '<option value="">Loading…</option>';
+  const s1 = document.createElement('script');
+  s1.src = './SampleData/GWLocalData.js';
+  s1.onerror = function() {
+    document.getElementById('loading').textContent = 'Could not load GWLocalData.js — serve via HTTP (e.g. VS Code Live Server)';
+    document.getElementById('sheet-select').innerHTML = '<option value="">— no data —</option>';
+  };
+  s1.onload = function() {
+    const s2 = document.createElement('script');
+    s2.src = './SampleData/GBBLocalData.js';
+    s2.onload = s2.onerror = function() {
+      const s3 = document.createElement('script');
+      s3.src = './SampleData/GlobalGBBLocalData.js';
+      s3.onload = s3.onerror = function() { loadContentType('Guild Wars'); };
+      document.head.appendChild(s3);
+    };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s1);
+} else {
+  // Remote (Cloudflare) / embedded Apps Script: auto-load the default content type on page open.
+  loadContentType('Guild Wars');
+}
+
+// ── Load a sheet ───────────────────────────────────────────────────────────
+
+function loadSheet(name) {
+  currentSheet = name;
+  updateReloadButton(name);
+
+  const cached = (localFiles[currentContentType] || {})[name];
+  if (cached) {
+    closePanel();
+    currentData = cached;
+    document.getElementById('loading').style.display = 'none';
+    buildChart(cached);
+    return;
+  }
+
+  if (IS_LOCAL) {
+    document.getElementById('loading').textContent = 'No data for this sheet.';
+    return;
+  }
+
+  closePanel();
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('chart').innerHTML = '';
+  document.getElementById('r2').textContent = '—';
+  document.getElementById('exp').textContent = '—';
+  document.getElementById('eq').textContent = '—';
+
+  const onData = function(json) {
+    document.getElementById('loading').style.display = 'none';
+    currentData = typeof json === 'string' ? JSON.parse(json) : json;
+    if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
+    localFiles[currentContentType][name] = currentData;
+    buildChart(currentData);
+  };
+  const onDataErr = function(err) {
+    document.getElementById('loading').textContent = 'Error: ' + err.message;
+  };
+  if (HAS_GAS) {
+    google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
+  } else {
+    apiCall('getData', { contentType: currentContentType, sheet: name }).then(onData).catch(onDataErr);
+  }
+}
+
+function updateReloadButton(name) {
+  const ctrl = document.getElementById('reload-ctrl');
+  if (!ctrl) return;
+  ctrl.style.display = (!IS_LOCAL && latestSheet && name === latestSheet) ? '' : 'none';
+}
+
+function reloadSheet() {
+  if (reloadCooldownRemaining > 0) return;
+  if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
+  loadSheet(currentSheet);
+  startReloadCooldown();
+}
+
+function startReloadCooldown() {
+  reloadCooldownRemaining = 60;
+  const btn = document.getElementById('reload-btn');
+  btn.disabled = true;
+  btn.textContent = '↺ Reload (60s)';
+  reloadTimerInterval = setInterval(function() {
+    reloadCooldownRemaining--;
+    if (reloadCooldownRemaining <= 0) {
+      clearInterval(reloadTimerInterval);
+      reloadTimerInterval = null;
+      btn.disabled = false;
+      btn.textContent = '↺ Reload';
+    } else {
+      btn.textContent = `↺ Reload (${reloadCooldownRemaining}s)`;
+    }
+  }, 1000);
+}
+
+// ── Local TSV loading ──────────────────────────────────────────────────────
+
+function loadLocalFiles(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const name = file.name.replace(/\.[^.]+$/, '');
+      const data = parseTSV(e.target.result);
+      if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
+      localFiles[currentContentType][name] = data;
+
+      const sel = document.getElementById('sheet-select');
+      if (!sel.querySelector(`option[value="${CSS.escape(name)}"]`)) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      }
+      sel.value = name;
+      closePanel();
+      currentData = data;
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('r2').textContent = '—';
+      document.getElementById('exp').textContent = '—';
+      document.getElementById('eq').textContent = '—';
+      document.getElementById('chart').innerHTML = '';
+      buildChart(data);
+    };
+    reader.readAsText(file);
+  });
+}
+
+function parseTSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split('\t');
+  const rankIdx       = headers.indexOf('Rank');
+  const nickIdx       = headers.indexOf('Nick');
+  const scoreIdx      = headers.indexOf('Score');
+  const clsIdx        = headers.indexOf('Class');
+  const levelIdx      = headers.indexOf('Level');
+  const cpIdx         = headers.indexOf('CP');
+  const guildIdx      = headers.indexOf('GuildName');
+  const scoreShortIdx = headers.indexOf('ScoreShort');
+  const cpShortIdx    = headers.indexOf('CP Short');
+
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = lines[i].split('\t');
+    if (!row[cpIdx] || !row[scoreIdx]) continue;
+    data.push({
+      rank:       row[rankIdx],
+      nick:       row[nickIdx],
+      score:      Number(row[scoreIdx]),
+      cls:        row[clsIdx],
+      level:      row[levelIdx],
+      cp:         Number(row[cpIdx]),
+      guild:      row[guildIdx],
+      scoreShort: row[scoreShortIdx],
+      cpShort:    row[cpShortIdx]
+    });
+  }
+  return data;
+}
+
+function parseGWPoints(text) {
+  const lines = text.trim().split('\n');
+  const map = new Map();
+  for (let i = 1; i < lines.length; i++) {
+    const [rank, pts] = lines[i].split('\t');
+    if (rank !== undefined && pts !== undefined) {
+      map.set(rank.trim(), parseInt(pts.replace(/,/g, ''), 10));
+    }
+  }
+  return map;
+}
+
+// ── Color mode toggle ──────────────────────────────────────────────────────
+
+function setColorMode(mode) {
+  colorMode = mode;
+  document.getElementById('btn-guild').classList.toggle('active', mode === 'guild');
+  document.getElementById('btn-class').classList.toggle('active', mode === 'class');
+  if (currentData) {
+    updateColors();
+    buildLegend(currentData);
+  }
+}
+
+function updateColors() {
+  selectedGroups.clear();
+  d3.selectAll('.dot')
+    .attr('fill',         d => getColor(d, colorMode))
+    .attr('stroke',       d => getColor(d, colorMode))
+    .attr('fill-opacity', 0.75);
+}
+
+function applyHighlights() {
+  const key = colorMode === 'guild' ? 'guild' : 'cls';
+  const has = selectedGroups.size > 0;
+  d3.selectAll('.dot')
+    .attr('fill', d => (has && !selectedGroups.has(d[key])) ? '#374151' : getColor(d, colorMode))
+    .attr('stroke', d => (has && !selectedGroups.has(d[key])) ? '#374151' : getColor(d, colorMode))
+    .attr('fill-opacity', d => (has && !selectedGroups.has(d[key])) ? 0.12 : 0.75);
+  document.querySelectorAll('.legend-item[data-group]').forEach(el => {
+    el.classList.toggle('dimmed', has && !selectedGroups.has(el.dataset.group));
+  });
+}
+
+// ── Legend ─────────────────────────────────────────────────────────────────
+
+function buildLegend(data) {
+  const palette = colorMode === 'guild' ? GUILD_COLORS : CLASS_COLORS;
+  const key = colorMode === 'guild' ? 'guild' : 'cls';
+  const seen = [...new Set(data.map(d => d[key]))].sort();
+
+  const lg = document.getElementById('legend');
+  lg.innerHTML = '';
+
+  const fitItem = document.createElement('div');
+  fitItem.className = 'legend-item';
+  fitItem.innerHTML = '<div class="legend-line"></div><span>Power fit</span>';
+  lg.appendChild(fitItem);
+
+  seen.forEach(label => {
+    const color = palette[label] || palette['default'];
+    const item = document.createElement('div');
+    item.className = 'legend-item clickable';
+    item.dataset.group = label;
+    item.innerHTML = `<div class="legend-dot" style="background:${color};border:1.5px solid ${color}"></div><span style="color:#c4c9d4">${label}</span>`;
+    item.addEventListener('click', () => {
+      if (selectedGroups.has(label)) selectedGroups.delete(label);
+      else selectedGroups.add(label);
+      applyHighlights();
+    });
+    lg.appendChild(item);
+  });
+}
+
+// ── Regression ─────────────────────────────────────────────────────────────
+
+function powerRegression(data) {
+  const n = data.length;
+  const lx = data.map(d => Math.log10(d.cp));
+  const ly = data.map(d => Math.log10(d.score));
+  let sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=0;i<n;i++){sx+=lx[i];sy+=ly[i];sxx+=lx[i]*lx[i];sxy+=lx[i]*ly[i];}
+  const B = (n*sxy - sx*sy) / (n*sxx - sx*sx);
+  const Alog = (sy - B*sx) / n;
+  const A = Math.pow(10, Alog);
+  const yMean = sy / n;
+  let ssTot=0, ssRes=0;
+  for(let i=0;i<n;i++){const p=Alog+B*lx[i];ssTot+=(ly[i]-yMean)**2;ssRes+=(ly[i]-p)**2;}
+  return { A, B, r2: 1 - ssRes/ssTot, Alog };
+}
+
+// ── Build chart ─────────────────────────────────────────────────────────────
+
+function buildChart(data) {
+  selectedGroups.clear();
+  assignGuildColors(data);
+
+  // Join GW points by rank — Guild Wars only
+  if (currentContentType === 'Guild Wars') {
+    const gwMap = parseGWPoints(GW_POINTS_DATA);
+    data.forEach(d => { d.gwPoints = gwMap.get(String(d.rank)) || 0; });
+  } else {
+    data.forEach(d => { d.gwPoints = 0; });
+  }
+
+  const { A, B, r2 } = powerRegression(data);
+  frozenA = A; frozenB = B; frozenR2 = r2;
+  chartA  = A; chartB  = B;
+  cpDataMin = d3.min(data, d => d.cp);
+  cpDataMax = d3.max(data, d => d.cp);
+  data.forEach(d => {
+    const predicted = A * Math.pow(d.cp, B);
+    d.fitDiff = (d.score - predicted) / predicted * 100;
+  });
+  if (customA !== null) {
+    data.forEach(d => {
+      const pred = customA * Math.pow(d.cp, customB);
+      d.customFitDiff = (d.score - pred) / pred * 100;
+    });
+  }
+
+  buildPivotTable(data);
+  buildPlayerTable(data);
+
+  document.getElementById('r2').textContent  = r2.toFixed(4);
+  document.getElementById('exp').textContent = B.toFixed(4);
+  document.getElementById('eq').textContent  = `Score = ${A.toExponential(3)} × CP^${B.toFixed(3)}`;
+
+  buildLegend(data);
+
+  const margin = { top: 16, right: 28, bottom: 52, left: 70 };
+  const totalW  = Math.min(900, window.innerWidth - 60);
+  const W = totalW - margin.left - margin.right;
+  const H = 420 - margin.top - margin.bottom;
+
+  d3.select('#chart').selectAll('*').remove();
+  document.getElementById('zoom-indicator').style.display = 'none';
+
+  const svg = d3.select('#chart').append('svg')
+    .attr('width',  W + margin.left + margin.right)
+    .attr('height', H + margin.top  + margin.bottom);
+
+  svg.append('defs').append('clipPath').attr('id', 'chart-clip')
+    .append('rect').attr('width', W).attr('height', H);
+
+  const g    = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+  plot = g.append('g').attr('clip-path', 'url(#chart-clip)');
+
+  xScale = d3.scaleLog()
+    .domain([d3.min(data, d => d.cp) * 0.7, d3.max(data, d => d.cp) * 1.4])
+    .range([0, W]);
+
+  yScale = d3.scaleLog()
+    .domain([d3.min(data, d => d.score) * 0.7, d3.max(data, d => d.score) * 1.5])
+    .range([H, 0]);
+
+  const fmt = toGamingNotation;
+
+  const logTicks = domain => {
+    const ticks = [];
+    const start = Math.ceil(Math.log10(domain[0]));
+    const end   = Math.floor(Math.log10(domain[1]));
+    for (let e = start; e <= end; e++) ticks.push(Math.pow(10, e));
+    return ticks;
+  };
+
+  // Grid (clipped)
+  const yGridG = plot.append('g').attr('class','grid')
+    .call(d3.axisLeft(yScale).tickValues(logTicks(yScale.domain())).tickSize(-W).tickFormat(''));
+  const xGridG = plot.append('g').attr('class','grid').attr('transform',`translate(0,${H})`)
+    .call(d3.axisBottom(xScale).tickValues(logTicks(xScale.domain())).tickSize(-H).tickFormat(''));
+
+  // Axes (unclipped so labels aren't cut off)
+  const xAxisG = g.append('g').attr('transform',`translate(0,${H})`)
+    .call(d3.axisBottom(xScale).tickValues(logTicks(xScale.domain())).tickFormat(fmt));
+  const yAxisG = g.append('g')
+    .call(d3.axisLeft(yScale).tickValues(logTicks(yScale.domain())).tickFormat(fmt));
+
+  // Axis labels
+  g.append('text')
+    .attr('x', W/2).attr('y', H+46)
+    .attr('text-anchor','middle').attr('fill','#6b7280')
+    .attr('font-size',11).attr('font-family','Space Mono, monospace')
+    .text('CP (log scale)');
+  g.append('text')
+    .attr('transform','rotate(-90)').attr('x',-H/2).attr('y',-58)
+    .attr('text-anchor','middle').attr('fill','#6b7280')
+    .attr('font-size',11).attr('font-family','Space Mono, monospace')
+    .text('Score (log scale)');
+
+  // Fit line (clipped)
+  const cpMin = d3.min(data,d=>d.cp)*0.7;
+  const cpMax = d3.max(data,d=>d.cp)*1.4;
+  fitPts = d3.range(300).map(i => {
+    const x = Math.exp(Math.log(cpMin) + (Math.log(cpMax)-Math.log(cpMin))*i/299);
+    return { x, y: A * Math.pow(x, B) };
+  });
+  fitPath = plot.append('path').datum(fitPts).attr('class','fit-line')
+    .attr('d', d3.line().x(d=>xScale(d.x)).y(d=>yScale(d.y)).curve(d3.curveCatmullRom));
+  frozenFitPts = fitPts;
+  customFitPath = null;
+  customFitPts  = null;
+  if (customA !== null) renderCustomFitLine(xScale, yScale, plot);
+  cpFilterLow  = null;
+  cpFilterHigh = null;
+  resetCpSlider();
+
+  // Dots (clipped)
+  activeEl = null;
+  plot.selectAll('.dot').data(data).enter().append('circle')
+    .attr('class','dot')
+    .attr('cx', d => xScale(d.cp))
+    .attr('cy', d => yScale(d.score))
+    .attr('r', 5)
+    .attr('fill',   d => getColor(d, colorMode))
+    .attr('stroke', d => getColor(d, colorMode))
+    .attr('stroke-width', 1)
+    .attr('fill-opacity', 0.75)
+    .style('cursor','pointer')
+    .on('mouseenter', function(e, d) {
+      if (activeEl !== this) {
+        d3.select(this).attr('r', 7.5).attr('fill-opacity', 1).attr('stroke','white').attr('stroke-width', 1.5);
+      }
+      if (!isPinned) showPanel(e.clientX, e.clientY, d, false);
+    })
+    .on('mousemove', function(e, d) {
+      if (!isPinned) positionPanel(e.clientX, e.clientY);
+    })
+    .on('mouseleave', function(e, d) {
+      if (activeEl !== this) {
+        d3.select(this).attr('r', 5).attr('fill-opacity', 0.75).attr('stroke', getColor(d, colorMode)).attr('stroke-width', 1);
+      }
+      if (!isPinned) document.getElementById('panel').style.display = 'none';
+    })
+    .on('click', function(e, d) {
+      if (activeEl === this && isPinned) {
+        closePanel();
+        e.stopPropagation();
+        return;
+      }
+      if (activeEl && activeEl !== this) {
+        const prev = d3.select(activeEl);
+        const pd = prev.datum();
+        prev.attr('r',5).attr('fill-opacity',0.75).attr('stroke', getColor(pd, colorMode)).attr('stroke-width',1);
+      }
+      activeEl = this;
+      d3.select(this).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-width',2);
+      showPanel(e.clientX, e.clientY, d, true);
+      e.stopPropagation();
+    });
+
+  plot.insert('rect', ':first-child')
+    .attr('width', W).attr('height', H)
+    .attr('fill', 'none').attr('pointer-events', 'all')
+    .on('click', closePanel);
+
+  zoomBehavior = d3.zoom()
+    .scaleExtent([1, 50])
+    .extent([[0, 0], [W, H]])
+    .on('zoom', function(event) {
+      const t  = event.transform;
+      const zx = t.rescaleX(xScale);
+      const zy = t.rescaleY(yScale);
+
+      xAxisG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickFormat(fmt));
+      yAxisG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickFormat(fmt));
+      xGridG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickSize(-H).tickFormat(''));
+      yGridG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickSize(-W).tickFormat(''));
+
+      plot.selectAll('.dot')
+        .attr('cx', d => zx(d.cp))
+        .attr('cy', d => zy(d.score));
+
+      fitPath.attr('d', d3.line().x(d => zx(d.x)).y(d => zy(d.y)).curve(d3.curveCatmullRom));
+      if (customFitPath && customFitPts) {
+        customFitPath.attr('d', d3.line().x(d => zx(d.x)).y(d => zy(d.y)).curve(d3.curveCatmullRom));
+      }
+
+      const isZoomed = t.k !== 1 || t.x !== 0 || t.y !== 0;
+      document.getElementById('zoom-indicator').style.display = isZoomed ? 'flex' : 'none';
+    });
+
+  zoomSvg = svg;
+  svg.call(zoomBehavior);
+}
+
+function resetZoom() {
+  if (zoomSvg && zoomBehavior) {
+    zoomSvg.transition().duration(300).call(zoomBehavior.transform, d3.zoomIdentity);
+  }
+}
+
+function showPanel(cx, cy, d, pin) {
+  isPinned = pin;
+  const color = getColor(d, colorMode);
+  document.getElementById('p-rank').textContent  = `RANK #${d.rank}`;
+  document.getElementById('p-name').textContent  = d.nick;
+  document.getElementById('p-cls').textContent   = d.cls;
+  document.getElementById('p-score').textContent = d.scoreShort;
+  document.getElementById('p-cp').textContent    = d.cpShort;
+  document.getElementById('p-guild').innerHTML   = `<span class="p-swatch" style="background:${GUILD_COLORS[d.guild] || GUILD_COLORS['default']}"></span>${d.guild}`;
+  const fitEl = document.getElementById('p-fitdiff');
+  const fitSign = d.fitDiff >= 0 ? '+' : '';
+  fitEl.textContent = `${fitSign}${d.fitDiff.toFixed(2)}%`;
+  fitEl.style.color = d.fitDiff >= 0 ? '#4ade80' : '#f87171';
+  const customRow = document.getElementById('p-customfit-row');
+  if (customA !== null && d.customFitDiff !== undefined) {
+    const cs = d.customFitDiff >= 0 ? '+' : '';
+    document.getElementById('p-customfitdiff').textContent = `${cs}${d.customFitDiff.toFixed(2)}%`;
+    document.getElementById('p-customfitdiff').style.color = d.customFitDiff >= 0 ? '#4ade80' : '#f87171';
+    customRow.style.display = '';
+  } else {
+    customRow.style.display = 'none';
+  }
+  const gwRow = document.getElementById('p-gwpts-row');
+  if (d.gwPoints) {
+    document.getElementById('p-gwpts').textContent = d.gwPoints.toLocaleString();
+    gwRow.style.display = '';
+  } else {
+    gwRow.style.display = 'none';
+  }
+  const panel = document.getElementById('panel');
+  panel.style.display = 'block';
+  panel.classList.toggle('pinned', pin);
+  positionPanel(cx, cy);
+}
+
+function positionPanel(cx, cy) {
+  const panel = document.getElementById('panel');
+  const pw = panel.offsetWidth || 230;
+  const ph = panel.offsetHeight || 180;
+  const offset = 14;
+  let x = cx + offset;
+  let y = cy - ph / 2;
+  if (x + pw > window.innerWidth - 8) x = cx - pw - offset;
+  y = Math.max(8, Math.min(y, window.innerHeight - ph - 8));
+  panel.style.left = x + 'px';
+  panel.style.top  = y + 'px';
+}
+
+function buildPivotTable(data) {
+  const section = document.getElementById('pivot-section');
+  const isGW = currentContentType === 'Guild Wars';
+
+  if (isGW) {
+    const hasPoints = data.some(d => d.gwPoints > 0);
+    if (!hasPoints) { section.style.display = 'none'; return; }
+    document.getElementById('pivot-eyebrow').textContent = 'Guild War Points';
+    document.getElementById('pivot-th-total').textContent = 'Total GW Points';
+    document.getElementById('pivot-th-avg').textContent = 'Avg GW Points';
+  } else {
+    document.getElementById('pivot-eyebrow').textContent = currentContentType + ' Score';
+    document.getElementById('pivot-th-total').textContent = 'Total Score';
+    document.getElementById('pivot-th-avg').textContent = 'Avg Score';
+  }
+
+  const guilds = {};
+  data.forEach(d => {
+    if (!guilds[d.guild]) guilds[d.guild] = { count: 0, total: 0 };
+    guilds[d.guild].count++;
+    guilds[d.guild].total += isGW ? (d.gwPoints || 0) : (d.score || 0);
+  });
+
+  const rows = Object.entries(guilds).sort((a, b) => b[1].total - a[1].total);
+  const grandTotal = rows.reduce((s, [, g]) => s + g.total, 0);
+
+  const fmt = isGW
+    ? v => Math.round(v).toLocaleString()
+    : v => {
+        if (v >= 1e9) return (v / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B';
+        if (v >= 1e6) return (v / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+        return Math.round(v).toLocaleString();
+      };
+
+  const tbody = document.getElementById('pivot-body');
+  tbody.innerHTML = '';
+  rows.forEach(([guild, { count, total }]) => {
+    const color = GUILD_COLORS[guild] || GUILD_COLORS['default'];
+    const avg = total / count;
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><span class="p-swatch" style="background:${color}"></span><a href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${guild}</a></td>` +
+      `<td>${count}</td>` +
+      `<td>${fmt(total)}</td>` +
+      `<td>${fmt(avg)}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const totalTr = document.createElement('tr');
+  totalTr.className = 'pivot-total-row';
+  totalTr.innerHTML =
+    `<td>All guilds</td>` +
+    `<td>${data.length}</td>` +
+    `<td>${fmt(grandTotal)}</td>` +
+    `<td>${fmt(grandTotal / data.length)}</td>`;
+  tbody.appendChild(totalTr);
+
+  section.style.display = 'block';
+}
+
+function buildPlayerTable(data) {
+  playerTableData = data;
+  playerSortCol = 'rank';
+  playerSortDir = 'asc';
+  playerFilter = '';
+  const filterInput = document.getElementById('player-filter');
+  if (filterInput) filterInput.value = '';
+
+  document.querySelectorAll('#player-table thead th.sortable').forEach(th => {
+    th.onclick = () => {
+      const col = th.dataset.col;
+      if (playerSortCol === col) {
+        playerSortDir = playerSortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        playerSortCol = col;
+        playerSortDir = NUMERIC_COLS.has(col) ? 'desc' : 'asc';
+      }
+      renderPlayerTable();
+    };
+  });
+
+  const gwCol = document.getElementById('player-th-gwpoints');
+  if (gwCol) gwCol.style.display = currentContentType === 'Guild Wars' ? '' : 'none';
+
+  document.getElementById('player-table-section').style.display = 'block';
+  renderPlayerTable();
+}
+
+function filterPlayerTable(val) {
+  playerFilter = val.toLowerCase();
+  renderPlayerTable();
+}
+
+function renderPlayerTable() {
+  const customCol = document.getElementById('player-th-customfit');
+  if (customCol) customCol.style.display = customA !== null ? '' : 'none';
+  let rows = playerTableData;
+
+  if (playerFilter) {
+    rows = rows.filter(d =>
+      d.nick.toLowerCase().includes(playerFilter) ||
+      d.guild.toLowerCase().includes(playerFilter) ||
+      d.cls.toLowerCase().includes(playerFilter)
+    );
+  }
+
+  rows = [...rows].sort((a, b) => {
+    const av = a[playerSortCol];
+    const bv = b[playerSortCol];
+    const cmp = NUMERIC_COLS.has(playerSortCol)
+      ? Number(av) - Number(bv)
+      : String(av).localeCompare(String(bv));
+    return playerSortDir === 'asc' ? cmp : -cmp;
+  });
+
+  document.querySelectorAll('#player-table thead th.sortable').forEach(th => {
+    const icon = th.querySelector('.sort-icon');
+    if (!icon) return;
+    const isActive = th.dataset.col === playerSortCol;
+    icon.textContent = isActive ? (playerSortDir === 'asc' ? '↑' : '↓') : '↕';
+    icon.className = 'sort-icon' + (isActive ? ' active' : '');
+  });
+
+  const tbody = document.getElementById('player-body');
+  tbody.innerHTML = '';
+  rows.forEach(d => {
+    const color = getColor(d, 'guild');
+    const tr = document.createElement('tr');
+    const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
+    const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
+    const linkStyle = `color:inherit;text-decoration:none`;
+    const linkHover = `onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"`;
+    tr.innerHTML =
+      `<td style="text-align:right">${d.rank}</td>` +
+      `<td><a href="${nickHref}" target="_blank" rel="noopener" style="${linkStyle}" ${linkHover}>${d.nick}</a></td>` +
+      `<td><span class="p-swatch" style="background:${color}"></span><a href="${guildHref}" target="_blank" rel="noopener" style="${linkStyle}" ${linkHover}>${d.guild}</a></td>` +
+      `<td>${d.cls}</td>` +
+      `<td style="text-align:right">${d.level}</td>` +
+      `<td style="text-align:right">${d.cpShort}</td>` +
+      `<td style="text-align:right">${d.scoreShort}</td>` +
+      `<td style="text-align:right;color:${d.fitDiff >= 0 ? '#4ade80' : '#f87171'}">${d.fitDiff >= 0 ? '+' : ''}${d.fitDiff.toFixed(2)}%</td>` +
+      (customA !== null ? `<td style="text-align:right;color:${(d.customFitDiff ?? 0) >= 0 ? '#4ade80' : '#f87171'}">${d.customFitDiff !== undefined ? (d.customFitDiff >= 0 ? '+' : '') + d.customFitDiff.toFixed(2) + '%' : '—'}</td>` : '') +
+      (currentContentType === 'Guild Wars' ? `<td style="text-align:right">${d.gwPoints ? d.gwPoints.toLocaleString() : '—'}</td>` : '');
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Experiments: slider helpers ────────────────────────────────────────────
+
+function sliderToCP(val) {
+  if (cpDataMin === null) return null;
+  const t = val / 1000;
+  return Math.pow(10, Math.log10(cpDataMin) + t * (Math.log10(cpDataMax) - Math.log10(cpDataMin)));
+}
+
+function resetCpSlider() {
+  const lo = document.getElementById('cp-slider-low');
+  const hi = document.getElementById('cp-slider-high');
+  if (!lo || !hi) return;
+  lo.value = 0;
+  hi.value = 1000;
+  updateSliderLabels();
+  updateSliderFill();
+  cpFilterLow  = null;
+  cpFilterHigh = null;
+}
+
+function updateSliderLabels() {
+  const low  = sliderToCP(+document.getElementById('cp-slider-low').value);
+  const high = sliderToCP(+document.getElementById('cp-slider-high').value);
+  document.getElementById('cp-val-low').textContent  = low  ? toGamingNotation(low)  : '—';
+  document.getElementById('cp-val-high').textContent = high ? toGamingNotation(high) : '—';
+}
+
+function updateSliderFill() {
+  const lo   = +document.getElementById('cp-slider-low').value;
+  const hi   = +document.getElementById('cp-slider-high').value;
+  const fill = document.getElementById('cp-slider-fill');
+  fill.style.left  = (lo / 10) + '%';
+  fill.style.width = ((hi - lo) / 10) + '%';
+}
+
+function onCpSlider() {
+  let lo = +document.getElementById('cp-slider-low').value;
+  let hi = +document.getElementById('cp-slider-high').value;
+  if (lo > hi) { [lo, hi] = [hi, lo]; }
+  document.getElementById('cp-slider-low').value  = lo;
+  document.getElementById('cp-slider-high').value = hi;
+  updateSliderLabels();
+  updateSliderFill();
+  cpFilterLow  = lo === 0    ? null : sliderToCP(lo);
+  cpFilterHigh = hi === 1000 ? null : sliderToCP(hi);
+  applyFilters();
+}
+
+// ── Experiments: CP filter ─────────────────────────────────────────────────
+
+function applyFilters() {
+  if (!currentData) return;
+
+  const low  = cpFilterLow  ?? cpDataMin;
+  const high = cpFilterHigh ?? cpDataMax;
+
+  d3.selectAll('.dot').style('display', d => (d.cp >= low && d.cp <= high) ? null : 'none');
+
+  const filtered = currentData.filter(d => d.cp >= low && d.cp <= high);
+
+  if (regressOnFilter && filtered.length > 1) {
+    const { A, B, r2 } = powerRegression(filtered);
+    chartA = A; chartB = B;
+    document.getElementById('r2').textContent  = r2.toFixed(4);
+    document.getElementById('exp').textContent = B.toFixed(4);
+    document.getElementById('eq').textContent  = `Score = ${A.toExponential(3)} × CP^${B.toFixed(3)}`;
+    currentData.forEach(d => {
+      d.fitDiff = (d.score - A * Math.pow(d.cp, B)) / (A * Math.pow(d.cp, B)) * 100;
+    });
+    fitPts = d3.range(300).map(i => {
+      const x = Math.exp(Math.log(cpDataMin * 0.7) + (Math.log(cpDataMax * 1.4) - Math.log(cpDataMin * 0.7)) * i / 299);
+      return { x, y: A * Math.pow(x, B) };
+    });
+    if (fitPath) fitPath.datum(fitPts).attr('d', d3.line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(d3.curveCatmullRom));
+  } else if (!regressOnFilter && (chartA !== frozenA || chartB !== frozenB)) {
+    chartA = frozenA; chartB = frozenB;
+    document.getElementById('r2').textContent  = frozenR2 !== null ? frozenR2.toFixed(4) : '—';
+    document.getElementById('exp').textContent = frozenB.toFixed(4);
+    document.getElementById('eq').textContent  = `Score = ${frozenA.toExponential(3)} × CP^${frozenB.toFixed(3)}`;
+    fitPts = frozenFitPts;
+    if (fitPath) fitPath.datum(fitPts).attr('d', d3.line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(d3.curveCatmullRom));
+    currentData.forEach(d => {
+      d.fitDiff = (d.score - frozenA * Math.pow(d.cp, frozenB)) / (frozenA * Math.pow(d.cp, frozenB)) * 100;
+    });
+  }
+
+  buildPivotTable(filtered);
+  playerTableData = filtered;
+  renderPlayerTable();
+}
+
+// ── Experiments: custom fit equation ──────────────────────────────────────
+
+function applyCustomFit() {
+  const raw = document.getElementById('custom-eq-input').value.trim();
+  const m = raw.match(/Score\s*=\s*([\d.e+\-]+)\s*[×*]\s*CP\s*\^\s*([\d.]+)/i);
+  const status = document.getElementById('custom-eq-status');
+  if (!m) {
+    status.style.color = '#f87171';
+    status.textContent = 'Could not parse — paste from the EQUATION card.';
+    return;
+  }
+  customA = parseFloat(m[1]);
+  customB = parseFloat(m[2]);
+  status.style.color = '#4ade80';
+  status.textContent = `A=${customA.toExponential(3)}, B=${customB.toFixed(3)}`;
+  if (currentData) {
+    currentData.forEach(d => {
+      const pred = customA * Math.pow(d.cp, customB);
+      d.customFitDiff = (d.score - pred) / pred * 100;
+    });
+    renderCustomFitLine(xScale, yScale, plot);
+    renderPlayerTable();
+  }
+}
+
+function clearCustomFit() {
+  customA = null; customB = null;
+  if (customFitPath) { customFitPath.remove(); customFitPath = null; }
+  customFitPts = null;
+  document.getElementById('custom-eq-input').value = '';
+  document.getElementById('custom-eq-status').textContent = '';
+  if (currentData) {
+    currentData.forEach(d => { delete d.customFitDiff; });
+    renderPlayerTable();
+  }
+}
+
+function renderCustomFitLine(xs, ys, plotG) {
+  if (customFitPath) { customFitPath.remove(); customFitPath = null; }
+  if (!xs || !ys || !plotG) return;
+  const cMin = cpDataMin * 0.7, cMax = cpDataMax * 1.4;
+  customFitPts = d3.range(300).map(i => {
+    const x = Math.exp(Math.log(cMin) + (Math.log(cMax) - Math.log(cMin)) * i / 299);
+    return { x, y: customA * Math.pow(x, customB) };
+  });
+  customFitPath = plotG.append('path').datum(customFitPts).attr('class', 'custom-fit-line')
+    .attr('d', d3.line().x(d => xs(d.x)).y(d => ys(d.y)).curve(d3.curveCatmullRom));
+}
+
+// ── Experiments: regression checkbox ──────────────────────────────────────
+
+function onRegressCheckbox(checked) {
+  regressOnFilter = checked;
+  applyFilters();
+}
+
+function toggleExperiments() {
+  document.getElementById('experiments-panel').classList.toggle('open');
+}
+
+function closePanel() {
+  isPinned = false;
+  const panel = document.getElementById('panel');
+  panel.style.display = 'none';
+  panel.classList.remove('pinned');
+  if (activeEl && currentData) {
+    const pd = d3.select(activeEl).datum();
+    d3.select(activeEl).attr('r',5).attr('fill-opacity',0.75)
+      .attr('stroke', getColor(pd, colorMode)).attr('stroke-width',1);
+    activeEl = null;
+  }
+}
+
+</script>
+</body>
+</html>
