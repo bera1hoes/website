@@ -1,0 +1,1189 @@
+[
+  {
+    "StarForce": "0",
+    "SuccessProb": "1000000",
+    "FailProb": "0",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "0",
+    "SubOptionMultiply": "0",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "20000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "20000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "20000"
+      }
+    ]
+  },
+  {
+    "StarForce": "1",
+    "SuccessProb": "1000000",
+    "FailProb": "0",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "100",
+    "SubOptionMultiply": "0",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "30000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "30000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "1"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "30000"
+      }
+    ]
+  },
+  {
+    "StarForce": "2",
+    "SuccessProb": "900000",
+    "FailProb": "100000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "200",
+    "SubOptionMultiply": "0",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "2"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "40000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "2"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "40000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "2"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "40000"
+      }
+    ]
+  },
+  {
+    "StarForce": "3",
+    "SuccessProb": "850000",
+    "FailProb": "150000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "300",
+    "SubOptionMultiply": "0",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "3"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "50000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "3"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "50000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "3"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "50000"
+      }
+    ]
+  },
+  {
+    "StarForce": "4",
+    "SuccessProb": "800000",
+    "FailProb": "200000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "400",
+    "SubOptionMultiply": "0",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "4"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "60000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "4"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "60000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "4"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "60000"
+      }
+    ]
+  },
+  {
+    "StarForce": "5",
+    "SuccessProb": "700000",
+    "FailProb": "300000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "600",
+    "SubOptionMultiply": "100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "5"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "70000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "5"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "70000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "5"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "70000"
+      }
+    ]
+  },
+  {
+    "StarForce": "6",
+    "SuccessProb": "650000",
+    "FailProb": "350000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "750",
+    "SubOptionMultiply": "100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "6"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "90000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "6"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "90000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "6"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "90000"
+      }
+    ]
+  },
+  {
+    "StarForce": "7",
+    "SuccessProb": "600000",
+    "FailProb": "400000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "900",
+    "SubOptionMultiply": "100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "7"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "110000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "7"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "110000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "7"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "110000"
+      }
+    ]
+  },
+  {
+    "StarForce": "8",
+    "SuccessProb": "550000",
+    "FailProb": "450000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "1050",
+    "SubOptionMultiply": "100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "8"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "130000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "8"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "130000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "8"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "130000"
+      }
+    ]
+  },
+  {
+    "StarForce": "9",
+    "SuccessProb": "500000",
+    "FailProb": "500000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "1200",
+    "SubOptionMultiply": "100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "9"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "150000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "9"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "150000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "9"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "150000"
+      }
+    ]
+  },
+  {
+    "StarForce": "10",
+    "SuccessProb": "350000",
+    "FailProb": "650000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "1500",
+    "SubOptionMultiply": "250",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "10"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "170000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "10"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "170000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "10"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "170000"
+      }
+    ]
+  },
+  {
+    "StarForce": "11",
+    "SuccessProb": "340000",
+    "FailProb": "660000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "MainOptionMultiply": "1750",
+    "SubOptionMultiply": "250",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "11"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "190000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "11"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "190000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "11"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "190000"
+      }
+    ]
+  },
+  {
+    "StarForce": "12",
+    "SuccessProb": "330000",
+    "FailProb": "670000",
+    "DownProb": "0",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "165000",
+    "MainOptionMultiply": "2000",
+    "SubOptionMultiply": "250",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "12"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "210000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "12"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "210000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "12"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "210000"
+      }
+    ]
+  },
+  {
+    "StarForce": "13",
+    "SuccessProb": "320000",
+    "FailProb": "560000",
+    "DownProb": "120000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "160000",
+    "MainOptionMultiply": "2250",
+    "SubOptionMultiply": "250",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "13"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "230000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "13"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "230000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "13"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "230000"
+      }
+    ]
+  },
+  {
+    "StarForce": "14",
+    "SuccessProb": "310000",
+    "FailProb": "570000",
+    "DownProb": "120000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "155000",
+    "MainOptionMultiply": "2500",
+    "SubOptionMultiply": "250",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "14"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "250000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "14"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "250000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "14"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "250000"
+      }
+    ]
+  },
+  {
+    "StarForce": "15",
+    "SuccessProb": "300000",
+    "FailProb": "670000",
+    "DownProb": "30000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "150000",
+    "MainOptionMultiply": "3000",
+    "SubOptionMultiply": "500",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "15"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "270000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "15"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "270000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "15"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "270000"
+      }
+    ]
+  },
+  {
+    "StarForce": "16",
+    "SuccessProb": "275000",
+    "FailProb": "530000",
+    "DownProb": "195000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "137500",
+    "MainOptionMultiply": "3500",
+    "SubOptionMultiply": "600",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "16"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "300000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "16"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "300000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "16"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "300000"
+      }
+    ]
+  },
+  {
+    "StarForce": "17",
+    "SuccessProb": "250000",
+    "FailProb": "540000",
+    "DownProb": "210000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "125000",
+    "MainOptionMultiply": "4000",
+    "SubOptionMultiply": "700",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "17"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "330000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "17"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "330000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "17"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "330000"
+      }
+    ]
+  },
+  {
+    "StarForce": "18",
+    "SuccessProb": "225000",
+    "FailProb": "550000",
+    "DownProb": "225000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "112500",
+    "MainOptionMultiply": "4500",
+    "SubOptionMultiply": "800",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "18"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "360000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "18"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "360000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "18"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "360000"
+      }
+    ]
+  },
+  {
+    "StarForce": "19",
+    "SuccessProb": "200000",
+    "FailProb": "560000",
+    "DownProb": "240000",
+    "DestroyProb": "0",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "0",
+    "SuccessProbOnDestroyed": "100000",
+    "MainOptionMultiply": "5000",
+    "SubOptionMultiply": "900",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "19"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "390000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "19"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "390000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "19"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "390000"
+      }
+    ]
+  },
+  {
+    "StarForce": "20",
+    "SuccessProb": "140000",
+    "FailProb": "750000",
+    "DownProb": "0",
+    "DestroyProb": "110000",
+    "PreventDestroyProb": "55000",
+    "MainOptionMultiply": "6000",
+    "SubOptionMultiply": "1000",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "20"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "420000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "20"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "420000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "20"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "420000"
+      }
+    ]
+  },
+  {
+    "StarForce": "21",
+    "SuccessProb": "100000",
+    "FailProb": "700000",
+    "DownProb": "100000",
+    "DestroyProb": "100000",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "50000",
+    "MainOptionMultiply": "7000",
+    "SubOptionMultiply": "1100",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "25"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "470000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "25"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "470000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "25"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "470000"
+      }
+    ]
+  },
+  {
+    "StarForce": "22",
+    "SuccessProb": "80000",
+    "FailProb": "720000",
+    "DownProb": "100000",
+    "DestroyProb": "100000",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "100000",
+    "MainOptionMultiply": "9000",
+    "SubOptionMultiply": "1300",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "30"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "520000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "30"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "520000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "30"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "520000"
+      }
+    ]
+  },
+  {
+    "StarForce": "23",
+    "SuccessProb": "60000",
+    "FailProb": "740000",
+    "DownProb": "100000",
+    "DestroyProb": "100000",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "100000",
+    "MainOptionMultiply": "12000",
+    "SubOptionMultiply": "1600",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "35"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "570000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "35"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "570000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "35"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "570000"
+      }
+    ]
+  },
+  {
+    "StarForce": "24",
+    "SuccessProb": "40000",
+    "FailProb": "760000",
+    "DownProb": "100000",
+    "DestroyProb": "100000",
+    "PreventDownProb": "0",
+    "PreventDestroyProb": "100000",
+    "MainOptionMultiply": "15000",
+    "SubOptionMultiply": "2000",
+    "Costs": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "40"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "620000"
+      }
+    ],
+    "PreventDownCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "40"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "620000"
+      }
+    ],
+    "PreventDestroyCosts": [
+      {
+        "Type": "Item",
+        "Value": "SCROLL_STARFORCE",
+        "Count": "40"
+      },
+      {
+        "Type": "Currency",
+        "Value": "Gold",
+        "Count": "620000"
+      }
+    ]
+  },
+  {
+    "StarForce": "25",
+    "MainOptionMultiply": "20000",
+    "SubOptionMultiply": "2500"
+  }
+]
