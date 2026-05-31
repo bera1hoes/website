@@ -1,0 +1,205 @@
+body { padding: 0 24px 64px; }
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+header {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 40px;
+}
+
+.site-title {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #ff5fa2;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.site-title span {
+  color: #e8eaf0;
+  font-weight: 400;
+}
+
+.back-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6b7280;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color .15s ease;
+}
+.back-link:hover { color: #ff5fa2; }
+
+/* ── Main content ────────────────────────────────────────────────────────── */
+main {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  color: #e8eaf0;
+  letter-spacing: -0.01em;
+}
+
+/* ── Search bar ──────────────────────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  gap: 12px;
+}
+
+#nick-input {
+  flex: 1;
+  background: #161921;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: #e8eaf0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  padding: 13px 18px;
+  outline: none;
+  transition: border-color .15s ease;
+}
+#nick-input::placeholder { color: #6b7280; }
+#nick-input:focus { border-color: rgba(255,95,162,0.5); }
+
+#search-btn {
+  background: #ff5fa2;
+  border: none;
+  border-radius: 10px;
+  color: #0d0f14;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 13px 28px;
+  cursor: pointer;
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+  white-space: nowrap;
+}
+#search-btn:hover {
+  background: #ff77b3;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255,95,162,0.3);
+}
+#search-btn:active { transform: translateY(0); }
+
+/* ── Results area ────────────────────────────────────────────────────────── */
+#results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status {
+  color: #6b7280;
+  text-align: center;
+  font-size: 15px;
+  padding: 24px 0;
+}
+
+.error {
+  color: #f87171;
+  font-size: 14px;
+  padding: 16px 20px;
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.2);
+  border-radius: 8px;
+}
+
+/* ── Snapshot list ───────────────────────────────────────────────────────── */
+.snapshots-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: -4px;
+}
+
+.snapshot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.snapshot-btn {
+  width: 100%;
+  background: #161921;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: #e8eaf0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 14px 20px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.snapshot-btn:hover {
+  border-color: rgba(255,95,162,0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.snapshot-btn.active {
+  border-color: #ff5fa2;
+  box-shadow: 0 0 0 1px #ff5fa2, 0 4px 20px rgba(255,95,162,0.2);
+}
+
+.snap-date {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* ── Stat cards ──────────────────────────────────────────────────────────── */
+#stat-panel {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 180px;
+  background: #161921;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.stat-value {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: #ff5fa2;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
