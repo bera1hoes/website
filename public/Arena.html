@@ -329,7 +329,7 @@ function calcAvoidChance(userInfo, tables) {
       for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
     }
   }
-  return Math.floor(total);
+  return Math.trunc(Math.floor(total));
 }
 
 // ── UI ─────────────────────────────────────────────────────────────────────
@@ -370,8 +370,8 @@ async function selectSnapshot(row, evt) {
     const avoid = calcAvoidChance(userInfo, tables);
     const crit = calcCritResist(userInfo);
     panel.innerHTML = `
-      <div class="stat-card"><span class="stat-label">Avoid Chance</span><span class="stat-value">${avoid}%</span></div>
-      <div class="stat-card"><span class="stat-label">Critical Resist</span><span class="stat-value">${crit.toFixed(1)}%</span></div>`;
+      <div class="stat-card"><span class="stat-label">Evasion</span><span class="stat-value">${avoid}</span></div>
+      <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${crit.toFixed(1)}%</span></div>`;
   } catch (e) {
     panel.innerHTML = `<p class="error">Calc failed: ${e.message}</p>`;
   }
