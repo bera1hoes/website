@@ -26,11 +26,12 @@ export default {
       return env.ASSETS.fetch(new Request(new URL('/Charts.html', url), request));
     }
 
-    // Proxy /userinfo to the separate UserInfo Worker (READ_KEY stored as Wrangler secret)
-    if (url.pathname === '/userinfo') {
+    // Proxy /userinfo and /userinfo/suggest to the separate UserInfo Worker
+    // (READ_KEY stored as Wrangler secret; forward the pathname so both routes work).
+    if (url.pathname === '/userinfo' || url.pathname === '/userinfo/suggest') {
       try {
         const upstream = await fetch(
-          'https://userinfo-worker.bera1hoes.workers.dev/userinfo' + url.search,
+          'https://userinfo-worker.bera1hoes.workers.dev' + url.pathname + url.search,
           { headers: { Authorization: `Bearer ${env.USERINFO_READ_KEY}` }, redirect: 'follow' }
         );
         const body = await upstream.text();

@@ -19,8 +19,12 @@
   <h2>Player Lookup</h2>
 
   <div class="search-bar">
-    <input id="nick-input" type="text" placeholder="Player nick..." autocomplete="off"
-           onkeydown="if(event.key==='Enter') doSearch()">
+    <div class="search-input-wrap">
+      <input id="nick-input" type="text" placeholder="Player nick..." autocomplete="off"
+             role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="nick-suggest"
+             oninput="onNickInput()" onkeydown="onNickKeydown(event)">
+      <ul id="nick-suggest" class="suggest-list" role="listbox" hidden></ul>
+    </div>
     <button id="search-btn" onclick="doSearch()">Look Up</button>
   </div>
 
@@ -114,6 +118,95 @@ function calcAvoidChance(userInfo, tables) {
   }
   return Math.trunc(Math.floor(total));
 }
+
+// ── Autocomplete dropdown ────────────────────────────────────────────────────
+let _suggestItems = [];      // current suggestions: [{ nick, short_battle_power }]
+let _activeIndex = -1;       // highlighted row, -1 = none
+let _suggestCtrl = null;     // AbortController for the in-flight suggest request
+
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+function hideSuggest() {
+  const box = document.getElementById('nick-suggest');
+  box.hidden = true;
+  box.innerHTML = '';
+  _suggestItems = [];
+  _activeIndex = -1;
+  document.getElementById('nick-input').setAttribute('aria-expanded', 'false');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+const onNickInput = debounce(async () => {
+  const q = document.getElementById('nick-input').value.trim();
+  if (!q) { hideSuggest(); return; }
+  if (_suggestCtrl) _suggestCtrl.abort();          // cancel any in-flight request
+  _suggestCtrl = new AbortController();
+  try {
+    const res = await fetch('/userinfo/suggest?q=' + encodeURIComponent(q) + '&limit=8',
+                            { signal: _suggestCtrl.signal });
+    const { suggestions } = await res.json();
+    renderSuggestions(suggestions || []);
+  } catch (e) {
+    if (e.name !== 'AbortError') hideSuggest();     // ignore superseded requests
+  }
+}, 150);
+
+function renderSuggestions(list) {
+  const box = document.getElementById('nick-suggest');
+  _suggestItems = list;
+  _activeIndex = -1;
+  if (!list.length) { hideSuggest(); return; }
+  box.innerHTML = list.map((it, i) =>
+    `<li class="suggest-item" role="option" id="suggest-${i}" onmousedown="event.preventDefault()" onclick="selectSuggestion(${i})">` +
+      `<span class="suggest-nick">${escapeHtml(it.nick)}</span>` +
+      `<span class="suggest-bp">${escapeHtml(it.short_battle_power)}</span>` +
+    `</li>`).join('');
+  box.hidden = false;
+  document.getElementById('nick-input').setAttribute('aria-expanded', 'true');
+}
+
+function highlight(idx) {
+  const items = document.querySelectorAll('.suggest-item');
+  items.forEach(el => el.classList.remove('active'));
+  if (idx >= 0 && items[idx]) items[idx].classList.add('active');
+  _activeIndex = idx;
+}
+
+function selectSuggestion(idx) {
+  const it = _suggestItems[idx];
+  if (!it) return;
+  document.getElementById('nick-input').value = it.nick;
+  hideSuggest();
+  doSearch();
+}
+
+function onNickKeydown(e) {
+  const open = !document.getElementById('nick-suggest').hidden;
+  if (open && e.key === 'ArrowDown') {
+    e.preventDefault();
+    highlight((_activeIndex + 1) % _suggestItems.length);
+  } else if (open && e.key === 'ArrowUp') {
+    e.preventDefault();
+    highlight((_activeIndex - 1 + _suggestItems.length) % _suggestItems.length);
+  } else if (e.key === 'Enter') {
+    if (open && _activeIndex >= 0) { e.preventDefault(); selectSuggestion(_activeIndex); }
+    else { hideSuggest(); doSearch(); }
+  } else if (e.key === 'Escape') {
+    hideSuggest();
+  }
+}
+
+// Close the dropdown when clicking anywhere outside the search input/list.
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-input-wrap')) hideSuggest();
+});
 
 // ── UI ─────────────────────────────────────────────────────────────────────
 
