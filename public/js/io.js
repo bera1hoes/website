@@ -1,0 +1,247 @@
+// ── Environment detection + data fetching ──────────────────────────────────
+// Chart data comes from Google Sheets via the Apps Script JSON API (Code.gs),
+// reached through a same-origin Cloudflare Worker proxy (worker.js) to avoid
+// CORS. The real Apps Script /exec URL lives in worker.js, not here.
+const API_URL = '/api';  // same-origin proxy; see worker.js
+
+const HAS_GAS = typeof google !== 'undefined' && !!google.script;
+// Local sample-data mode: file:// or a localhost dev server, with no remote API.
+const IS_LOCAL = !HAS_GAS && (
+  !API_URL ||
+  location.protocol === 'file:' ||
+  location.hostname === 'localhost' ||
+  location.hostname === '127.0.0.1'
+);
+// Remote mode: static page (Cloudflare) fetching JSON from the Apps Script API.
+const IS_REMOTE = !HAS_GAS && !IS_LOCAL;
+
+// Read-only GET wrapper for the Apps Script JSON API (remote mode).
+function apiCall(action, params) {
+  const qs = new URLSearchParams(Object.assign({ action: action }, params || {}));
+  return fetch(API_URL + '?' + qs.toString()).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(json => {
+    if (json && json.error) throw new Error(json.error);
+    return json;
+  });
+}
+
+// ── Sheet / content-type state ─────────────────────────────────────────────
+
+let currentSheet = null;
+const sheetNamesCache = {};  // contentType -> string[]
+const lastUpdatedCache = {}; // contentType -> ISO string
+let currentContentType = null;
+let latestSheet = null;
+let reloadCooldownRemaining = 0;
+let reloadTimerInterval = null;
+
+function populateLocalSheets(type) {
+  const dataObj = getLocalData(type);
+  const names = Object.keys(dataObj);
+  const sel = document.getElementById('sheet-select');
+  sel.innerHTML = '';
+  if (!localFiles[type]) localFiles[type] = {};
+  names.forEach((n, i) => {
+    localFiles[type][n] = parseTSV(dataObj[n]);
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  latestSheet = names.length ? names[0] : null;
+  if (names.length) {
+    loadSheet(names[0]);
+  } else {
+    document.getElementById('loading').textContent = 'No data for this content type.';
+  }
+}
+
+// ── Content type toggle ────────────────────────────────────────────────────
+
+function loadContentType(type) {
+  currentContentType = type;
+  document.getElementById('btn-gw').classList.toggle('active',   type === 'Guild Wars');
+  document.getElementById('btn-gbb').classList.toggle('active',  type === 'Guild Boss Battle');
+  document.getElementById('btn-ggbb').classList.toggle('active', type === 'Global GBB');
+  if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
+  reloadCooldownRemaining = 0;
+  latestSheet = null;
+  const reloadBtn = document.getElementById('reload-btn');
+  if (reloadBtn) { reloadBtn.disabled = false; reloadBtn.textContent = '↺ Reload'; }
+  document.getElementById('reload-ctrl').style.display = 'none';
+  closePanel();
+  document.getElementById('chart').innerHTML = '';
+  clearStats();
+  document.getElementById('sheet-ctrl-group').style.display = '';
+  document.getElementById('loading').textContent = 'Loading…';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('pivot-section').style.display = 'none';
+  document.getElementById('player-table-section').style.display = 'none';
+  document.getElementById('zoom-indicator').style.display = 'none';
+
+  if (IS_LOCAL) {
+    populateLocalSheets(type);
+  } else {
+    if (sheetNamesCache[type]) {
+      applySheetNames(sheetNamesCache[type]);
+    } else {
+      document.getElementById('sheet-select').innerHTML = '<option>Loading…</option>';
+      const onNames = function(json) {
+        const names = typeof json === 'string' ? JSON.parse(json) : json;
+        sheetNamesCache[type] = names;
+        applySheetNames(names);
+      };
+      const onNamesErr = function(err) {
+        document.getElementById('loading').textContent = 'Error: ' + err.message;
+      };
+      if (HAS_GAS) {
+        google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
+      } else {
+        apiCall('getSheetNames', { contentType: type }).then(onNames).catch(onNamesErr);
+      }
+    }
+
+    if (lastUpdatedCache[type]) {
+      applyLastUpdated(lastUpdatedCache[type]);
+    } else {
+      document.getElementById('updated-ctrl').style.display = 'none';
+      const onUpdated = function(iso) {
+        lastUpdatedCache[type] = iso;
+        applyLastUpdated(iso);
+      };
+      if (HAS_GAS) {
+        google.script.run.withSuccessHandler(onUpdated).withFailureHandler(function() {}).getLastUpdated(type);
+      } else {
+        apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(function() {});
+      }
+    }
+  }
+}
+
+function applySheetNames(names) {
+  const sel = document.getElementById('sheet-select');
+  sel.innerHTML = '';
+  names.forEach((n, i) => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  latestSheet = names.length ? names[0] : null;
+  if (names.length) loadSheet(names[0]);
+}
+
+function applyLastUpdated(iso) {
+  const dt = new Date(iso);
+  const date = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  const time = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('last-updated').textContent = date + ' · ' + time;
+  document.getElementById('updated-ctrl').style.display = 'flex';
+}
+
+// ── Load a sheet ───────────────────────────────────────────────────────────
+
+function loadSheet(name) {
+  currentSheet = name;
+  updateReloadButton(name);
+
+  const cached = (localFiles[currentContentType] || {})[name];
+  if (cached) {
+    closePanel();
+    currentData = cached;
+    document.getElementById('loading').style.display = 'none';
+    buildChart(cached);
+    return;
+  }
+
+  if (IS_LOCAL) {
+    document.getElementById('loading').textContent = 'No data for this sheet.';
+    return;
+  }
+
+  closePanel();
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('chart').innerHTML = '';
+  clearStats();
+
+  const onData = function(json) {
+    document.getElementById('loading').style.display = 'none';
+    currentData = typeof json === 'string' ? JSON.parse(json) : json;
+    if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
+    localFiles[currentContentType][name] = currentData;
+    buildChart(currentData);
+  };
+  const onDataErr = function(err) {
+    document.getElementById('loading').textContent = 'Error: ' + err.message;
+  };
+  if (HAS_GAS) {
+    google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
+  } else {
+    apiCall('getData', { contentType: currentContentType, sheet: name }).then(onData).catch(onDataErr);
+  }
+}
+
+function updateReloadButton(name) {
+  const ctrl = document.getElementById('reload-ctrl');
+  if (!ctrl) return;
+  ctrl.style.display = (!IS_LOCAL && latestSheet && name === latestSheet) ? '' : 'none';
+}
+
+function reloadSheet() {
+  if (reloadCooldownRemaining > 0) return;
+  if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
+  loadSheet(currentSheet);
+  startReloadCooldown();
+}
+
+function startReloadCooldown() {
+  reloadCooldownRemaining = 60;
+  const btn = document.getElementById('reload-btn');
+  btn.disabled = true;
+  btn.textContent = '↺ Reload (60s)';
+  reloadTimerInterval = setInterval(function() {
+    reloadCooldownRemaining--;
+    if (reloadCooldownRemaining <= 0) {
+      clearInterval(reloadTimerInterval);
+      reloadTimerInterval = null;
+      btn.disabled = false;
+      btn.textContent = '↺ Reload';
+    } else {
+      btn.textContent = `↺ Reload (${reloadCooldownRemaining}s)`;
+    }
+  }, 1000);
+}
+
+// ── Local TSV file loading (file input) ────────────────────────────────────
+
+function loadLocalFiles(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const name = file.name.replace(/\.[^.]+$/, '');
+      const data = parseTSV(e.target.result);
+      if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
+      localFiles[currentContentType][name] = data;
+
+      const sel = document.getElementById('sheet-select');
+      if (!sel.querySelector(`option[value="${CSS.escape(name)}"]`)) {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      }
+      sel.value = name;
+      closePanel();
+      currentData = data;
+      document.getElementById('loading').style.display = 'none';
+      clearStats();
+      document.getElementById('chart').innerHTML = '';
+      buildChart(data);
+    };
+    reader.readAsText(file);
+  });
+}
