@@ -180,6 +180,17 @@
         Recalculate regression fit when CP filter is active
       </label>
     </div>
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
+
+    <!-- Feature 4: Class-adjusted vs Fit -->
+    <div class="exp-section" style="display:flex;align-items:flex-start;gap:10px">
+      <input type="checkbox" id="class-adjust" style="margin-top:2px;accent-color:#f0a500"
+        onchange="onClassAdjust(this.checked)">
+      <label for="class-adjust" style="font-size:12px;color:#c4c9d4;cursor:pointer;line-height:1.5">
+        Adjust “vs Fit” for class bias (mages run low, Shadowers high)
+      </label>
+    </div>
   </div>
 </div>
 
@@ -472,6 +483,12 @@ let plot = null;
 let frozenA = null, frozenB = null, frozenR2 = null;
 let frozenFitPts = null;
 let chartA = null, chartB = null;
+
+// Performance band (±1σ in log space)
+let bandPath = null, bandPts = null, frozenSigma = null, frozenBandPts = null;
+
+// Class-aware "vs Fit"
+let classAdjust = false, frozenClassBias = null;
 
 // Experiments — custom fit
 let customA = null, customB = null;
@@ -828,6 +845,11 @@ function buildLegend(data) {
   fitItem.innerHTML = '<div class="legend-line"></div><span>Power fit</span>';
   lg.appendChild(fitItem);
 
+  const bandItem = document.createElement('div');
+  bandItem.className = 'legend-item';
+  bandItem.innerHTML = '<div class="legend-band"></div><span>±1σ band (~68%)</span>';
+  lg.appendChild(bandItem);
+
   seen.forEach(label => {
     const color = palette[label] || palette['default'];
     const item = document.createElement('div');
@@ -857,7 +879,23 @@ function powerRegression(data) {
   const yMean = sy / n;
   let ssTot=0, ssRes=0;
   for(let i=0;i<n;i++){const p=Alog+B*lx[i];ssTot+=(ly[i]-yMean)**2;ssRes+=(ly[i]-p)**2;}
-  return { A, B, r2: 1 - ssRes/ssTot, Alog };
+  const sigma = Math.sqrt(ssRes / Math.max(1, n - 2)); // residual SD in dex (log10 units)
+  return { A, B, r2: 1 - ssRes/ssTot, Alog, sigma };
+}
+
+// Mean log-residual per class (dex): how far each class sits above/below the CP-implied
+// fit. Classes with fewer than MIN_CLASS samples get 0 (no adjustment).
+function computeClassBias(data, A, B) {
+  const MIN_CLASS = 5;
+  const byClass = {};
+  data.forEach(d => {
+    const r = Math.log10(d.score) - Math.log10(A * Math.pow(d.cp, B));
+    (byClass[d.cls] ||= []).push(r);
+  });
+  const bias = {};
+  Object.entries(byClass).forEach(([c, a]) =>
+    bias[c] = a.length >= MIN_CLASS ? a.reduce((s, v) => s + v, 0) / a.length : 0);
+  return bias;
 }
 
 // ── Build chart ─────────────────────────────────────────────────────────────
@@ -874,14 +912,19 @@ function buildChart(data) {
     data.forEach(d => { d.gwPoints = 0; });
   }
 
-  const { A, B, r2 } = powerRegression(data);
-  frozenA = A; frozenB = B; frozenR2 = r2;
+  const { A, B, r2, sigma } = powerRegression(data);
+  frozenA = A; frozenB = B; frozenR2 = r2; frozenSigma = sigma;
   chartA  = A; chartB  = B;
   cpDataMin = d3.min(data, d => d.cp);
   cpDataMax = d3.max(data, d => d.cp);
+  const classBias = computeClassBias(data, A, B);
+  frozenClassBias = classBias;
   data.forEach(d => {
     const predicted = A * Math.pow(d.cp, B);
-    d.fitDiff = (d.score - predicted) / predicted * 100;
+    const predClass = predicted * Math.pow(10, classBias[d.cls] || 0);
+    d.fitDiffRaw   = (d.score - predicted) / predicted * 100;
+    d.fitDiffClass = (d.score - predClass) / predClass * 100;
+    d.fitDiff      = classAdjust ? d.fitDiffClass : d.fitDiffRaw;
   });
   if (customA !== null) {
     data.forEach(d => {
@@ -966,6 +1009,13 @@ function buildChart(data) {
     const x = Math.exp(Math.log(cpMin) + (Math.log(cpMax)-Math.log(cpMin))*i/299);
     return { x, y: A * Math.pow(x, B) };
   });
+  // ±1σ performance band (asymmetric in linear space — correct for log-normal scatter).
+  // Appended first so it sits beneath the fit line and the dots.
+  const bandMul = Math.pow(10, sigma);
+  bandPts = fitPts.map(p => ({ x: p.x, yHi: p.y * bandMul, yLo: p.y / bandMul }));
+  bandPath = plot.append('path').datum(bandPts).attr('class','fit-band')
+    .attr('d', d3.area().x(d=>xScale(d.x)).y0(d=>yScale(d.yLo)).y1(d=>yScale(d.yHi)).curve(d3.curveCatmullRom));
+  frozenBandPts = bandPts;
   fitPath = plot.append('path').datum(fitPts).attr('class','fit-line')
     .attr('d', d3.line().x(d=>xScale(d.x)).y(d=>yScale(d.y)).curve(d3.curveCatmullRom));
   frozenFitPts = fitPts;
@@ -1043,6 +1093,9 @@ function buildChart(data) {
         .attr('cy', d => zy(d.score));
 
       fitPath.attr('d', d3.line().x(d => zx(d.x)).y(d => zy(d.y)).curve(d3.curveCatmullRom));
+      if (bandPath && bandPts) {
+        bandPath.attr('d', d3.area().x(d => zx(d.x)).y0(d => zy(d.yLo)).y1(d => zy(d.yHi)).curve(d3.curveCatmullRom));
+      }
       if (customFitPath && customFitPts) {
         customFitPath.attr('d', d3.line().x(d => zx(d.x)).y(d => zy(d.y)).curve(d3.curveCatmullRom));
       }
@@ -1317,19 +1370,27 @@ function applyFilters() {
   const filtered = currentData.filter(d => d.cp >= low && d.cp <= high);
 
   if (regressOnFilter && filtered.length > 1) {
-    const { A, B, r2 } = powerRegression(filtered);
+    const { A, B, r2, sigma } = powerRegression(filtered);
     chartA = A; chartB = B;
     document.getElementById('r2').textContent  = r2.toFixed(4);
     document.getElementById('exp').textContent = B.toFixed(4);
     document.getElementById('eq').textContent  = `Score = ${A.toExponential(3)} × CP^${B.toFixed(3)}`;
+    const bias = computeClassBias(filtered, A, B);
     currentData.forEach(d => {
-      d.fitDiff = (d.score - A * Math.pow(d.cp, B)) / (A * Math.pow(d.cp, B)) * 100;
+      const predicted = A * Math.pow(d.cp, B);
+      const predClass = predicted * Math.pow(10, bias[d.cls] || 0);
+      d.fitDiffRaw   = (d.score - predicted) / predicted * 100;
+      d.fitDiffClass = (d.score - predClass) / predClass * 100;
+      d.fitDiff      = classAdjust ? d.fitDiffClass : d.fitDiffRaw;
     });
     fitPts = d3.range(300).map(i => {
       const x = Math.exp(Math.log(cpDataMin * 0.7) + (Math.log(cpDataMax * 1.4) - Math.log(cpDataMin * 0.7)) * i / 299);
       return { x, y: A * Math.pow(x, B) };
     });
     if (fitPath) fitPath.datum(fitPts).attr('d', d3.line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(d3.curveCatmullRom));
+    const bandMul = Math.pow(10, sigma);
+    bandPts = fitPts.map(p => ({ x: p.x, yHi: p.y * bandMul, yLo: p.y / bandMul }));
+    if (bandPath) bandPath.datum(bandPts).attr('d', d3.area().x(d => xScale(d.x)).y0(d => yScale(d.yLo)).y1(d => yScale(d.yHi)).curve(d3.curveCatmullRom));
   } else if (!regressOnFilter && (chartA !== frozenA || chartB !== frozenB)) {
     chartA = frozenA; chartB = frozenB;
     document.getElementById('r2').textContent  = frozenR2 !== null ? frozenR2.toFixed(4) : '—';
@@ -1337,8 +1398,14 @@ function applyFilters() {
     document.getElementById('eq').textContent  = `Score = ${frozenA.toExponential(3)} × CP^${frozenB.toFixed(3)}`;
     fitPts = frozenFitPts;
     if (fitPath) fitPath.datum(fitPts).attr('d', d3.line().x(d => xScale(d.x)).y(d => yScale(d.y)).curve(d3.curveCatmullRom));
+    bandPts = frozenBandPts;
+    if (bandPath && bandPts) bandPath.datum(bandPts).attr('d', d3.area().x(d => xScale(d.x)).y0(d => yScale(d.yLo)).y1(d => yScale(d.yHi)).curve(d3.curveCatmullRom));
     currentData.forEach(d => {
-      d.fitDiff = (d.score - frozenA * Math.pow(d.cp, frozenB)) / (frozenA * Math.pow(d.cp, frozenB)) * 100;
+      const predicted = frozenA * Math.pow(d.cp, frozenB);
+      const predClass = predicted * Math.pow(10, (frozenClassBias && frozenClassBias[d.cls]) || 0);
+      d.fitDiffRaw   = (d.score - predicted) / predicted * 100;
+      d.fitDiffClass = (d.score - predClass) / predClass * 100;
+      d.fitDiff      = classAdjust ? d.fitDiffClass : d.fitDiffRaw;
     });
   }
 
@@ -1401,6 +1468,23 @@ function renderCustomFitLine(xs, ys, plotG) {
 function onRegressCheckbox(checked) {
   regressOnFilter = checked;
   applyFilters();
+}
+
+// ── Experiments: class-adjusted vs Fit ─────────────────────────────────────
+
+function onClassAdjust(checked) {
+  classAdjust = checked;
+  if (currentData) currentData.forEach(d => {
+    d.fitDiff = checked ? d.fitDiffClass : d.fitDiffRaw;
+  });
+  renderPlayerTable();
+  // Refresh the pinned panel's "vs Fit" value in place (without repositioning it).
+  if (isPinned && activeEl) {
+    const d = d3.select(activeEl).datum();
+    const fitEl = document.getElementById('p-fitdiff');
+    fitEl.textContent = `${d.fitDiff >= 0 ? '+' : ''}${d.fitDiff.toFixed(2)}%`;
+    fitEl.style.color = d.fitDiff >= 0 ? '#4ade80' : '#f87171';
+  }
 }
 
 function toggleExperiments() {
