@@ -17,13 +17,10 @@ if (IS_LOCAL) {
     s2.onload = s2.onerror = function() {
       const s3 = document.createElement('script');
       s3.src = './SampleData/GlobalGBBLocalData.js';
-      s3.onload = s3.onerror = function() { loadContentType('Guild Wars'); };
+      s3.onload = s3.onerror = function() {};
       document.head.appendChild(s3);
     };
     document.head.appendChild(s2);
   };
   document.head.appendChild(s1);
-} else {
-  // Remote (Cloudflare) / embedded Apps Script: auto-load the default content type on page open.
-  loadContentType('Guild Wars');
 }
