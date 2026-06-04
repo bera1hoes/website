@@ -2,9 +2,38 @@ body { padding: 32px 24px 48px; }
 
 .page { width: 100%; max-width: 940px; }
 
-header { margin-bottom: 20px; }
-h1 { font-size: 24px; font-weight: 500; margin-bottom: 4px; }
-.sub { font-size: 13px; color: #6b7280; }
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 40px;
+}
+
+.site-title {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.site-title span {
+  color: #e8eaf0;
+  font-weight: 400;
+}
+
+.back-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6b7280;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color .15s ease;
+}
+.back-link:hover { color: var(--accent); }
 
 /* Controls bar */
 .controls {
