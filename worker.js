@@ -29,10 +29,18 @@ export default {
     // Proxy /userinfo and /userinfo/suggest to the separate UserInfo Worker
     // (READ_KEY stored as Wrangler secret; forward the pathname so both routes work).
     if (url.pathname === '/userinfo' || url.pathname === '/userinfo/suggest') {
+      if (!env.USERINFO_READ_KEY) {
+        return new Response(JSON.stringify({ error: 'USERINFO_READ_KEY not configured' }), {
+          status: 500,
+          headers: { 'content-type': 'application/json; charset=utf-8' },
+        });
+      }
       try {
-        const upstream = await fetch(
-          'https://userinfo-worker.bera1hoes.workers.dev' + url.pathname + url.search,
-          { headers: { Authorization: `Bearer ${env.USERINFO_READ_KEY}` }, redirect: 'follow' }
+        const upstream = await env.USERINFO_WORKER.fetch(
+          new Request('https://userinfo-worker.bera1hoes.workers.dev' + url.pathname + url.search, {
+            headers: { Authorization: `Bearer ${env.USERINFO_READ_KEY}` },
+            redirect: 'follow',
+          })
         );
         const body = await upstream.text();
         return new Response(body, {
