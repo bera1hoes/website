@@ -1,4 +1,4 @@
-body { padding: 32px 24px 48px; }
+body { padding: 0 24px 64px; }
 
 .page { width: 100%; max-width: 940px; }
 
@@ -16,7 +16,7 @@ header {
   font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 22px;
-  color: var(--accent);
+  color: #ff5fa2;
   text-decoration: none;
   letter-spacing: -0.01em;
 }
@@ -33,7 +33,7 @@ header {
   letter-spacing: 0.06em;
   transition: color .15s ease;
 }
-.back-link:hover { color: var(--accent); }
+.back-link:hover { color: #ff5fa2; }
 
 /* Controls bar */
 .controls {
