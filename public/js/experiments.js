@@ -106,8 +106,15 @@ function applyCustomFit() {
     status.textContent = 'Could not parse — paste from the EQUATION card.';
     return;
   }
-  custom.A = parseFloat(m[1]);
-  custom.B = parseFloat(m[2]);
+  const parsedA = parseFloat(m[1]);
+  const parsedB = parseFloat(m[2]);
+  if (isNaN(parsedA) || isNaN(parsedB)) {
+    status.style.color = '#f87171';
+    status.textContent = 'Could not parse — paste from the EQUATION card.';
+    return;
+  }
+  custom.A = parsedA;
+  custom.B = parsedB;
   status.style.color = '#4ade80';
   status.textContent = `A=${custom.A.toExponential(3)}, B=${custom.B.toFixed(3)}`;
   if (currentData) {

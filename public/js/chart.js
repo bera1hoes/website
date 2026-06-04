@@ -49,6 +49,7 @@ function drawBand(sel, pts, x, y) {
 // ── Build chart ─────────────────────────────────────────────────────────────
 
 function buildChart(data) {
+  closePanel();
   selectedGroups.clear();
   assignGuildColors(data);
   joinGwPoints(data);

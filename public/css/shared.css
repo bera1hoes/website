@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
+:root { --accent: #f0a500; }
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -11,3 +13,5 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+.eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }

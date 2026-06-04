@@ -31,14 +31,14 @@ function parseTSV(text) {
 
   const data = [];
   for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split('\t');
+    const row = lines[i].replace(/\r$/, '').split('\t');
     if (!row[cpIdx] || !row[scoreIdx]) continue;
     data.push({
-      rank:       row[rankIdx],
+      rank:       Number(row[rankIdx]),
       nick:       row[nickIdx],
       score:      Number(row[scoreIdx]),
       cls:        row[clsIdx],
-      level:      row[levelIdx],
+      level:      Number(row[levelIdx]),
       cp:         Number(row[cpIdx]),
       guild:      row[guildIdx],
       scoreShort: row[scoreShortIdx],

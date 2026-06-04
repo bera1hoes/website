@@ -1,3 +1,5 @@
+:root { --accent: #ff5fa2; }
+
 body { padding: 0 24px 64px; }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
@@ -167,10 +169,10 @@ h2 {
 /* ── Snapshot list ───────────────────────────────────────────────────────── */
 .snapshots-label {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--accent);
   margin-bottom: -4px;
 }
 
