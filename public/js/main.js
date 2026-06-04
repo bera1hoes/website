@@ -14,11 +14,18 @@ if (IS_LOCAL) {
   s1.onload = function() {
     const s2 = document.createElement('script');
     s2.src = './SampleData/GBBLocalData.js';
-    s2.onload = s2.onerror = function() {
+    const loadS3 = function() {
       const s3 = document.createElement('script');
       s3.src = './SampleData/GlobalGBBLocalData.js';
-      s3.onload = s3.onerror = function() {};
+      s3.onerror = function() {
+        console.warn('Could not load GlobalGBBLocalData.js — Global GBB data will be unavailable');
+      };
       document.head.appendChild(s3);
+    };
+    s2.onload = loadS3;
+    s2.onerror = function() {
+      console.warn('Could not load GBBLocalData.js — GBB data will be unavailable');
+      loadS3();
     };
     document.head.appendChild(s2);
   };

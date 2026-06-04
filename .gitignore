@@ -21,3 +21,6 @@ _chk.js
 _codecheck.js
 *.backup
 .data/
+
+# Local secrets — never commit
+.dev.vars

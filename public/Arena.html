@@ -116,7 +116,7 @@ function calcAvoidChance(userInfo, tables) {
       for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
     }
   }
-  return Math.trunc(Math.floor(total));
+  return Math.floor(total);
 }
 
 // ── Autocomplete dropdown ────────────────────────────────────────────────────

@@ -1,9 +1,11 @@
 // ── Regression ─────────────────────────────────────────────────────────────
 
 function powerRegression(data) {
-  const n = data.length;
-  const lx = data.map(d => Math.log10(d.cp));
-  const ly = data.map(d => Math.log10(d.score));
+  const pts = data.filter(d => d.cp > 0 && d.score > 0);
+  const n = pts.length;
+  if (n < 2) return { A: 1, B: 1, r2: 0, Alog: 0, sigma: 0 };
+  const lx = pts.map(d => Math.log10(d.cp));
+  const ly = pts.map(d => Math.log10(d.score));
   let sx=0,sy=0,sxx=0,sxy=0;
   for(let i=0;i<n;i++){sx+=lx[i];sy+=ly[i];sxx+=lx[i]*lx[i];sxy+=lx[i]*ly[i];}
   const B = (n*sxy - sx*sy) / (n*sxx - sx*sx);
@@ -22,6 +24,7 @@ function computeClassBias(data, A, B) {
   const MIN_CLASS = 5;
   const byClass = {};
   data.forEach(d => {
+    if (!(d.cp > 0 && d.score > 0)) return;
     const r = Math.log10(d.score) - Math.log10(A * Math.pow(d.cp, B));
     (byClass[d.cls] ||= []).push(r);
   });
@@ -36,6 +39,10 @@ function computeClassBias(data, A, B) {
 // (declared in chart.js) currently selects.
 function computeFitDiffs(rows, A, B, classBias) {
   rows.forEach(d => {
+    if (!(d.cp > 0 && d.score > 0)) {
+      d.fitDiffRaw = 0; d.fitDiffClass = 0; d.fitDiff = 0;
+      return;
+    }
     const predicted = A * Math.pow(d.cp, B);
     const predClass = predicted * Math.pow(10, (classBias && classBias[d.cls]) || 0);
     d.fitDiffRaw   = (d.score - predicted) / predicted * 100;
