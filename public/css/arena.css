@@ -1,4 +1,4 @@
-:root { --accent: #ff5fa2; }
+:root { --accent: var(--pink); }
 
 body { padding: 0 24px 64px; }
 
@@ -14,29 +14,6 @@ header {
   margin-bottom: 40px;
 }
 
-.site-title {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  color: #ff5fa2;
-  text-decoration: none;
-  letter-spacing: -0.01em;
-}
-.site-title span {
-  color: #e8eaf0;
-  font-weight: 400;
-}
-
-.back-link {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  color: #6b7280;
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  transition: color .15s ease;
-}
-.back-link:hover { color: #ff5fa2; }
-
 /* ── Main content ────────────────────────────────────────────────────────── */
 main {
   width: 100%;
@@ -50,7 +27,7 @@ h2 {
   font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 28px;
-  color: #e8eaf0;
+  color: var(--text);
   letter-spacing: -0.01em;
 }
 
@@ -67,24 +44,23 @@ h2 {
 
 #nick-input {
   width: 100%;
-  background: #161921;
+  background: var(--surface);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  color: #e8eaf0;
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   padding: 13px 18px;
-  outline: none;
   transition: border-color .15s ease;
 }
-#nick-input::placeholder { color: #6b7280; }
+#nick-input::placeholder { color: var(--text-muted); }
 #nick-input:focus { border-color: rgba(255,95,162,0.5); }
 
 #search-btn {
-  background: #ff5fa2;
+  background: var(--pink);
   border: none;
   border-radius: 10px;
-  color: #0d0f14;
+  color: var(--bg);
   font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 15px;
@@ -110,7 +86,7 @@ h2 {
   margin: 0;
   padding: 6px;
   list-style: none;
-  background: #161921;
+  background: var(--surface);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.45);
@@ -126,7 +102,7 @@ h2 {
   padding: 10px 14px;
   border-radius: 7px;
   cursor: pointer;
-  color: #e8eaf0;
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
 }
@@ -139,7 +115,7 @@ h2 {
   flex: none;
   font-family: 'Space Mono', monospace;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   letter-spacing: 0.04em;
 }
 
@@ -151,14 +127,14 @@ h2 {
 }
 
 .status {
-  color: #6b7280;
+  color: var(--text-muted);
   text-align: center;
   font-size: 15px;
   padding: 24px 0;
 }
 
 .error {
-  color: #f87171;
+  color: var(--danger);
   font-size: 14px;
   padding: 16px 20px;
   background: rgba(248,113,113,0.08);
@@ -184,10 +160,10 @@ h2 {
 
 .snapshot-btn {
   width: 100%;
-  background: #161921;
+  background: var(--surface);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
-  color: #e8eaf0;
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   font-weight: 500;
@@ -205,14 +181,14 @@ h2 {
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 .snapshot-btn.active {
-  border-color: #ff5fa2;
-  box-shadow: 0 0 0 1px #ff5fa2, 0 4px 20px rgba(255,95,162,0.2);
+  border-color: var(--pink);
+  box-shadow: 0 0 0 1px var(--pink), 0 4px 20px rgba(255,95,162,0.2);
 }
 
 .snap-date {
   font-family: 'Space Mono', monospace;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--text-muted);
   font-weight: 400;
   letter-spacing: 0.04em;
 }
@@ -228,7 +204,7 @@ h2 {
 .stat-card {
   flex: 1;
   min-width: 180px;
-  background: #161921;
+  background: var(--surface);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 24px 28px;
@@ -242,14 +218,14 @@ h2 {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .stat-value {
   font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 36px;
-  color: #ff5fa2;
+  color: var(--pink);
   letter-spacing: -0.01em;
   line-height: 1;
 }

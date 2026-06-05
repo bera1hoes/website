@@ -16,15 +16,38 @@ const IS_LOCAL = !HAS_GAS && (
 const IS_REMOTE = !HAS_GAS && !IS_LOCAL;
 
 // Read-only GET wrapper for the Apps Script JSON API (remote mode).
+// Aborts after a timeout so a hung request can't leave the UI stuck on "Loading…".
+const API_TIMEOUT_MS = 15000;
+
 function apiCall(action, params) {
   const qs = new URLSearchParams(Object.assign({ action: action }, params || {}));
-  return fetch(API_URL + '?' + qs.toString()).then(r => {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+  return fetch(API_URL + '?' + qs.toString(), { signal: ctrl.signal }).then(r => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   }).then(json => {
     if (json && json.error) throw new Error(json.error);
     return json;
-  });
+  }).catch(err => {
+    throw err.name === 'AbortError' ? new Error('Request timed out') : err;
+  }).finally(() => clearTimeout(timer));
+}
+
+// Render an error in the loading area with a Retry button wired to `retryFn`.
+function showLoadError(message, retryFn) {
+  const el = document.getElementById('loading');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = message + ' ';
+  if (retryFn) {
+    const btn = document.createElement('button');
+    btn.className = 'file-btn';
+    btn.textContent = '↻ Retry';
+    btn.style.marginLeft = '8px';
+    btn.addEventListener('click', retryFn);
+    el.appendChild(btn);
+  }
 }
 
 // ── Sheet / content-type state ─────────────────────────────────────────────
@@ -95,7 +118,7 @@ function loadContentType(type) {
         applySheetNames(names);
       };
       const onNamesErr = function(err) {
-        document.getElementById('loading').textContent = 'Error: ' + err.message;
+        showLoadError('Error: ' + err.message, function() { loadContentType(type); });
       };
       if (HAS_GAS) {
         google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
@@ -112,10 +135,13 @@ function loadContentType(type) {
         lastUpdatedCache[type] = iso;
         applyLastUpdated(iso);
       };
+      // "Last updated" is non-critical metadata: on failure, log it and leave
+      // the control hidden rather than blocking the chart.
+      const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
       if (HAS_GAS) {
-        google.script.run.withSuccessHandler(onUpdated).withFailureHandler(function() {}).getLastUpdated(type);
+        google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
       } else {
-        apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(function() {});
+        apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(onUpdatedErr);
       }
     }
   }
@@ -176,7 +202,7 @@ function loadSheet(name) {
     buildChart(currentData);
   };
   const onDataErr = function(err) {
-    document.getElementById('loading').textContent = 'Error: ' + err.message;
+    showLoadError('Error: ' + err.message, function() { loadSheet(name); });
   };
   if (HAS_GAS) {
     google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
@@ -241,6 +267,9 @@ function loadLocalFiles(files) {
       clearStats();
       document.getElementById('chart').innerHTML = '';
       buildChart(data);
+    };
+    reader.onerror = function() {
+      showLoadError('Could not read file: ' + file.name);
     };
     reader.readAsText(file);
   });

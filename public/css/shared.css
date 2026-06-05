@@ -1,12 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap');
 
-:root { --accent: #f0a500; }
+:root {
+  /* Surfaces / text */
+  --bg: #0d0f14;
+  --surface: #161921;
+  --panel-bg: #1e2330;
+  --text: #e8eaf0;
+  --text-dim: #c4c9d4;
+  --text-muted: #6b7280;
+  /* Brand / status */
+  --amber: #f0a500;
+  --pink: #ff5fa2;
+  --teal: #4ecdc4;
+  --danger: #f87171;
+  --border: rgba(255,255,255,0.12);
+  /* Per-page accent (overridden on the Arena/Home pages). */
+  --accent: var(--amber);
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: #0d0f14;
-  color: #e8eaf0;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
   display: flex;
@@ -14,4 +30,29 @@ body {
   align-items: center;
 }
 
+/* Keyboard focus ring (mouse clicks don't trigger :focus-visible). */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 .eyebrow { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+
+/* Shared site header (shared by Charts + Arena). The <header> box itself is
+   styled per-page; only the title/back-link are common. */
+.site-title {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--pink);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+.site-title span { color: var(--text); font-weight: 400; }
+
+.back-link {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color .15s ease;
+}
+.back-link:hover { color: var(--pink); }
