@@ -98,6 +98,7 @@
     <div class="pivot-wrap">
       <div class="player-filter-wrap">
         <input class="player-filter" id="player-filter" type="text" aria-label="Filter players by name, guild, or class" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
+        <button id="player-filter-clear" class="filter-clear" type="button" aria-label="Clear filter" onclick="clearPlayerFilter()" hidden>×</button>
       </div>
       <table class="pivot-table" id="player-table">
         <thead>
@@ -162,13 +163,17 @@
       <div class="exp-label">CP Range Filter</div>
       <div class="dual-slider" id="cp-slider-wrap">
         <div class="slider-track-fill" id="cp-slider-fill" style="left:0%;width:100%"></div>
-        <input type="range" id="cp-slider-low"  min="0" max="1000" value="0"    oninput="onCpSlider()">
-        <input type="range" id="cp-slider-high" min="0" max="1000" value="1000" oninput="onCpSlider()">
+        <input type="range" id="cp-slider-low"  min="0" max="1000" value="0"    oninput="onCpSlider(this)">
+        <input type="range" id="cp-slider-high" min="0" max="1000" value="1000" oninput="onCpSlider(this)">
       </div>
       <div class="slider-vals">
         <span id="cp-val-low">—</span>
         <span id="cp-val-high">—</span>
       </div>
+      <button id="defer-filter-btn" class="file-btn active" type="button"
+        style="width:100%;margin-top:10px;font-size:11px"
+        title="When ON, refits/tables update after you stop dragging (only on 200+ point datasets)"
+        onclick="setFilterDefer(!filterDeferEnabled)">Smooth filtering: ON</button>
     </div>
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">

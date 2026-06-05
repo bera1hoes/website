@@ -73,6 +73,8 @@ function buildPlayerTable(data) {
   playerFilter = '';
   const filterInput = document.getElementById('player-filter');
   if (filterInput) filterInput.value = '';
+  const clr = document.getElementById('player-filter-clear');
+  if (clr) clr.hidden = true;
 
   document.querySelectorAll('#player-table thead th.sortable').forEach(th => {
     th.onclick = () => sortPlayerTableBy(th.dataset.col);
@@ -100,7 +102,19 @@ function sortPlayerTableBy(col) {
 
 function filterPlayerTable(val) {
   playerFilter = val.toLowerCase();
+  const clr = document.getElementById('player-filter-clear');
+  if (clr) clr.hidden = !val;
   renderPlayerTable();
+}
+
+function clearPlayerFilter() {
+  const input = document.getElementById('player-filter');
+  if (input) input.value = '';
+  playerFilter = '';
+  const clr = document.getElementById('player-filter-clear');
+  if (clr) clr.hidden = true;
+  renderPlayerTable();
+  if (input) input.focus();
 }
 
 function renderPlayerTable() {

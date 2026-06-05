@@ -182,9 +182,25 @@ select:focus { border-color: var(--amber); }
 .file-btn:hover { border-color: rgba(255,255,255,0.25); }
 
 /* Player table filter + sort */
-.player-filter-wrap { padding: 12px 16px 0; }
+.player-filter-wrap { display: flex; align-items: center; gap: 8px; padding: 12px 16px 0; }
+.filter-clear {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.filter-clear:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+.file-btn.active { border-color: var(--amber); color: var(--amber); }
 .player-filter {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   background: #1a1f2e;
   color: var(--text);
   border: 1px solid var(--border);
@@ -253,6 +269,9 @@ select:focus { border-color: var(--amber); }
 .dual-slider input[type="range"] { position: absolute; width: 100%; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; }
 .dual-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; pointer-events: all; cursor: pointer; width: 16px; height: 16px; border-radius: 50%; background: var(--amber); border: 2px solid var(--bg); }
 .dual-slider input[type="range"]::-webkit-slider-runnable-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+/* Firefox: thumbs need pointer-events re-enabled and matching styling. */
+.dual-slider input[type="range"]::-moz-range-thumb { pointer-events: all; cursor: pointer; width: 16px; height: 16px; border-radius: 50%; background: var(--amber); border: 2px solid var(--bg); }
+.dual-slider input[type="range"]::-moz-range-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
 .slider-track-fill { position: absolute; height: 4px; background: var(--amber); top: 50%; transform: translateY(-50%); pointer-events: none; border-radius: 2px; }
 .slider-vals { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace; margin-top: 4px; }
 

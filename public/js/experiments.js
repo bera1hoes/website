@@ -26,8 +26,21 @@ function resetCpSlider() {
   hi.value = 1000;
   updateSliderLabels();
   updateSliderFill();
+  updateSliderZ();
   cpFilter.low  = null;
   cpFilter.high = null;
+}
+
+// The two range inputs are stacked, so the one painted on top captures the
+// click where their thumbs overlap. Raise whichever thumb sits in the contested
+// right half so it can never get buried under the other and become ungrabbable.
+function updateSliderZ() {
+  const lowEl  = document.getElementById('cp-slider-low');
+  const highEl = document.getElementById('cp-slider-high');
+  if (!lowEl || !highEl) return;
+  const lo = +lowEl.value, hi = +highEl.value;
+  if (lo + hi > 1000) { lowEl.style.zIndex = 5; highEl.style.zIndex = 4; }
+  else                { lowEl.style.zIndex = 4; highEl.style.zIndex = 5; }
 }
 
 function updateSliderLabels() {
@@ -45,16 +58,38 @@ function updateSliderFill() {
   fill.style.width = ((hi - lo) / 10) + '%';
 }
 
+// CP-filter deferral: only defers the heavy recompute, and only on large
+// datasets where per-tick refits are actually expensive. User-toggleable via
+// the Experiments button (setFilterDefer).
 let _filterDebounce = null;
+let filterDeferEnabled = true;
+const FILTER_DEFER_MIN_POINTS = 200;
 
-function onCpSlider() {
-  let lo = +document.getElementById('cp-slider-low').value;
-  let hi = +document.getElementById('cp-slider-high').value;
-  if (lo > hi) { [lo, hi] = [hi, lo]; }
-  document.getElementById('cp-slider-low').value  = lo;
-  document.getElementById('cp-slider-high').value = hi;
+function setFilterDefer(on) {
+  filterDeferEnabled = on;
+  const btn = document.getElementById('defer-filter-btn');
+  if (btn) {
+    btn.classList.toggle('active', on);
+    btn.textContent = on ? 'Smooth filtering: ON' : 'Smooth filtering: OFF';
+  }
+}
+
+// `changed` is the input element the user is dragging (passed from oninput).
+function onCpSlider(changed) {
+  const lowEl  = document.getElementById('cp-slider-low');
+  const highEl = document.getElementById('cp-slider-high');
+  let lo = +lowEl.value;
+  let hi = +highEl.value;
+  // Clamp the dragged thumb at the other instead of swapping their identities —
+  // swapping snapped the dragged thumb backwards and felt like it was stuck.
+  if (lo > hi) {
+    if (changed === highEl) hi = lo; else lo = hi;
+  }
+  lowEl.value  = lo;
+  highEl.value = hi;
   updateSliderLabels();
   updateSliderFill();
+  updateSliderZ();
   cpFilter.low  = lo === 0    ? null : sliderToCP(lo);
   cpFilter.high = hi === 1000 ? null : sliderToCP(hi);
 
@@ -64,10 +99,15 @@ function onCpSlider() {
     const high = cpFilter.high ?? cpFilter.dataMax;
     d3.selectAll('.dot').style('display', d => (d.cp >= low && d.cp <= high) ? null : 'none');
   }
-  // Debounce the heavy work (regression refit + table rebuilds) so it runs once
-  // the user settles, not on every drag tick.
+
+  // Defer the heavy work (refit + table rebuilds) only when it's worth it:
+  // the toggle is on AND the dataset is large. Otherwise apply immediately.
   clearTimeout(_filterDebounce);
-  _filterDebounce = setTimeout(applyFilters, 120);
+  if (filterDeferEnabled && currentData && currentData.length >= FILTER_DEFER_MIN_POINTS) {
+    _filterDebounce = setTimeout(applyFilters, 120);
+  } else {
+    applyFilters();
+  }
 }
 
 // ── Experiments: CP filter ─────────────────────────────────────────────────
