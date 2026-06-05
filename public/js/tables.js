@@ -47,7 +47,7 @@ function buildPivotTable(data) {
     const avg = total / count;
     const tr = document.createElement('tr');
     tr.innerHTML =
-      `<td><span class="p-swatch" style="background:${color}"></span><a href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${guild}</a></td>` +
+      `<td><span class="p-swatch" style="background:${color}"></span><a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener">${guild}</a></td>` +
       `<td>${count}</td>` +
       `<td>${fmt(total)}</td>` +
       `<td>${fmt(avg)}</td>`;
@@ -75,15 +75,9 @@ function buildPlayerTable(data) {
   if (filterInput) filterInput.value = '';
 
   document.querySelectorAll('#player-table thead th.sortable').forEach(th => {
-    th.onclick = () => {
-      const col = th.dataset.col;
-      if (playerSortCol === col) {
-        playerSortDir = playerSortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        playerSortCol = col;
-        playerSortDir = NUMERIC_COLS.has(col) ? 'desc' : 'asc';
-      }
-      renderPlayerTable();
+    th.onclick = () => sortPlayerTableBy(th.dataset.col);
+    th.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sortPlayerTableBy(th.dataset.col); }
     };
   });
 
@@ -91,6 +85,16 @@ function buildPlayerTable(data) {
   if (gwCol) gwCol.style.display = currentContentType === 'Guild Wars' ? '' : 'none';
 
   document.getElementById('player-table-section').style.display = 'block';
+  renderPlayerTable();
+}
+
+function sortPlayerTableBy(col) {
+  if (playerSortCol === col) {
+    playerSortDir = playerSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    playerSortCol = col;
+    playerSortDir = NUMERIC_COLS.has(col) ? 'desc' : 'asc';
+  }
   renderPlayerTable();
 }
 
@@ -127,6 +131,7 @@ function renderPlayerTable() {
     const isActive = th.dataset.col === playerSortCol;
     icon.textContent = isActive ? (playerSortDir === 'asc' ? '↑' : '↓') : '↕';
     icon.className = 'sort-icon' + (isActive ? ' active' : '');
+    th.setAttribute('aria-sort', isActive ? (playerSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
   });
 
   const tbody = document.getElementById('player-body');
@@ -136,12 +141,10 @@ function renderPlayerTable() {
     const tr = document.createElement('tr');
     const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
     const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
-    const linkStyle = `color:inherit;text-decoration:none`;
-    const linkHover = `onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'"`;
     tr.innerHTML =
       `<td style="text-align:right">${d.rank}</td>` +
-      `<td><a href="${nickHref}" target="_blank" rel="noopener" style="${linkStyle}" ${linkHover}>${d.nick}</a></td>` +
-      `<td><span class="p-swatch" style="background:${color}"></span><a href="${guildHref}" target="_blank" rel="noopener" style="${linkStyle}" ${linkHover}>${d.guild}</a></td>` +
+      `<td><a class="tlink" href="${nickHref}" target="_blank" rel="noopener">${d.nick}</a></td>` +
+      `<td><span class="p-swatch" style="background:${color}"></span><a class="tlink" href="${guildHref}" target="_blank" rel="noopener">${d.guild}</a></td>` +
       `<td>${d.cls}</td>` +
       `<td style="text-align:right">${d.level}</td>` +
       `<td style="text-align:right">${d.cpShort}</td>` +

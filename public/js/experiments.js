@@ -45,6 +45,8 @@ function updateSliderFill() {
   fill.style.width = ((hi - lo) / 10) + '%';
 }
 
+let _filterDebounce = null;
+
 function onCpSlider() {
   let lo = +document.getElementById('cp-slider-low').value;
   let hi = +document.getElementById('cp-slider-high').value;
@@ -55,7 +57,17 @@ function onCpSlider() {
   updateSliderFill();
   cpFilter.low  = lo === 0    ? null : sliderToCP(lo);
   cpFilter.high = hi === 1000 ? null : sliderToCP(hi);
-  applyFilters();
+
+  // Immediate, cheap visual feedback: just toggle dot visibility while dragging.
+  if (currentData) {
+    const low  = cpFilter.low  ?? cpFilter.dataMin;
+    const high = cpFilter.high ?? cpFilter.dataMax;
+    d3.selectAll('.dot').style('display', d => (d.cp >= low && d.cp <= high) ? null : 'none');
+  }
+  // Debounce the heavy work (regression refit + table rebuilds) so it runs once
+  // the user settles, not on every drag tick.
+  clearTimeout(_filterDebounce);
+  _filterDebounce = setTimeout(applyFilters, 120);
 }
 
 // ── Experiments: CP filter ─────────────────────────────────────────────────
@@ -111,6 +123,13 @@ function applyCustomFit() {
   if (isNaN(parsedA) || isNaN(parsedB)) {
     status.style.color = '#f87171';
     status.textContent = 'Could not parse — paste from the EQUATION card.';
+    return;
+  }
+  // A is the coefficient of a power fit (Score = A·CP^B), so it must be a finite
+  // positive number; B must be finite. Reject values that would yield NaN/∞.
+  if (!isFinite(parsedA) || parsedA <= 0 || !isFinite(parsedB)) {
+    status.style.color = '#f87171';
+    status.textContent = 'Invalid coefficients — A must be > 0 and finite.';
     return;
   }
   custom.A = parsedA;
@@ -175,5 +194,6 @@ function onClassAdjust(checked) {
 }
 
 function toggleExperiments() {
-  document.getElementById('experiments-panel').classList.toggle('open');
+  const open = document.getElementById('experiments-panel').classList.toggle('open');
+  document.getElementById('experiments-tab').setAttribute('aria-expanded', String(open));
 }

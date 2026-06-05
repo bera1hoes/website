@@ -35,6 +35,8 @@ function applyHighlights() {
 
 // ── Legend ─────────────────────────────────────────────────────────────────
 
+let _legendDelegated = false;
+
 function buildLegend(data) {
   const palette = colorMode === 'guild' ? GUILD_COLORS : CLASS_COLORS;
   const key = colorMode === 'guild' ? 'guild' : 'cls';
@@ -42,6 +44,20 @@ function buildLegend(data) {
 
   const lg = document.getElementById('legend');
   lg.innerHTML = '';
+
+  // One delegated click handler for the whole legend — survives rebuilds, so we
+  // don't attach a fresh listener per item on every render.
+  if (!_legendDelegated) {
+    lg.addEventListener('click', e => {
+      const item = e.target.closest('.legend-item[data-group]');
+      if (!item) return;
+      const label = item.dataset.group;
+      if (selectedGroups.has(label)) selectedGroups.delete(label);
+      else selectedGroups.add(label);
+      applyHighlights();
+    });
+    _legendDelegated = true;
+  }
 
   const fitItem = document.createElement('div');
   fitItem.className = 'legend-item';
@@ -58,12 +74,7 @@ function buildLegend(data) {
     const item = document.createElement('div');
     item.className = 'legend-item clickable';
     item.dataset.group = label;
-    item.innerHTML = `<div class="legend-dot" style="background:${color};border:1.5px solid ${color}"></div><span style="color:#c4c9d4">${label}</span>`;
-    item.addEventListener('click', () => {
-      if (selectedGroups.has(label)) selectedGroups.delete(label);
-      else selectedGroups.add(label);
-      applyHighlights();
-    });
+    item.innerHTML = `<div class="legend-dot" style="background:${color};border:1.5px solid ${color}"></div><span style="color:var(--text-dim)">${label}</span>`;
     lg.appendChild(item);
   });
 }

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<base target="_top">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>(s)hoes · Charts</title>
@@ -28,7 +27,7 @@
     </div>
     <div class="ctrl-group" id="sheet-ctrl-group" style="display:none">
       <div class="ctrl-label" id="sheet-label">Sheet (date)</div>
-      <select id="sheet-select" onchange="loadSheet(this.value)">
+      <select id="sheet-select" aria-label="Select sheet (date)" onchange="loadSheet(this.value)">
         <option>Loading...</option>
       </select>
     </div>
@@ -98,21 +97,21 @@
     <div class="eyebrow" style="margin: 24px 0 12px">Player Data</div>
     <div class="pivot-wrap">
       <div class="player-filter-wrap">
-        <input class="player-filter" id="player-filter" type="text" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
+        <input class="player-filter" id="player-filter" type="text" aria-label="Filter players by name, guild, or class" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
       </div>
       <table class="pivot-table" id="player-table">
         <thead>
           <tr>
-            <th class="sortable" data-col="rank" style="text-align:right">Rank <span class="sort-icon active">↑</span></th>
-            <th class="sortable" data-col="nick" style="text-align:left">Nick <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="guild" style="text-align:left">Guild <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="cls" style="text-align:left">Class <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="level" style="text-align:right">Level <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="cp" style="text-align:right">CP <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="score" style="text-align:right">Score <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
-            <th class="sortable" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="ascending" data-col="rank" style="text-align:right">Rank <span class="sort-icon active">↑</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="nick" style="text-align:left">Nick <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="guild" style="text-align:left">Guild <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="cls" style="text-align:left">Class <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="level" style="text-align:right">Level <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="cp" style="text-align:right">CP <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="score" style="text-align:right">Score <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="player-body"></tbody>
@@ -124,7 +123,7 @@
 
 <!-- Info panel — fixed position, populated by JS -->
 <div id="panel">
-  <button class="close-btn" onclick="closePanel()">×</button>
+  <button class="close-btn" aria-label="Close player details" onclick="closePanel()">×</button>
   <div class="p-rank" id="p-rank"></div>
   <div class="p-name" id="p-name"></div>
   <div class="p-row"><span class="p-key">CLASS</span><span id="p-cls"></span></div>
@@ -138,7 +137,8 @@
 
 <!-- Experiments side panel -->
 <div id="experiments-panel">
-  <div id="experiments-tab" onclick="toggleExperiments()">Experiments</div>
+  <div id="experiments-tab" role="button" tabindex="0" aria-expanded="false" aria-controls="experiments-content"
+       onclick="toggleExperiments()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleExperiments();}">Experiments</div>
   <div id="experiments-content">
     <div class="eyebrow" style="margin-bottom:16px">Experiments</div>
 
