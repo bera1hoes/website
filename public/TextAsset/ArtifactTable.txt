@@ -1,0 +1,588 @@
+[
+  {
+    "Index": "301",
+    "ArtifactCode": "ARTIFACT_3_1",
+    "GradeType": "Grade3",
+    "CollectionOptionIndices": [
+      "30101",
+      "30102"
+    ],
+    "EquipSkillIndices": [
+      "9030100",
+      "9030110",
+      "9030120",
+      "9030130",
+      "9030140",
+      "9030150"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_3_1",
+    "IconPath": "Artifact:ARTIFACT_3_1"
+  },
+  {
+    "Index": "302",
+    "ArtifactCode": "ARTIFACT_3_2",
+    "GradeType": "Grade3",
+    "CollectionOptionIndices": [
+      "30101",
+      "30102"
+    ],
+    "EquipSkillIndices": [
+      "9030200",
+      "9030210",
+      "9030220",
+      "9030230",
+      "9030240",
+      "9030250"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_3_2",
+    "IconPath": "Artifact:ARTIFACT_3_2"
+  },
+  {
+    "Index": "303",
+    "ArtifactCode": "ARTIFACT_3_3",
+    "GradeType": "Grade3",
+    "CollectionOptionIndices": [
+      "30101",
+      "30102"
+    ],
+    "EquipSkillIndices": [
+      "9030300",
+      "9030310",
+      "9030320",
+      "9030330",
+      "9030340",
+      "9030350"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_3_3",
+    "IconPath": "Artifact:ARTIFACT_3_3"
+  },
+  {
+    "Index": "304",
+    "ArtifactCode": "ARTIFACT_3_4",
+    "GradeType": "Grade3",
+    "CollectionOptionIndices": [
+      "30101",
+      "30102"
+    ],
+    "EquipSkillIndices": [
+      "9030400",
+      "9030410",
+      "9030420",
+      "9030430",
+      "9030440",
+      "9030450"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_3_4",
+    "IconPath": "Artifact:ARTIFACT_3_4"
+  },
+  {
+    "Index": "401",
+    "ArtifactCode": "ARTIFACT_4_1",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040100",
+      "9040110",
+      "9040120",
+      "9040130",
+      "9040140",
+      "9040150"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_1",
+    "IconPath": "Artifact:ARTIFACT_4_1"
+  },
+  {
+    "Index": "402",
+    "ArtifactCode": "ARTIFACT_4_2",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040200",
+      "9040210",
+      "9040220",
+      "9040230",
+      "9040240",
+      "9040250"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_2",
+    "IconPath": "Artifact:ARTIFACT_4_2"
+  },
+  {
+    "Index": "403",
+    "ArtifactCode": "ARTIFACT_4_3",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040300",
+      "9040310",
+      "9040320",
+      "9040330",
+      "9040340",
+      "9040350"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_3",
+    "IconPath": "Artifact:ARTIFACT_4_3"
+  },
+  {
+    "Index": "404",
+    "ArtifactCode": "ARTIFACT_4_4",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040400",
+      "9040410",
+      "9040420",
+      "9040430",
+      "9040440",
+      "9040450"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_4",
+    "IconPath": "Artifact:ARTIFACT_4_4"
+  },
+  {
+    "Index": "405",
+    "ArtifactCode": "ARTIFACT_4_5",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040500",
+      "9040510",
+      "9040520",
+      "9040530",
+      "9040540",
+      "9040550"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_5",
+    "IconPath": "Artifact:ARTIFACT_4_5"
+  },
+  {
+    "Index": "406",
+    "ArtifactCode": "ARTIFACT_4_6",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40101",
+      "40102"
+    ],
+    "EquipSkillIndices": [
+      "9040600",
+      "9040610",
+      "9040620",
+      "9040630",
+      "9040640",
+      "9040650"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_6",
+    "IconPath": "Artifact:ARTIFACT_4_6"
+  },
+  {
+    "Index": "407",
+    "ArtifactCode": "ARTIFACT_4_7",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40701"
+    ],
+    "EquipSkillIndices": [
+      "9040700",
+      "9040710",
+      "9040720",
+      "9040730",
+      "9040740",
+      "9040750"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_7",
+    "IconPath": "Artifact:ARTIFACT_4_7"
+  },
+  {
+    "Index": "408",
+    "ArtifactCode": "ARTIFACT_4_8",
+    "GradeType": "Grade4",
+    "CollectionOptionIndices": [
+      "40801"
+    ],
+    "EquipSkillIndices": [
+      "9040800",
+      "9040810",
+      "9040820",
+      "9040830",
+      "9040840",
+      "9040850"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_4_8",
+    "IconPath": "Artifact:ARTIFACT_4_8"
+  },
+  {
+    "Index": "501",
+    "ArtifactCode": "ARTIFACT_5_1",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50101"
+    ],
+    "EquipSkillIndices": [
+      "9050100",
+      "9050110",
+      "9050120",
+      "9050130",
+      "9050140",
+      "9050150"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_1",
+    "IconPath": "Artifact:ARTIFACT_5_1"
+  },
+  {
+    "Index": "502",
+    "ArtifactCode": "ARTIFACT_5_2",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50201"
+    ],
+    "EquipSkillIndices": [
+      "9050200",
+      "9050210",
+      "9050220",
+      "9050230",
+      "9050240",
+      "9050250"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_2",
+    "IconPath": "Artifact:ARTIFACT_5_2"
+  },
+  {
+    "Index": "503",
+    "ArtifactCode": "ARTIFACT_5_3",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50301"
+    ],
+    "EquipSkillIndices": [
+      "9050300",
+      "9050310",
+      "9050320",
+      "9050330",
+      "9050340",
+      "9050350"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_3",
+    "IconPath": "Artifact:ARTIFACT_5_3"
+  },
+  {
+    "Index": "504",
+    "ArtifactCode": "ARTIFACT_5_4",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50401"
+    ],
+    "EquipSkillIndices": [
+      "9050400",
+      "9050410",
+      "9050420",
+      "9050430",
+      "9050440",
+      "9050450"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_4",
+    "IconPath": "Artifact:ARTIFACT_5_4"
+  },
+  {
+    "Index": "505",
+    "ArtifactCode": "ARTIFACT_5_5",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50501"
+    ],
+    "EquipSkillIndices": [
+      "9050500",
+      "9050510",
+      "9050520",
+      "9050530",
+      "9050540",
+      "9050550"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_5",
+    "IconPath": "Artifact:ARTIFACT_5_5"
+  },
+  {
+    "Index": "506",
+    "ArtifactCode": "ARTIFACT_5_6",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50601"
+    ],
+    "EquipSkillIndices": [
+      "9050600",
+      "9050610",
+      "9050620",
+      "9050630",
+      "9050640",
+      "9050650"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_6",
+    "IconPath": "Artifact:ARTIFACT_5_6"
+  },
+  {
+    "Index": "507",
+    "ArtifactCode": "ARTIFACT_5_7",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50701"
+    ],
+    "EquipSkillIndices": [
+      "9050700",
+      "9050710",
+      "9050720",
+      "9050730",
+      "9050740",
+      "9050750"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_7",
+    "IconPath": "Artifact:ARTIFACT_5_7"
+  },
+  {
+    "Index": "508",
+    "ArtifactCode": "ARTIFACT_5_8",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50801"
+    ],
+    "EquipSkillIndices": [
+      "9050800",
+      "9050810",
+      "9050820",
+      "9050830",
+      "9050840",
+      "9050850"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_8",
+    "IconPath": "Artifact:ARTIFACT_5_8"
+  },
+  {
+    "Index": "509",
+    "ArtifactCode": "ARTIFACT_5_9",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "50901"
+    ],
+    "EquipSkillIndices": [
+      "9050900",
+      "9050910",
+      "9050920",
+      "9050930",
+      "9050940",
+      "9050950"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_9",
+    "IconPath": "Artifact:ARTIFACT_5_9"
+  },
+  {
+    "Index": "510",
+    "ArtifactCode": "ARTIFACT_5_10",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51001"
+    ],
+    "EquipSkillIndices": [
+      "9051000",
+      "9051010",
+      "9051020",
+      "9051030",
+      "9051040",
+      "9051050"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_10",
+    "IconPath": "Artifact:ARTIFACT_5_10"
+  },
+  {
+    "Index": "511",
+    "ArtifactCode": "ARTIFACT_5_11",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51101"
+    ],
+    "EquipSkillIndices": [
+      "9051100",
+      "9051110",
+      "9051120",
+      "9051130",
+      "9051140",
+      "9051150"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_11",
+    "IconPath": "Artifact:ARTIFACT_5_11"
+  },
+  {
+    "Index": "512",
+    "ArtifactCode": "ARTIFACT_5_12",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51201"
+    ],
+    "EquipSkillIndices": [
+      "9051200",
+      "9051210",
+      "9051220",
+      "9051230",
+      "9051240",
+      "9051250"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_12",
+    "IconPath": "Artifact:ARTIFACT_5_12"
+  },
+  {
+    "Index": "513",
+    "ArtifactCode": "ARTIFACT_5_13",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51301"
+    ],
+    "EquipSkillIndices": [
+      "9051300",
+      "9051310",
+      "9051320",
+      "9051330",
+      "9051340",
+      "9051350"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_13",
+    "IconPath": "Artifact:ARTIFACT_5_13"
+  },
+  {
+    "Index": "514",
+    "ArtifactCode": "ARTIFACT_5_14",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51401"
+    ],
+    "EquipSkillIndices": [
+      "9051400",
+      "9051410",
+      "9051420",
+      "9051430",
+      "9051440",
+      "9051450"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_14",
+    "IconPath": "Artifact:ARTIFACT_5_14"
+  },
+  {
+    "Index": "515",
+    "ArtifactCode": "ARTIFACT_5_15",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51501"
+    ],
+    "EquipSkillIndices": [
+      "9051500",
+      "9051510",
+      "9051520",
+      "9051530",
+      "9051540",
+      "9051550"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_15",
+    "IconPath": "Artifact:ARTIFACT_5_15"
+  },
+  {
+    "Index": "516",
+    "ArtifactCode": "ARTIFACT_5_16",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51601"
+    ],
+    "EquipSkillIndices": [
+      "9051600",
+      "9051610",
+      "9051620",
+      "9051630",
+      "9051640",
+      "9051650"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_16",
+    "IconPath": "Artifact:ARTIFACT_5_16"
+  },
+  {
+    "Index": "517",
+    "ArtifactCode": "ARTIFACT_5_17",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51701"
+    ],
+    "EquipSkillIndices": [
+      "9051700",
+      "9051710",
+      "9051720",
+      "9051730",
+      "9051740",
+      "9051750"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_17",
+    "IconPath": "Artifact:ARTIFACT_5_17"
+  },
+  {
+    "Index": "518",
+    "ArtifactCode": "ARTIFACT_5_18",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51801"
+    ],
+    "EquipSkillIndices": [
+      "9051800",
+      "9051810",
+      "9051820",
+      "9051830",
+      "9051840",
+      "9051850"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_18",
+    "IconPath": "Artifact:ARTIFACT_5_18"
+  },
+  {
+    "Index": "519",
+    "ArtifactCode": "ARTIFACT_5_19",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "51901"
+    ],
+    "EquipSkillIndices": [
+      "9051900",
+      "9051910",
+      "9051920",
+      "9051930",
+      "9051940",
+      "9051950"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_19",
+    "IconPath": "Artifact:ARTIFACT_5_19"
+  },
+  {
+    "Index": "520",
+    "ArtifactCode": "ARTIFACT_5_20",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "52001"
+    ],
+    "EquipSkillIndices": [
+      "9052000",
+      "9052010",
+      "9052020",
+      "9052030",
+      "9052040",
+      "9052050"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_20",
+    "IconPath": "Artifact:ARTIFACT_5_20"
+  }
+]

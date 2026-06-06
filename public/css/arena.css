@@ -196,9 +196,15 @@ h2 {
 /* ── Stat cards ──────────────────────────────────────────────────────────── */
 #stat-panel {
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 4px;
+}
+
+.stat-cards {
+  display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  margin-top: 4px;
 }
 
 .stat-card {
@@ -228,4 +234,53 @@ h2 {
   color: var(--pink);
   letter-spacing: -0.01em;
   line-height: 1;
+}
+
+/* ── Artifacts ───────────────────────────────────────────────────────────── */
+.artifacts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artifacts-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.artifact-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.artifact-chip {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text);
+}
+
+/* Grade rarity tints (Grade3 < Grade4 < Grade5) */
+.artifact-chip.grade3 {
+  color: #7cc4ff;
+  border-color: rgba(124,196,255,0.45);
+  background: rgba(124,196,255,0.10);
+}
+.artifact-chip.grade4 {
+  color: #c79bff;
+  border-color: rgba(199,155,255,0.45);
+  background: rgba(199,155,255,0.10);
+}
+.artifact-chip.grade5 {
+  color: #ffcf5c;
+  border-color: rgba(255,207,92,0.5);
+  background: rgba(255,207,92,0.12);
 }
