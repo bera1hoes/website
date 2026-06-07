@@ -89,6 +89,7 @@ function loadContentType(type) {
   document.getElementById('btn-gw').classList.toggle('active',   type === 'Guild Wars');
   document.getElementById('btn-gbb').classList.toggle('active',  type === 'Guild Boss Battle');
   document.getElementById('btn-ggbb').classList.toggle('active', type === 'Global GBB');
+  document.getElementById('btn-gc').classList.toggle('active',   type === 'Guild Conquest');
   if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
   reloadCooldownRemaining = 0;
   latestSheet = null;

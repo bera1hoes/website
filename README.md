@@ -1,6 +1,6 @@
 # hoes.fyi
 
-Maplestory guild content visualizer — CP vs Score scatter plot with a power-law regression fit. Supports Guild Wars, Guild Boss Battle, and Global GBB data pulled live from private Google Sheets.
+Maplestory guild content visualizer — CP vs Score scatter plot with a power-law regression fit. Supports Guild Wars, Guild Boss Battle, Global GBB, and Guild Conquest data pulled live from private Google Sheets.
 
 ## Architecture
 

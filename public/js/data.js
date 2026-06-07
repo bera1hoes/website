@@ -11,6 +11,7 @@ function getLocalData(type) {
   if (type === 'Guild Wars')        return typeof GW_LOCAL_DATA   !== 'undefined' ? GW_LOCAL_DATA   : {};
   if (type === 'Guild Boss Battle') return typeof GBB_LOCAL_DATA  !== 'undefined' ? GBB_LOCAL_DATA  : {};
   if (type === 'Global GBB')        return typeof GGBB_LOCAL_DATA !== 'undefined' ? GGBB_LOCAL_DATA : {};
+  if (type === 'Guild Conquest')    return typeof GC_LOCAL_DATA   !== 'undefined' ? GC_LOCAL_DATA   : {};
   return {};
 }
 
