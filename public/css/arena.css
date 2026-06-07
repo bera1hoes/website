@@ -270,17 +270,17 @@ h2 {
 
 /* Grade rarity tints (Grade3 < Grade4 < Grade5) */
 .artifact-chip.grade3 {
-  color: #7cc4ff;
-  border-color: rgba(124,196,255,0.45);
-  background: rgba(124,196,255,0.10);
-}
-.artifact-chip.grade4 {
   color: #c79bff;
   border-color: rgba(199,155,255,0.45);
   background: rgba(199,155,255,0.10);
 }
-.artifact-chip.grade5 {
+.artifact-chip.grade4 {
   color: #ffcf5c;
   border-color: rgba(255,207,92,0.5);
   background: rgba(255,207,92,0.12);
+}
+.artifact-chip.grade5 {
+  color: #2dd4bf;
+  border-color: rgba(45,212,191,0.45);
+  background: rgba(45,212,191,0.12);
 }
