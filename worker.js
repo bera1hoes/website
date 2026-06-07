@@ -34,14 +34,7 @@ async function handleApi(url, ctx) {
   try {
     JSON.parse(body);
   } catch {
-    // Apps Script serves an HTML error/login page on failure. Pass the full raw
-    // upstream body through so the actual Apps Script error message is visible to
-    // the caller instead of a generic "non-JSON" message. (Untruncated for now
-    // while debugging — revert before relying on this in production.)
-    return new Response(
-      JSON.stringify({ error: 'Upstream returned a non-JSON response', upstream: body }),
-      { status: 502, headers: { 'content-type': 'application/json; charset=utf-8' } }
-    );
+    return jsonError(502, 'Upstream returned a non-JSON response');
   }
 
   const response = new Response(body, {
