@@ -226,7 +226,8 @@ function renderDots(data) {
     })
     .on('mouseleave', function(e, d) {
       if (activeEl !== this) {
-        d3.select(this).attr('r', 5).attr('fill-opacity', 0.75).attr('stroke', getColor(d, colorMode)).attr('stroke-width', 1);
+        const rest = dotResting(d);
+        d3.select(this).attr('r', 5).attr('fill-opacity', rest.opacity).attr('fill', rest.color).attr('stroke', rest.color).attr('stroke-width', 1);
       }
       if (!isPinned) document.getElementById('panel').style.display = 'none';
     })
@@ -239,7 +240,8 @@ function renderDots(data) {
       if (activeEl && activeEl !== this) {
         const prev = d3.select(activeEl);
         const pd = prev.datum();
-        prev.attr('r',5).attr('fill-opacity',0.75).attr('stroke', getColor(pd, colorMode)).attr('stroke-width',1);
+        const rest = dotResting(pd);
+        prev.attr('r',5).attr('fill-opacity',rest.opacity).attr('fill',rest.color).attr('stroke', rest.color).attr('stroke-width',1);
       }
       activeEl = this;
       d3.select(this).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-width',2);

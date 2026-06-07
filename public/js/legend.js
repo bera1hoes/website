@@ -21,13 +21,22 @@ function updateColors() {
     .attr('fill-opacity', 0.75);
 }
 
-function applyHighlights() {
+// Resting appearance of a dot under the current highlight/filter state. When a
+// group is selected, dots outside it are dimmed to grey; otherwise each dot
+// shows its real color. Shared by applyHighlights and the hover/click restore
+// in chart.js so restoring a dot never undoes the active dim.
+function dotResting(d) {
   const key = colorMode === 'guild' ? 'guild' : 'cls';
+  const dimmed = selectedGroups.size > 0 && !selectedGroups.has(d[key]);
+  return dimmed ? { color: '#374151', opacity: 0.12 } : { color: getColor(d, colorMode), opacity: 0.75 };
+}
+
+function applyHighlights() {
   const has = selectedGroups.size > 0;
   d3.selectAll('.dot')
-    .attr('fill', d => (has && !selectedGroups.has(d[key])) ? '#374151' : getColor(d, colorMode))
-    .attr('stroke', d => (has && !selectedGroups.has(d[key])) ? '#374151' : getColor(d, colorMode))
-    .attr('fill-opacity', d => (has && !selectedGroups.has(d[key])) ? 0.12 : 0.75);
+    .attr('fill', d => dotResting(d).color)
+    .attr('stroke', d => dotResting(d).color)
+    .attr('fill-opacity', d => dotResting(d).opacity);
   document.querySelectorAll('.legend-item[data-group]').forEach(el => {
     el.classList.toggle('dimmed', has && !selectedGroups.has(el.dataset.group));
   });
