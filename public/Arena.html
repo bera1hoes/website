@@ -37,7 +37,7 @@ let _tables = null;
 async function loadTables() {
   if (_tables) return _tables;
   const base = '/TextAsset/';
-  const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, additionalAbilityOption] =
+  const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, additionalAbilityOption, artifactTable] =
     await Promise.all([
       fetch(base + 'GearOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearFactorTable.txt').then(r => r.json()),
@@ -45,7 +45,15 @@ async function loadTables() {
       fetch(base + 'GearAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearAddAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearAdditialAbilityOptionTable.txt').then(r => r.json()),
+      fetch(base + 'ArtifactTable.txt').then(r => r.json()),
     ]);
+  // Map every artifact equip-skill id → artifact identity. The Artifact buff lists these ids
+  // under PassiveSkillLevels, so this resolves a player's worn artifacts (see extractArtifacts).
+  const artifactBySkill = {};
+  for (const e of artifactTable) {
+    const info = { index: e.Index, code: e.ArtifactCode, grade: e.GradeType };
+    for (const id of (e.EquipSkillIndices || [])) artifactBySkill[String(id)] = info;
+  }
   _tables = {
     gearOption:              Object.fromEntries(gearOption.map(e => [e.OptionIndex, e.StatData])),
     gearFactor:              Object.fromEntries(gearFactor.map(e => [e.Level, e.Factor.map(Number)])),
@@ -53,6 +61,7 @@ async function loadTables() {
     abilityOption:           Object.fromEntries(abilityOption.map(e => [e.Index, e])),
     addAbilityOption:        Object.fromEntries(addAbilityOption.map(e => [e.Index, e])),
     additionalAbilityOption: Object.fromEntries(additionalAbilityOption.map(e => [e.Index, e])),
+    artifactBySkill,
   };
   return _tables;
 }
@@ -83,13 +92,13 @@ function _gearOptionValue(optIdx, gl, sf, step, isMain, tables) {
   return [sd.Type, base + sfBonus];
 }
 
-function _abilityAvoidChance(idx, tables) {
+function _abilityStat(idx, statName, tables) {
   const s = String(idx);
   const add = tables.additionalAbilityOption[s];
-  if (add?.StatType === 'AvoidChance') return +add.StatValue;
+  if (add?.StatType === statName) return +add.StatValue;
   for (const key of ['abilityOption', 'addAbilityOption']) {
     const e = tables[key][s];
-    if (e?.StatData?.Type === 'AvoidChance') return +(e.StatData.Value || 0);
+    if (e?.StatData?.Type === statName) return +(e.StatData.Value || 0);
   }
   return 0;
 }
@@ -111,11 +120,95 @@ function calcAvoidChance(userInfo, tables) {
         const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
         if (t === 'AvoidChance') total += v;
       }
-      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
-      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityAvoidChance(i, tables);
+      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityStat(i, 'AvoidChance', tables);
+      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityStat(i, 'AvoidChance', tables);
     }
   }
   return Math.floor(total);
+}
+
+// HitChance ("Accuracy") is contributed by many buff types, so — unlike AvoidChance, which sums a
+// curated subset — every buff in HeroBuffInfoContainer is summed. Ported from calc_stats.py calc_hit_chance.
+function calcAccuracy(userInfo, tables) {
+  let total = 0;
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const bi = hero.BuffInput || {};
+    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
+      total += buff.StatContainer?._stats?.HitChance || 0;
+    for (const gear of (bi.GearInfos || [])) {
+      const gl = +gear.GearLevel, sf = +gear.StarForce;
+      for (const e of (gear.MainOptionList || [])) {
+        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
+        if (t === 'HitChance') total += v;
+      }
+      for (const e of (gear.SubOptionList || [])) {
+        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
+        if (t === 'HitChance') total += v;
+      }
+      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityStat(i, 'HitChance', tables);
+      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityStat(i, 'HitChance', tables);
+    }
+  }
+  return Math.floor(total);
+}
+
+// Friendly artifact display names keyed by ArtifactCode (ported from calc_stats.py — the in-game
+// localized names are encrypted in the client, so these are supplied manually).
+const ARTIFACT_NAMES = {
+  'ARTIFACT_3_1':  'Charm of the Undead',
+  'ARTIFACT_3_2':  "Pig's Ribbon",
+  'ARTIFACT_3_3':  'Shamaness Marble',
+  'ARTIFACT_3_4':  'The Contract of Darkness',
+  'ARTIFACT_4_1':  'Rainbow-colored Snail Shell',
+  'ARTIFACT_4_2':  'Hexagon Necklace',
+  'ARTIFACT_4_3':  "Arwen's Glass Shoes",
+  'ARTIFACT_4_4':  "Mushmom's Cap",
+  'ARTIFACT_4_5':  'Clear Spring Water',
+  'ARTIFACT_4_6':  "Athena Pierce's Old Gloves",
+  'ARTIFACT_4_7':  "Zakum's Stone Piece",
+  'ARTIFACT_4_8':  "Horntail's Scale",
+  'ARTIFACT_5_1':  'Chalice',
+  'ARTIFACT_5_2':  'Old Music Box',
+  'ARTIFACT_5_3':  'Silver Pendant',
+  'ARTIFACT_5_4':  'Star Rock',
+  'ARTIFACT_5_5':  'The Book of Ancient',
+  'ARTIFACT_5_6':  'Lunar Dew',
+  'ARTIFACT_5_7':  'Fire Flower',
+  'ARTIFACT_5_8':  'Soul Contract',
+  'ARTIFACT_5_9':  'Lit Lamp',
+  'ARTIFACT_5_10': 'Soul Pouch',
+  'ARTIFACT_5_11': 'Ancient Text Piece',
+  'ARTIFACT_5_12': 'Icy Soul Rock',
+  'ARTIFACT_5_13': 'Flaming Lava',
+  'ARTIFACT_5_14': "Sayram's Necklace",
+  'ARTIFACT_5_15': 'Bottle of Emotion',
+  'ARTIFACT_5_16': 'Peach Tree Herb Pouch',
+  'ARTIFACT_5_17': 'Candle',
+  'ARTIFACT_5_18': 'Alliance Badge',
+  'ARTIFACT_5_19': 'Horn Flute',
+  'ARTIFACT_5_20': 'Cursed Doll',
+};
+
+// The BuffType === "Artifact" buff lists each worn artifact's passive-skill ids under
+// PassiveSkillLevels; each id maps to an artifact via artifactBySkill. Deduped by index in
+// encounter order. Ported from calc_stats.py extract_artifacts.
+function extractArtifacts(userInfo, tables) {
+  const bySkill = tables.artifactBySkill || {};
+  if (!Object.keys(bySkill).length) return [];
+  const artifacts = [];
+  const seen = new Set();
+  for (const hero of (userInfo.HeroInfos || [])) {
+    for (const buff of (hero.BuffInput?.HeroBuffInfoContainer?.BuffInfos || [])) {
+      if (buff.BuffType !== 'Artifact') continue;
+      for (const skillId of Object.keys(buff.PassiveSkillLevels || {})) {
+        const info = bySkill[skillId];
+        if (!info || seen.has(info.index)) continue;
+        seen.add(info.index);
+        artifacts.push({ code: info.code, grade: info.grade, name: ARTIFACT_NAMES[info.code] || info.code });
+      }
+    }
+  }
+  return artifacts;
 }
 
 // ── Autocomplete dropdown ────────────────────────────────────────────────────
@@ -243,13 +336,27 @@ async function selectSnapshot(row, evt) {
     const tables = await loadTables();
     const userInfo = JSON.parse(row.raw_json);
     const avoid = calcAvoidChance(userInfo, tables);
+    const accuracy = calcAccuracy(userInfo, tables);
     const crit = calcCritResist(userInfo);
+    const artifacts = extractArtifacts(userInfo, tables);
     panel.innerHTML = `
-      <div class="stat-card"><span class="stat-label">Evasion</span><span class="stat-value">${avoid}</span></div>
-      <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${crit.toFixed(1)}%</span></div>`;
+      <div class="stat-cards">
+        <div class="stat-card"><span class="stat-label">Evasion</span><span class="stat-value">${avoid.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Accuracy</span><span class="stat-value">${accuracy.toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${crit.toFixed(1)}%</span></div>
+      </div>
+      ${renderArtifacts(artifacts)}`;
   } catch (e) {
     panel.innerHTML = `<p class="error">Calc failed: ${e.message}</p>`;
   }
+}
+
+function renderArtifacts(artifacts) {
+  if (!artifacts.length) return '';
+  const chips = artifacts.map(a =>
+    `<span class="artifact-chip ${(a.grade || '').toLowerCase()}">${escapeHtml(a.name)}</span>`
+  ).join('');
+  return `<div class="artifacts-section"><p class="artifacts-label">Artifacts</p><div class="artifact-list">${chips}</div></div>`;
 }
 </script>
 </body>
