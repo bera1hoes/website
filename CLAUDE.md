@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Visualizes Maplestory guild content player data as a CP vs Score scatter plot with a power-law regression fit. Supports multiple content types (Guild Wars, Guild Boss Battle, Global GBB) from separate spreadsheets, selectable via a toggle in the controls bar. Players are color-coded by guild or class, with an interactive legend and tooltip panel.
+Visualizes Maplestory guild content player data as a CP vs Score scatter plot with a power-law regression fit. Supports multiple content types (Guild Wars, Guild Boss Battle, Global GBB, Guild Conquest) from separate spreadsheets, selectable via a toggle in the controls bar. Players are color-coded by guild or class, with an interactive legend and tooltip panel.
 
 **Hosting model:** the front-end is a **static site** served by a **Cloudflare Worker** (`worker.js`, deployed via `wrangler.jsonc`) whose `assets` binding points at `public/`. Apps Script (`Code.gs`) is kept only as a thin **read-only JSON API** over the private Google Sheets — it no longer serves HTML. The page fetches data over GET through a same-origin `/api` proxy in the Worker. A simple `(s)hoes` landing page (`public/index.html`) links to the chart ("Charts") and the "Arena" tool.
 
@@ -20,7 +20,7 @@ All browser-served assets live under **`public/`**; `worker.js`, `wrangler.jsonc
 - **public/index.html** — `(s)hoes` landing page. Buttons: Charts → `/charts`, Arena → `/arena`.
 - **public/Arena.html** — the Arena tool page (served at `/arena`).
 - **public/SampleData/GWLocalData.js** — Local debug data for Guild Wars. Defines `GW_LOCAL_DATA` (`{ 'MM_DD_YYYY': '<tsv string>' }`). **Never upload to Apps Script.**
-- **public/SampleData/GBBLocalData.js** / **GlobalGBBLocalData.js** — same format for Guild Boss Battle (`GBB_LOCAL_DATA`) and Global GBB (`GGBB_LOCAL_DATA`).
+- **public/SampleData/GBBLocalData.js** / **GlobalGBBLocalData.js** / **GuildConquestLocalData.js** — same format for Guild Boss Battle (`GBB_LOCAL_DATA`), Global GBB (`GGBB_LOCAL_DATA`), and Guild Conquest (`GC_LOCAL_DATA`).
 - **public/SampleData/** — Raw `.tsv` exports and the local-data JS files.
 
 ## Adding a New Content Type

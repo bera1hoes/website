@@ -2,6 +2,7 @@ const CONTENT_SOURCES = {
   'Guild Wars':        SpreadsheetApp.openById('1005020gHdlxoDemUK-r15yTWJAUuNqwm_lftxL61z54'),
   'Guild Boss Battle': SpreadsheetApp.openById('1GmBiAr6EK4w2AbNs-ardaglvjgI5hhhVUTdPUatmRT8'),
   'Global GBB':        SpreadsheetApp.openById('1kls0PfpClKkId86fpVEL62NN8kmTcERpU9__T4VVC5Q'),
+  'Guild Conquest':    SpreadsheetApp.openById('1WFj_mrh1X88fk-A3pM5sqMknNo5pYUNtWO4aryiQE98'),
 };
 
 // JSON API. The front-end (Charts.html) is hosted statically (e.g. Cloudflare Pages)

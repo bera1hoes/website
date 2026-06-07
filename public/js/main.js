@@ -14,11 +14,21 @@ if (IS_LOCAL) {
   s1.onload = function() {
     const s2 = document.createElement('script');
     s2.src = './SampleData/GBBLocalData.js';
+    const loadS4 = function() {
+      const s4 = document.createElement('script');
+      s4.src = './SampleData/GuildConquestLocalData.js';
+      s4.onerror = function() {
+        console.warn('Could not load GuildConquestLocalData.js — Guild Conquest data will be unavailable');
+      };
+      document.head.appendChild(s4);
+    };
     const loadS3 = function() {
       const s3 = document.createElement('script');
       s3.src = './SampleData/GlobalGBBLocalData.js';
+      s3.onload = loadS4;
       s3.onerror = function() {
         console.warn('Could not load GlobalGBBLocalData.js — Global GBB data will be unavailable');
+        loadS4();
       };
       document.head.appendChild(s3);
     };
