@@ -132,19 +132,23 @@ function loadContentType(type) {
       applyLastUpdated(lastUpdatedCache[type]);
     } else {
       document.getElementById('updated-ctrl').style.display = 'none';
-      const onUpdated = function(iso) {
-        lastUpdatedCache[type] = iso;
-        applyLastUpdated(iso);
-      };
-      // "Last updated" is non-critical metadata: on failure, log it and leave
-      // the control hidden rather than blocking the chart.
-      const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
-      if (HAS_GAS) {
-        google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
-      } else {
-        apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(onUpdatedErr);
-      }
+      fetchLastUpdated(type);
     }
+  }
+}
+
+function fetchLastUpdated(type) {
+  const onUpdated = function(iso) {
+    lastUpdatedCache[type] = iso;
+    applyLastUpdated(iso);
+  };
+  // "Last updated" is non-critical metadata: on failure, log it and leave
+  // the control as-is rather than blocking the chart.
+  const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
+  if (HAS_GAS) {
+    google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
+  } else {
+    apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(onUpdatedErr);
   }
 }
 
@@ -221,7 +225,9 @@ function updateReloadButton(name) {
 function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
   if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
+  delete lastUpdatedCache[currentContentType];
   loadSheet(currentSheet);
+  fetchLastUpdated(currentContentType);
   startReloadCooldown();
 }
 
