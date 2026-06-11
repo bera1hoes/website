@@ -137,7 +137,7 @@ function loadContentType(type) {
   }
 }
 
-function fetchLastUpdated(type) {
+function fetchLastUpdated(type, bust) {
   const onUpdated = function(iso) {
     lastUpdatedCache[type] = iso;
     applyLastUpdated(iso);
@@ -148,7 +148,38 @@ function fetchLastUpdated(type) {
   if (HAS_GAS) {
     google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
   } else {
-    apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(onUpdatedErr);
+    const params = { contentType: type };
+    if (bust) params.bust = 1;
+    apiCall('getLastUpdated', params).then(onUpdated).catch(onUpdatedErr);
+  }
+}
+
+// Re-fetch the sheet list past the edge cache (Reload path) and refresh the
+// dropdown in place — no auto-load, the current selection stays put. A newly
+// published date shows up as a new option and becomes `latestSheet`.
+function refreshSheetNames(type) {
+  const onNames = function(json) {
+    const names = typeof json === 'string' ? JSON.parse(json) : json;
+    sheetNamesCache[type] = names;
+    if (type !== currentContentType || !names.length) return;
+    const sel = document.getElementById('sheet-select');
+    sel.innerHTML = '';
+    names.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    latestSheet = names[0];
+    sel.value = names.includes(currentSheet) ? currentSheet : names[0];
+    updateReloadButton(currentSheet);
+  };
+  // Non-critical: the reload of the current sheet's data proceeds regardless.
+  const onNamesErr = function(err) { console.warn('getSheetNames refresh failed:', err); };
+  if (HAS_GAS) {
+    google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
+  } else {
+    apiCall('getSheetNames', { contentType: type, bust: 1 }).then(onNames).catch(onNamesErr);
   }
 }
 
@@ -176,7 +207,9 @@ function applyLastUpdated(iso) {
 
 // ── Load a sheet ───────────────────────────────────────────────────────────
 
-function loadSheet(name) {
+// `bust` (Reload path) is forwarded to the Worker so it skips its edge cache
+// — getData caches for hours there, since dated sheets rarely change.
+function loadSheet(name, bust) {
   currentSheet = name;
   updateReloadButton(name);
 
@@ -212,7 +245,9 @@ function loadSheet(name) {
   if (HAS_GAS) {
     google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
   } else {
-    apiCall('getData', { contentType: currentContentType, sheet: name }).then(onData).catch(onDataErr);
+    const params = { contentType: currentContentType, sheet: name };
+    if (bust) params.bust = 1;
+    apiCall('getData', params).then(onData).catch(onDataErr);
   }
 }
 
@@ -226,8 +261,9 @@ function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
   if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
   delete lastUpdatedCache[currentContentType];
-  loadSheet(currentSheet);
-  fetchLastUpdated(currentContentType);
+  refreshSheetNames(currentContentType);
+  loadSheet(currentSheet, true);
+  fetchLastUpdated(currentContentType, true);
   startReloadCooldown();
 }
 

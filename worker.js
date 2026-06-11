@@ -1,9 +1,17 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K49YOZ1ropYZCbyAsuBfnrB2sERlh2y40ylivWxtdsgcQ2kTTpS4VG5w/exec';
 
-// The Sheets data only changes when a new export is published, so a short edge
+// The Sheets data only changes when a new export is published, so an edge
 // cache cuts Apps Script round-trips (and cold-start latency) on repeat loads.
-// 60s lines up with the client-side reload cooldown in io.js.
-const API_CACHE_TTL = 60;
+// Per-action TTLs: a dated sheet's data is effectively immutable once
+// published, so getData caches long — the client's Reload sends `bust=1`
+// (see handleApi) as the freshness escape hatch for the latest sheet.
+// New dates appear ~weekly, so getSheetNames refreshes every 10 minutes.
+const API_CACHE_TTLS = {
+  getData: 21600,
+  getSheetNames: 600,
+  getLastUpdated: 60,
+};
+const API_CACHE_TTL_DEFAULT = 60;
 
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
@@ -18,13 +26,25 @@ function jsonError(status, message) {
 // through labeled as JSON.
 async function handleApi(url, ctx) {
   const cache = caches.default;
-  const cacheKey = new Request(url.toString(), { method: 'GET' });
-  const hit = await cache.match(cacheKey);
-  if (hit) return hit;
+  const ttl = API_CACHE_TTLS[url.searchParams.get('action')] || API_CACHE_TTL_DEFAULT;
+
+  // `bust=1` (sent by the client's Reload) skips the cache lookup but still
+  // stores the fresh response under the canonical bust-stripped key, so it
+  // overwrites the normal entry and the next plain request hits fresh data.
+  // Never cache under the busted key itself.
+  const canonical = new URL(url);
+  const bust = canonical.searchParams.has('bust');
+  canonical.searchParams.delete('bust');
+  const cacheKey = new Request(canonical.toString(), { method: 'GET' });
+
+  if (!bust) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
 
   let upstream;
   try {
-    upstream = await fetch(APPS_SCRIPT_URL + url.search, { redirect: 'follow' });
+    upstream = await fetch(APPS_SCRIPT_URL + canonical.search, { redirect: 'follow' });
   } catch (err) {
     return jsonError(502, 'Upstream request failed: ' + String(err.message || err));
   }
@@ -41,7 +61,9 @@ async function handleApi(url, ctx) {
     status: 200,
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': `public, max-age=30, s-maxage=${API_CACHE_TTL}`,
+      // Long TTLs go in s-maxage only — the browser max-age stays short so a
+      // bust (or another user's bust) isn't masked by the local HTTP cache.
+      'cache-control': `public, max-age=30, s-maxage=${ttl}`,
     },
   });
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
