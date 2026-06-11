@@ -11,6 +11,7 @@ function setColorMode(mode) {
     updateColors();
     buildLegend(currentData);
   }
+  updateDeepLink();
 }
 
 function updateColors() {

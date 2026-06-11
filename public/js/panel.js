@@ -58,4 +58,5 @@ function closePanel() {
       .attr('stroke', getColor(pd, colorMode)).attr('stroke-width',1);
     activeEl = null;
   }
+  updateDeepLink();
 }

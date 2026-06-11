@@ -66,20 +66,31 @@ function populateLocalSheets(type) {
   const sel = document.getElementById('sheet-select');
   sel.innerHTML = '';
   if (!localFiles[type]) localFiles[type] = {};
-  names.forEach((n, i) => {
+  const initial = pickInitialSheet(names);
+  names.forEach(n => {
     localFiles[type][n] = parseTSV(dataObj[n]);
     const opt = document.createElement('option');
     opt.value = n;
     opt.textContent = n;
-    if (i === 0) opt.selected = true;
+    opt.selected = n === initial;
     sel.appendChild(opt);
   });
   latestSheet = names.length ? names[0] : null;
-  if (names.length) {
-    loadSheet(names[0]);
+  if (initial) {
+    loadSheet(initial);
   } else {
     document.getElementById('loading').textContent = 'No data for this content type.';
   }
+}
+
+// Default to the newest sheet (names arrive newest-first), unless a deep-link
+// restore requested a specific one that actually exists. A stale link's sheet
+// silently falls back to the newest.
+function pickInitialSheet(names) {
+  const pending = pendingSheet;
+  pendingSheet = null;
+  if (pending && names.includes(pending)) return pending;
+  return names.length ? names[0] : null;
 }
 
 // ── Content type toggle ────────────────────────────────────────────────────
@@ -155,15 +166,16 @@ function fetchLastUpdated(type) {
 function applySheetNames(names) {
   const sel = document.getElementById('sheet-select');
   sel.innerHTML = '';
-  names.forEach((n, i) => {
+  const initial = pickInitialSheet(names);
+  names.forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
     opt.textContent = n;
-    if (i === 0) opt.selected = true;
+    opt.selected = n === initial;
     sel.appendChild(opt);
   });
   latestSheet = names.length ? names[0] : null;
-  if (names.length) loadSheet(names[0]);
+  if (initial) loadSheet(initial);
 }
 
 function applyLastUpdated(iso) {
@@ -178,6 +190,7 @@ function applyLastUpdated(iso) {
 
 function loadSheet(name) {
   currentSheet = name;
+  updateDeepLink();
   updateReloadButton(name);
 
   const cached = (localFiles[currentContentType] || {})[name];

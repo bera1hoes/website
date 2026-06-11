@@ -62,6 +62,14 @@ function buildChart(data) {
   buildLegend(data);
 
   renderScatter(data, A, B, sigma);
+
+  // Deep-link restore: pin once the dots exist. A nick absent from this sheet
+  // just doesn't pin — drop it from the hash rather than erroring.
+  if (pendingPin) {
+    const found = pinPlayerByName(pendingPin);
+    pendingPin = null;
+    if (!found) updateDeepLink();
+  }
 }
 
 // Join GW points by rank — Guild Wars only; other content types get 0.
@@ -237,17 +245,37 @@ function renderDots(data) {
         e.stopPropagation();
         return;
       }
-      if (activeEl && activeEl !== this) {
-        const prev = d3.select(activeEl);
-        const pd = prev.datum();
-        const rest = dotResting(pd);
-        prev.attr('r',5).attr('fill-opacity',rest.opacity).attr('fill',rest.color).attr('stroke', rest.color).attr('stroke-width',1);
-      }
-      activeEl = this;
-      d3.select(this).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-width',2);
-      showPanel(e.clientX, e.clientY, d, true);
+      pinDot(this, d, e.clientX, e.clientY);
       e.stopPropagation();
     });
+}
+
+// Pin the panel on a dot element. Shared by the dot click handler and
+// pinPlayerByName; cx/cy are viewport coords for positioning the panel.
+function pinDot(el, d, cx, cy) {
+  if (activeEl && activeEl !== el) {
+    const prev = d3.select(activeEl);
+    const pd = prev.datum();
+    const rest = dotResting(pd);
+    prev.attr('r',5).attr('fill-opacity',rest.opacity).attr('fill',rest.color).attr('stroke', rest.color).attr('stroke-width',1);
+  }
+  activeEl = el;
+  d3.select(el).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-width',2);
+  showPanel(cx, cy, d, true);
+  updateDeepLink();
+}
+
+// Find a player's dot by exact nick and pin the panel on it (deep-link
+// restore; also reusable by player search). Returns false if no dot matches.
+function pinPlayerByName(nick) {
+  let el = null, datum = null;
+  d3.selectAll('.dot').each(function(d) {
+    if (!el && d.nick === nick) { el = this; datum = d; }
+  });
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  pinDot(el, datum, r.left + r.width / 2, r.top + r.height / 2);
+  return true;
 }
 
 function resetZoom() {

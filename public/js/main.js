@@ -17,8 +17,12 @@ if (IS_LOCAL) {
     const loadS4 = function() {
       const s4 = document.createElement('script');
       s4.src = './SampleData/GuildConquestLocalData.js';
+      // End of the injection chain either way: the deep-link restore needs the
+      // data constants, so it can only run now.
+      s4.onload = restoreDeepLink;
       s4.onerror = function() {
         console.warn('Could not load GuildConquestLocalData.js — Guild Conquest data will be unavailable');
+        restoreDeepLink();
       };
       document.head.appendChild(s4);
     };
@@ -40,4 +44,8 @@ if (IS_LOCAL) {
     document.head.appendChild(s2);
   };
   document.head.appendChild(s1);
+} else {
+  // Remote/GAS mode has no async boot to wait on — restore (or just arm
+  // updateDeepLink, when there's no hash) immediately.
+  restoreDeepLink();
 }
