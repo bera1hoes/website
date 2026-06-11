@@ -1,17 +1,17 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K49YOZ1ropYZCbyAsuBfnrB2sERlh2y40ylivWxtdsgcQ2kTTpS4VG5w/exec';
 
-// The Sheets data only changes when a new export is published, so an edge
-// cache cuts Apps Script round-trips (and cold-start latency) on repeat loads.
-// Per-action TTLs: a dated sheet's data is effectively immutable once
-// published, so getData caches long — the client's Reload sends `bust=1`
-// (see handleApi) as the freshness escape hatch for the latest sheet.
-// New dates appear ~weekly, so getSheetNames refreshes every 10 minutes.
-const API_CACHE_TTLS = {
-  getData: 21600,
-  getSheetNames: 600,
-  getLastUpdated: 60,
-};
-const API_CACHE_TTL_DEFAULT = 60;
+// Edge-cache strategy: the sheets are mutable (edits cluster around the last
+// day of a content run), so getData/getSheetNames responses can't just expire
+// on a timer. Instead each cached entry stores the spreadsheet's Drive
+// modified timestamp (x-last-updated) and is revalidated against the current
+// timestamp on every request. The timestamp itself is edge-cached for TS_TTL,
+// so validation is normally a pure cache lookup — at most one getLastUpdated
+// round-trip to Apps Script per content type per TS_TTL window. The same
+// header rides every /api response so the client never has to request
+// getLastUpdated itself.
+const TS_TTL = 60;            // how long a fetched timestamp is trusted
+const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
+const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
 
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
@@ -20,52 +20,120 @@ function jsonError(status, message) {
   });
 }
 
-// Proxy /api to the Apps Script JSON API (server-side, no CORS issue), with an
-// edge cache and validation that the upstream actually returned JSON — Apps
-// Script serves an HTML login/error page on failure, which must not be passed
-// through labeled as JSON.
+function jsonResponse(body, sMaxage, lastUpdated) {
+  const headers = {
+    'content-type': 'application/json; charset=utf-8',
+    // Long TTLs go in s-maxage only — the browser max-age stays short so
+    // busts and timestamp invalidations aren't masked by the local HTTP cache.
+    'cache-control': `public, max-age=30, s-maxage=${sMaxage}`,
+    'x-cache': 'MISS',
+  };
+  if (lastUpdated) headers['x-last-updated'] = lastUpdated;
+  return new Response(body, { status: 200, headers });
+}
+
+// Re-wrap a cached response so the x-cache debug header reflects how it was
+// actually served (stored entries carry MISS from when they were created).
+function asCacheHit(response) {
+  const r = new Response(response.body, response);
+  r.headers.set('x-cache', 'HIT');
+  return r;
+}
+
+// Fetch from Apps Script and validate that it actually returned JSON — it
+// serves an HTML login/error page on failure, which must not be passed
+// through labeled as JSON. Returns { body } or { error: Response }.
+async function fetchUpstream(search) {
+  let upstream;
+  try {
+    upstream = await fetch(APPS_SCRIPT_URL + search, { redirect: 'follow' });
+  } catch (err) {
+    return { error: jsonError(502, 'Upstream request failed: ' + String(err.message || err)) };
+  }
+  const body = await upstream.text();
+  if (!upstream.ok) return { error: jsonError(502, 'Upstream returned HTTP ' + upstream.status) };
+  try {
+    JSON.parse(body);
+  } catch {
+    return { error: jsonError(502, 'Upstream returned a non-JSON response') };
+  }
+  return { body };
+}
+
+// getLastUpdated returns a bare JSON string (the spreadsheet's Drive modified
+// time, ISO); Code.gs reports failures as a 200 {error} object, which yields
+// null here.
+function parseTimestamp(body) {
+  try {
+    const v = JSON.parse(body);
+    return typeof v === 'string' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+// Current modified timestamp for a content type's spreadsheet, edge-cached
+// for TS_TTL under the same key a client ?action=getLastUpdated request maps
+// to (so both share one entry). Returns null when it can't be determined —
+// callers fail open and serve what they have.
+async function currentTimestamp(origin, contentType, bust, ctx) {
+  const cache = caches.default;
+  const tsUrl = new URL(origin + '/api');
+  tsUrl.searchParams.set('action', 'getLastUpdated');
+  tsUrl.searchParams.set('contentType', contentType);
+  const key = new Request(tsUrl.toString(), { method: 'GET' });
+
+  if (!bust) {
+    const hit = await cache.match(key);
+    if (hit) return parseTimestamp(await hit.text());
+  }
+  const res = await fetchUpstream('?' + tsUrl.searchParams.toString());
+  if (res.error) return null;
+  const ts = parseTimestamp(res.body);
+  if (ts) ctx.waitUntil(cache.put(key, jsonResponse(res.body, TS_TTL, ts)));
+  return ts;
+}
+
+// Proxy /api to the Apps Script JSON API (server-side, no CORS issue).
+// `bust=1` (sent by the client's Reload) forces a fresh timestamp check; the
+// param is stripped from the cache key so a refetch overwrites the canonical
+// entry rather than caching beside it.
 async function handleApi(url, ctx) {
   const cache = caches.default;
-  const ttl = API_CACHE_TTLS[url.searchParams.get('action')] || API_CACHE_TTL_DEFAULT;
-
-  // `bust=1` (sent by the client's Reload) skips the cache lookup but still
-  // stores the fresh response under the canonical bust-stripped key, so it
-  // overwrites the normal entry and the next plain request hits fresh data.
-  // Never cache under the busted key itself.
   const canonical = new URL(url);
   const bust = canonical.searchParams.has('bust');
   canonical.searchParams.delete('bust');
   const cacheKey = new Request(canonical.toString(), { method: 'GET' });
 
+  const action = canonical.searchParams.get('action');
+  if (action === 'getData' || action === 'getSheetNames') {
+    const contentType = canonical.searchParams.get('contentType') || '';
+    const ts = await currentTimestamp(url.origin, contentType, bust, ctx);
+    const hit = await cache.match(cacheKey);
+    if (hit) {
+      // Unchanged timestamp means unchanged data — serve the cached entry
+      // even on bust. A failed timestamp lookup (ts === null) fails open,
+      // except on an explicit bust, where the user asked for fresh data.
+      const unchanged = ts !== null && hit.headers.get('x-last-updated') === ts;
+      if (unchanged || (ts === null && !bust)) return asCacheHit(hit);
+    }
+    const res = await fetchUpstream(canonical.search);
+    if (res.error) return res.error;
+    const response = jsonResponse(res.body, VALIDATED_TTL, ts);
+    ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
+  }
+
+  // Everything else (getLastUpdated for older clients, unknown actions):
+  // plain short-TTL proxy. getLastUpdated shares its cache entry with
+  // currentTimestamp above.
   if (!bust) {
     const hit = await cache.match(cacheKey);
-    if (hit) return hit;
+    if (hit) return asCacheHit(hit);
   }
-
-  let upstream;
-  try {
-    upstream = await fetch(APPS_SCRIPT_URL + canonical.search, { redirect: 'follow' });
-  } catch (err) {
-    return jsonError(502, 'Upstream request failed: ' + String(err.message || err));
-  }
-
-  const body = await upstream.text();
-  if (!upstream.ok) return jsonError(502, 'Upstream returned HTTP ' + upstream.status);
-  try {
-    JSON.parse(body);
-  } catch {
-    return jsonError(502, 'Upstream returned a non-JSON response');
-  }
-
-  const response = new Response(body, {
-    status: 200,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      // Long TTLs go in s-maxage only — the browser max-age stays short so a
-      // bust (or another user's bust) isn't masked by the local HTTP cache.
-      'cache-control': `public, max-age=30, s-maxage=${ttl}`,
-    },
-  });
+  const res = await fetchUpstream(canonical.search);
+  if (res.error) return res.error;
+  const response = jsonResponse(res.body, DEFAULT_TTL);
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
 }

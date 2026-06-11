@@ -25,6 +25,11 @@ function apiCall(action, params) {
   const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
   return fetch(API_URL + '?' + qs.toString(), { signal: ctrl.signal }).then(r => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
+    // The Worker fetches the spreadsheet's modified timestamp to validate its
+    // edge cache and attaches it to every response — read it here instead of
+    // making a separate getLastUpdated call.
+    const ts = r.headers.get('x-last-updated');
+    if (ts && params && params.contentType) noteLastUpdated(params.contentType, ts);
     return r.json();
   }).then(json => {
     if (json && json.error) throw new Error(json.error);
@@ -137,21 +142,21 @@ function loadContentType(type) {
   }
 }
 
-function fetchLastUpdated(type, bust) {
-  const onUpdated = function(iso) {
-    lastUpdatedCache[type] = iso;
-    applyLastUpdated(iso);
-  };
+function noteLastUpdated(type, iso) {
+  lastUpdatedCache[type] = iso;
+  if (type === currentContentType) applyLastUpdated(iso);
+}
+
+// HAS_GAS only — in remote mode the Worker attaches x-last-updated to every
+// /api response (it fetches the timestamp anyway to validate its cache; see
+// apiCall), so the client never requests getLastUpdated itself.
+function fetchLastUpdated(type) {
+  if (!HAS_GAS) return;
+  const onUpdated = function(iso) { noteLastUpdated(type, iso); };
   // "Last updated" is non-critical metadata: on failure, log it and leave
   // the control as-is rather than blocking the chart.
   const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
-  if (HAS_GAS) {
-    google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
-  } else {
-    const params = { contentType: type };
-    if (bust) params.bust = 1;
-    apiCall('getLastUpdated', params).then(onUpdated).catch(onUpdatedErr);
-  }
+  google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
 }
 
 // Re-fetch the sheet list past the edge cache (Reload path) and refresh the
@@ -263,7 +268,7 @@ function reloadSheet() {
   delete lastUpdatedCache[currentContentType];
   refreshSheetNames(currentContentType);
   loadSheet(currentSheet, true);
-  fetchLastUpdated(currentContentType, true);
+  fetchLastUpdated(currentContentType);
   startReloadCooldown();
 }
 
