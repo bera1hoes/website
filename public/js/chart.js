@@ -63,13 +63,22 @@ function buildChart(data) {
 
   renderScatter(data, A, B, sigma);
 
-  // Deep-link restore: pin once the dots exist. A nick absent from this sheet
-  // just doesn't pin — drop it from the hash rather than erroring.
-  if (pendingPin) {
-    const found = pinPlayerByName(pendingPin);
-    pendingPin = null;
-    if (!found) updateDeepLink();
+  // Deep-link restore: legend selection and pin can only apply once the dots
+  // exist. Selection goes first — pinDot then re-applies the pinned dot's
+  // emphasis on top of the dimming. Unknown groups/nicks are dropped silently.
+  if (pendingSel) {
+    const key = colorMode === 'guild' ? 'guild' : 'cls';
+    const seen = new Set(data.map(d => d[key]));
+    pendingSel.filter(g => seen.has(g)).forEach(g => selectedGroups.add(g));
+    pendingSel = null;
+    if (selectedGroups.size) applyHighlights();
   }
+  if (pendingPin) {
+    pinPlayerByName(pendingPin);
+    pendingPin = null;
+  }
+  // Sync the hash with what actually applied (stale pin/sel entries drop out).
+  updateDeepLink();
 }
 
 // Join GW points by rank — Guild Wars only; other content types get 0.

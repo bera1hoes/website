@@ -10,6 +10,7 @@
 // applySheetNames/populateLocalSheets (io.js); `pendingPin` is picked up at the
 // end of buildChart (chart.js) once the dots are rendered.
 let pendingSheet = null;
+let pendingSel = null;
 let pendingPin = null;
 
 // updateDeepLink is a no-op until restoreDeepLink has run, so the restore
@@ -26,6 +27,7 @@ function updateDeepLink() {
   p.set('ct', currentContentType);
   if (currentSheet) p.set('sheet', currentSheet);
   if (colorMode !== 'guild') p.set('color', colorMode);
+  selectedGroups.forEach(g => p.append('sel', g));
   const pinnedNick = (isPinned && activeEl) ? d3.select(activeEl).datum().nick : pendingPin;
   if (pinnedNick) p.set('pin', pinnedNick);
   history.replaceState(null, '', '#' + p.toString());
@@ -38,7 +40,7 @@ function readDeepLink() {
   const p = new URLSearchParams(location.hash.slice(1));
   const ct = p.get('ct');
   if (!DEEPLINK_CONTENT_TYPES.includes(ct)) return null;
-  return { ct: ct, sheet: p.get('sheet'), color: p.get('color'), pin: p.get('pin') };
+  return { ct: ct, sheet: p.get('sheet'), color: p.get('color'), sel: p.getAll('sel'), pin: p.get('pin') };
 }
 
 // Boot entry (called from main.js once data constants are available). Restores
@@ -49,6 +51,39 @@ function restoreDeepLink() {
   if (!link) return;
   if (link.color === 'class' || link.color === 'guild') setColorMode(link.color);
   pendingSheet = link.sheet || null;
+  pendingSel = link.sel.length ? link.sel : null;
   pendingPin = link.pin || null;
   loadContentType(link.ct);
+}
+
+// ── Share button ────────────────────────────────────────────────────────────
+
+function copyShareLink() {
+  updateDeepLink();
+  const ok = () => showShareToast('Link copied to clipboard');
+  const fail = () => showShareToast('Couldn’t copy — grab it from the address bar');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(location.href).then(ok, fail);
+  } else {
+    fail();
+  }
+}
+
+let _shareToastTimer = null;
+
+function showShareToast(msg) {
+  let el = document.getElementById('share-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'share-toast';
+    el.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);' +
+      'background:#161a22;color:#e8eaf0;border:1px solid rgba(255,255,255,0.15);' +
+      'border-radius:8px;padding:9px 16px;font-size:12px;z-index:1000;' +
+      'opacity:0;transition:opacity .25s;pointer-events:none';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+  clearTimeout(_shareToastTimer);
+  _shareToastTimer = setTimeout(() => { el.style.opacity = '0'; }, 2200);
 }

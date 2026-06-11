@@ -65,6 +65,7 @@ function buildLegend(data) {
       if (selectedGroups.has(label)) selectedGroups.delete(label);
       else selectedGroups.add(label);
       applyHighlights();
+      updateDeepLink();
     });
     _legendDelegated = true;
   }
