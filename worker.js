@@ -82,7 +82,7 @@ const tsInflight = new Map();
 // for TS_TTL under the same key a client ?action=getLastUpdated request maps
 // to (so both share one entry). Returns null when it can't be determined —
 // callers fail open and serve what they have.
-async function currentTimestamp(origin, contentType, bust, ctx) {
+async function currentTimestamp(origin, contentType, bust) {
   const cache = caches.default;
   const tsUrl = new URL(origin + '/api');
   tsUrl.searchParams.set('action', 'getLastUpdated');
@@ -92,7 +92,7 @@ async function currentTimestamp(origin, contentType, bust, ctx) {
   const hit = await cache.match(key);
   if (hit) {
     // A bust doesn't trust the TS_TTL window, but does reuse a timestamp
-    // fetched moments ago — i.e. by the sibling request of the same Reload.
+    // fetched moments ago — i.e. by the preceding request of the same Reload.
     const age = Date.now() - Number(hit.headers.get('x-fetched-at') || 0);
     if (!bust || age < TS_BUST_REUSE_MS) return parseTimestamp(await hit.text());
   }
@@ -105,7 +105,10 @@ async function currentTimestamp(origin, contentType, bust, ctx) {
     if (ts) {
       const stored = jsonResponse(res.body, TS_TTL, ts);
       stored.headers.set('x-fetched-at', String(Date.now()));
-      ctx.waitUntil(cache.put(key, stored));
+      // Awaited (not waitUntil): follow-up requests arrive within
+      // milliseconds of this response — the entry must already be stored,
+      // or they each trigger their own upstream timestamp fetch.
+      await cache.put(key, stored);
     }
     return ts;
   })();
@@ -131,16 +134,20 @@ async function handleApi(url, ctx) {
   const action = canonical.searchParams.get('action');
   if (action === 'getData' || action === 'getSheetNames') {
     const contentType = canonical.searchParams.get('contentType') || '';
-    const ts = await currentTimestamp(url.origin, contentType, bust, ctx);
+    // Kick off the timestamp lookup without awaiting it: on a cache miss the
+    // upstream data fetch runs in parallel with it, so a cold load pays
+    // max(timestamp, data) latency rather than the sum.
+    const tsPromise = currentTimestamp(url.origin, contentType, bust);
     const hit = await cache.match(cacheKey);
     if (hit) {
       // Unchanged timestamp means unchanged data — serve the cached entry
       // even on bust. A failed timestamp lookup (ts === null) fails open,
       // except on an explicit bust, where the user asked for fresh data.
-      const unchanged = ts !== null && hit.headers.get('x-last-updated') === ts;
-      if (unchanged || (ts === null && !bust)) return asCacheHit(hit);
+      const cachedTs = await tsPromise;
+      const unchanged = cachedTs !== null && hit.headers.get('x-last-updated') === cachedTs;
+      if (unchanged || (cachedTs === null && !bust)) return asCacheHit(hit);
     }
-    const res = await fetchUpstream(canonical.search);
+    const [res, ts] = await Promise.all([fetchUpstream(canonical.search), tsPromise]);
     if (res.error) return res.error;
     const response = jsonResponse(res.body, VALIDATED_TTL, ts);
     ctx.waitUntil(cache.put(cacheKey, response.clone()));

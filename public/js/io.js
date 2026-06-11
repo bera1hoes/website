@@ -64,6 +64,7 @@ let currentContentType = null;
 let latestSheet = null;
 let reloadCooldownRemaining = 0;
 let reloadTimerInterval = null;
+let pendingNamesRefresh = false;
 
 function populateLocalSheets(type) {
   const dataObj = getLocalData(type);
@@ -98,6 +99,7 @@ function loadContentType(type) {
   if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
   reloadCooldownRemaining = 0;
   latestSheet = null;
+  pendingNamesRefresh = false;
   const reloadBtn = document.getElementById('reload-btn');
   if (reloadBtn) { reloadBtn.disabled = false; reloadBtn.textContent = '↺ Reload'; }
   document.getElementById('reload-ctrl').style.display = 'none';
@@ -243,6 +245,13 @@ function loadSheet(name, bust) {
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
     buildChart(currentData);
+    // Reload path: refresh the sheet list only after the data round-trip, so
+    // the Worker can reuse the timestamp it just fetched instead of both
+    // requests racing to fetch their own.
+    if (pendingNamesRefresh) {
+      pendingNamesRefresh = false;
+      refreshSheetNames(currentContentType);
+    }
   };
   const onDataErr = function(err) {
     showLoadError('Error: ' + err.message, function() { loadSheet(name); });
@@ -266,7 +275,7 @@ function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
   if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
   delete lastUpdatedCache[currentContentType];
-  refreshSheetNames(currentContentType);
+  pendingNamesRefresh = true;
   loadSheet(currentSheet, true);
   fetchLastUpdated(currentContentType);
   startReloadCooldown();
