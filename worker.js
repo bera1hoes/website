@@ -10,6 +10,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K4
 // header rides every /api response so the client never has to request
 // getLastUpdated itself.
 const TS_TTL = 60;            // how long a fetched timestamp is trusted
+const TS_BUST_REUSE_MS = 10000; // a bust still reuses a timestamp this fresh
 const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
 const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
 
@@ -72,6 +73,11 @@ function parseTimestamp(body) {
   }
 }
 
+// In-flight getLastUpdated fetches by content type. A Reload busts
+// getSheetNames and getData together; both validations must share one
+// upstream timestamp call, not race to make their own.
+const tsInflight = new Map();
+
 // Current modified timestamp for a content type's spreadsheet, edge-cached
 // for TS_TTL under the same key a client ?action=getLastUpdated request maps
 // to (so both share one entry). Returns null when it can't be determined —
@@ -83,15 +89,32 @@ async function currentTimestamp(origin, contentType, bust, ctx) {
   tsUrl.searchParams.set('contentType', contentType);
   const key = new Request(tsUrl.toString(), { method: 'GET' });
 
-  if (!bust) {
-    const hit = await cache.match(key);
-    if (hit) return parseTimestamp(await hit.text());
+  const hit = await cache.match(key);
+  if (hit) {
+    // A bust doesn't trust the TS_TTL window, but does reuse a timestamp
+    // fetched moments ago — i.e. by the sibling request of the same Reload.
+    const age = Date.now() - Number(hit.headers.get('x-fetched-at') || 0);
+    if (!bust || age < TS_BUST_REUSE_MS) return parseTimestamp(await hit.text());
   }
-  const res = await fetchUpstream('?' + tsUrl.searchParams.toString());
-  if (res.error) return null;
-  const ts = parseTimestamp(res.body);
-  if (ts) ctx.waitUntil(cache.put(key, jsonResponse(res.body, TS_TTL, ts)));
-  return ts;
+
+  if (tsInflight.has(contentType)) return tsInflight.get(contentType);
+  const fetching = (async () => {
+    const res = await fetchUpstream('?' + tsUrl.searchParams.toString());
+    if (res.error) return null;
+    const ts = parseTimestamp(res.body);
+    if (ts) {
+      const stored = jsonResponse(res.body, TS_TTL, ts);
+      stored.headers.set('x-fetched-at', String(Date.now()));
+      ctx.waitUntil(cache.put(key, stored));
+    }
+    return ts;
+  })();
+  tsInflight.set(contentType, fetching);
+  try {
+    return await fetching;
+  } finally {
+    tsInflight.delete(contentType);
+  }
 }
 
 // Proxy /api to the Apps Script JSON API (server-side, no CORS issue).
