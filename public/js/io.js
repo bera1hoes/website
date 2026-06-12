@@ -25,6 +25,11 @@ function apiCall(action, params) {
   const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
   return fetch(API_URL + '?' + qs.toString(), { signal: ctrl.signal }).then(r => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
+    // The Worker fetches the spreadsheet's modified timestamp to validate its
+    // edge cache and attaches it to every response — read it here instead of
+    // making a separate getLastUpdated call.
+    const ts = r.headers.get('x-last-updated');
+    if (ts && params && params.contentType) noteLastUpdated(params.contentType, ts);
     return r.json();
   }).then(json => {
     if (json && json.error) throw new Error(json.error);
@@ -59,6 +64,7 @@ let currentContentType = null;
 let latestSheet = null;
 let reloadCooldownRemaining = 0;
 let reloadTimerInterval = null;
+let pendingNamesRefresh = false;
 
 function populateLocalSheets(type) {
   const dataObj = getLocalData(type);
@@ -104,6 +110,7 @@ function loadContentType(type) {
   if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
   reloadCooldownRemaining = 0;
   latestSheet = null;
+  pendingNamesRefresh = false;
   const reloadBtn = document.getElementById('reload-btn');
   if (reloadBtn) { reloadBtn.disabled = false; reloadBtn.textContent = '↺ Reload'; }
   document.getElementById('reload-ctrl').style.display = 'none';
@@ -148,18 +155,49 @@ function loadContentType(type) {
   }
 }
 
+function noteLastUpdated(type, iso) {
+  lastUpdatedCache[type] = iso;
+  if (type === currentContentType) applyLastUpdated(iso);
+}
+
+// HAS_GAS only — in remote mode the Worker attaches x-last-updated to every
+// /api response (it fetches the timestamp anyway to validate its cache; see
+// apiCall), so the client never requests getLastUpdated itself.
 function fetchLastUpdated(type) {
-  const onUpdated = function(iso) {
-    lastUpdatedCache[type] = iso;
-    applyLastUpdated(iso);
-  };
+  if (!HAS_GAS) return;
+  const onUpdated = function(iso) { noteLastUpdated(type, iso); };
   // "Last updated" is non-critical metadata: on failure, log it and leave
   // the control as-is rather than blocking the chart.
   const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
+  google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
+}
+
+// Re-fetch the sheet list past the edge cache (Reload path) and refresh the
+// dropdown in place — no auto-load, the current selection stays put. A newly
+// published date shows up as a new option and becomes `latestSheet`.
+function refreshSheetNames(type) {
+  const onNames = function(json) {
+    const names = typeof json === 'string' ? JSON.parse(json) : json;
+    sheetNamesCache[type] = names;
+    if (type !== currentContentType || !names.length) return;
+    const sel = document.getElementById('sheet-select');
+    sel.innerHTML = '';
+    names.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      sel.appendChild(opt);
+    });
+    latestSheet = names[0];
+    sel.value = names.includes(currentSheet) ? currentSheet : names[0];
+    updateReloadButton(currentSheet);
+  };
+  // Non-critical: the reload of the current sheet's data proceeds regardless.
+  const onNamesErr = function(err) { console.warn('getSheetNames refresh failed:', err); };
   if (HAS_GAS) {
-    google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
+    google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
   } else {
-    apiCall('getLastUpdated', { contentType: type }).then(onUpdated).catch(onUpdatedErr);
+    apiCall('getSheetNames', { contentType: type, bust: 1 }).then(onNames).catch(onNamesErr);
   }
 }
 
@@ -188,7 +226,9 @@ function applyLastUpdated(iso) {
 
 // ── Load a sheet ───────────────────────────────────────────────────────────
 
-function loadSheet(name) {
+// `bust` (Reload path) is forwarded to the Worker so it skips its edge cache
+// — getData caches for hours there, since dated sheets rarely change.
+function loadSheet(name, bust) {
   currentSheet = name;
   updateDeepLink();
   updateReloadButton(name);
@@ -218,6 +258,13 @@ function loadSheet(name) {
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
     buildChart(currentData);
+    // Reload path: refresh the sheet list only after the data round-trip, so
+    // the Worker can reuse the timestamp it just fetched instead of both
+    // requests racing to fetch their own.
+    if (pendingNamesRefresh) {
+      pendingNamesRefresh = false;
+      refreshSheetNames(currentContentType);
+    }
   };
   const onDataErr = function(err) {
     showLoadError('Error: ' + err.message, function() { loadSheet(name); });
@@ -225,7 +272,9 @@ function loadSheet(name) {
   if (HAS_GAS) {
     google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
   } else {
-    apiCall('getData', { contentType: currentContentType, sheet: name }).then(onData).catch(onDataErr);
+    const params = { contentType: currentContentType, sheet: name };
+    if (bust) params.bust = 1;
+    apiCall('getData', params).then(onData).catch(onDataErr);
   }
 }
 
@@ -239,7 +288,8 @@ function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
   if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
   delete lastUpdatedCache[currentContentType];
-  loadSheet(currentSheet);
+  pendingNamesRefresh = true;
+  loadSheet(currentSheet, true);
   fetchLastUpdated(currentContentType);
   startReloadCooldown();
 }
