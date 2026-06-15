@@ -17,7 +17,7 @@ let pendingPin = null;
 // sequence's intermediate loads can't overwrite a deep link with partial state.
 let deepLinkReady = false;
 
-const DEEPLINK_CONTENT_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Global GBB', 'Guild Conquest'];
+const DEEPLINK_CONTENT_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Global GBB', 'Guild Conquest', 'Guild Training Ground'];
 
 // Serialize the current view into the hash. Pin falls back to pendingPin while
 // a restore is still in flight so reloading mid-restore keeps the full link.
