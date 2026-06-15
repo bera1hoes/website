@@ -4,7 +4,7 @@ let playerTableData = [];
 let playerSortCol = 'rank';
 let playerSortDir = 'asc';
 let playerFilter = '';
-const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints']);
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp', 'dRank']);
 
 function buildPivotTable(data) {
   const section = document.getElementById('pivot-section');
@@ -120,6 +120,10 @@ function clearPlayerFilter() {
 function renderPlayerTable() {
   const customCol = document.getElementById('player-th-customfit');
   if (customCol) customCol.style.display = custom.A !== null ? '' : 'none';
+  ['drank', 'dscore', 'dcp'].forEach(c => {
+    const th = document.getElementById('player-th-' + c);
+    if (th) th.style.display = hasHistory ? '' : 'none';
+  });
   let rows = playerTableData;
 
   if (playerFilter) {
@@ -133,9 +137,15 @@ function renderPlayerTable() {
   rows = [...rows].sort((a, b) => {
     const av = a[playerSortCol];
     const bv = b[playerSortCol];
-    const cmp = NUMERIC_COLS.has(playerSortCol)
-      ? Number(av) - Number(bv)
-      : String(av).localeCompare(String(bv));
+    if (NUMERIC_COLS.has(playerSortCol)) {
+      const an = Number(av), bn = Number(bv);
+      // Undefined deltas (new players) are NaN — keep them at the bottom in
+      // both sort directions rather than letting NaN scramble the order.
+      const aNan = Number.isNaN(an), bNan = Number.isNaN(bn);
+      if (aNan || bNan) return aNan === bNan ? 0 : aNan ? 1 : -1;
+      return playerSortDir === 'asc' ? an - bn : bn - an;
+    }
+    const cmp = String(av).localeCompare(String(bv));
     return playerSortDir === 'asc' ? cmp : -cmp;
   });
 
@@ -165,7 +175,8 @@ function renderPlayerTable() {
       `<td style="text-align:right">${d.scoreShort}</td>` +
       `<td style="text-align:right;color:${fitDiffColor(d.fitDiff)}">${fitDiffText(d.fitDiff)}</td>` +
       (custom.A !== null ? `<td style="text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}">${d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—'}</td>` : '') +
-      (currentContentType === 'Guild Wars' ? `<td style="text-align:right">${d.gwPoints ? d.gwPoints.toLocaleString() : '—'}</td>` : '');
+      (currentContentType === 'Guild Wars' ? `<td style="text-align:right">${d.gwPoints ? d.gwPoints.toLocaleString() : '—'}</td>` : '') +
+      (hasHistory ? deltaCell(fmtDeltaRank(d.dRank)) + deltaCell(fmtDeltaMag(d.dScore)) + deltaCell(fmtDeltaMag(d.dCp)) : '');
     tbody.appendChild(tr);
   });
 }
