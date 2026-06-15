@@ -110,10 +110,14 @@ function computeFit(data) {
 
 // Draw the whole SVG: scales, grid, axes, fit line + band, dots, and zoom.
 function renderScatter(data, A, B, sigma) {
-  const margin = { top: 16, right: 28, bottom: 52, left: 70 };
-  const totalW  = Math.min(900, window.innerWidth - 60);
+  const margin = { top: 16, right: 28, bottom: 52, left: 46 };
+  // Measure the actual container so the SVG never overflows its padded card —
+  // the old `innerWidth - 60` guess was too wide on phones and forced h-scroll.
+  const totalW  = Math.min(900, $id('chart').clientWidth || (window.innerWidth - 60));
   const W = totalW - margin.left - margin.right;
-  const H = 420 - margin.top - margin.bottom;
+  // On phones, cap the chart height so there's always page left to scroll past.
+  const totalH = window.innerWidth < 640 ? Math.min(420, Math.round(window.innerHeight * 0.62)) : 420;
+  const H = totalH - margin.top - margin.bottom;
 
   d3.select('#chart').selectAll('*').remove();
   $id('zoom-indicator').style.display = 'none';
@@ -158,17 +162,20 @@ function renderScatter(data, A, B, sigma) {
   const yAxisG = g.append('g')
     .call(d3.axisLeft(yScale).tickValues(logTicks(yScale.domain())).tickFormat(fmt));
 
-  // Axis labels
+  // Axis labels. The y-axis title is a compact top-left caption rather than a
+  // rotated label — a rotated title's footprint is the font *height*, which
+  // forced a wide left margin that ate horizontal space (worst on mobile).
   g.append('text')
     .attr('x', W/2).attr('y', H+46)
     .attr('text-anchor','middle').attr('fill','#6b7280')
     .attr('font-size',11).attr('font-family','Space Mono, monospace')
     .text('CP (log scale)');
   g.append('text')
-    .attr('transform','rotate(-90)').attr('x',-H/2).attr('y',-58)
-    .attr('text-anchor','middle').attr('fill','#6b7280')
-    .attr('font-size',11).attr('font-family','Space Mono, monospace')
-    .text('Score (log scale)');
+    .attr('x', -margin.left).attr('y', -5)
+    .attr('text-anchor','start').attr('fill','#6b7280')
+    .attr('font-size',10).attr('font-family','Space Mono, monospace')
+    .attr('letter-spacing','.04em')
+    .text('Score ↑');
 
   // Fit line + ±1σ band. Band appended first so it sits beneath line and dots.
   fitPts  = samplePower(A, B, cpFilter.dataMin * 0.7, cpFilter.dataMax * 1.4);
@@ -196,6 +203,13 @@ function renderScatter(data, A, B, sigma) {
   zoomBehavior = d3.zoom()
     .scaleExtent([1, 50])
     .extent([[0, 0], [W, H]])
+    .filter(function(event) {
+      // On touch, require two fingers so a one-finger drag scrolls the page
+      // instead of being captured as a chart pan (the page felt "stuck").
+      if (event.type === 'touchstart') return event.touches.length >= 2;
+      // Desktop: d3 default (wheel zoom + drag pan), but ignore right-click.
+      return (!event.ctrlKey || event.type === 'wheel') && !event.button;
+    })
     .on('zoom', function(event) {
       const t  = event.transform;
       const zx = t.rescaleX(xScale);
