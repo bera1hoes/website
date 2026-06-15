@@ -10,6 +10,9 @@ function setColorMode(mode) {
   if (currentData) {
     updateColors();
     buildLegend(currentData);
+    // updateColors() clears legend selection and repaints every dot at full
+    // colour, which would wipe an active search dim — re-apply it.
+    if (searchQuery) applyHighlights();
   }
   updateDeepLink();
 }
@@ -28,8 +31,11 @@ function updateColors() {
 // in chart.js so restoring a dot never undoes the active dim.
 function dotResting(d) {
   const key = colorMode === 'guild' ? 'guild' : 'cls';
-  const dimmed = selectedGroups.size > 0 && !selectedGroups.has(d[key]);
-  return dimmed ? { color: '#374151', opacity: 0.12 } : { color: getColor(d, colorMode), opacity: 0.75 };
+  const groupDimmed  = selectedGroups.size > 0 && !selectedGroups.has(d[key]);
+  const searchDimmed = searchQuery && !d.nick.toLowerCase().includes(searchQuery);
+  return (groupDimmed || searchDimmed)
+    ? { color: '#374151', opacity: 0.12 }
+    : { color: getColor(d, colorMode), opacity: 0.75 };
 }
 
 function applyHighlights() {

@@ -229,6 +229,8 @@ function renderPlayerTable() {
   rows.forEach(d => {
     const color = getColor(d, 'guild');
     const tr = document.createElement('tr');
+    // Mirror the chart's player-search dim: emphasise matching rows here.
+    if (searchQuery && d.nick.toLowerCase().includes(searchQuery)) tr.className = 'search-hit';
     const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
     const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
     let html =

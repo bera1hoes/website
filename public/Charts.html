@@ -56,6 +56,16 @@
       </div>
     </div>
     <div class="ctrl-group">
+      <div class="ctrl-label">Find player</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input class="player-filter" id="player-search" type="text" style="flex:none;width:160px"
+          aria-label="Find a player on the chart" placeholder="Search name…"
+          oninput="onPlayerSearch(this.value)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();onPlayerSearchEnter();}else if(event.key==='Escape'){clearPlayerSearch();}">
+        <button id="player-search-clear" class="filter-clear" type="button" aria-label="Clear search" onclick="clearPlayerSearch()" hidden>×</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
       <div class="ctrl-label">Share</div>
       <button class="file-btn" onclick="copyShareLink()">🔗 Copy link</button>
     </div>
@@ -226,6 +236,7 @@
 <script src="/js/experiments.js"></script>
 <script src="/js/deeplink.js"></script>
 <script src="/js/history.js"></script>
+<script src="/js/search.js"></script>
 <script src="/js/main.js"></script>
 </body>
 </html>

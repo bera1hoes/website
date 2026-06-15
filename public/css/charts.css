@@ -250,6 +250,9 @@ select:focus { border-color: var(--amber); }
 .pivot-table thead th.sortable:hover { color: var(--text-dim); }
 .sort-icon { margin-left: 4px; font-size: 9px; color: #4b5563; }
 .sort-icon.active { color: var(--amber); }
+/* Player search (controls bar) highlights its matching rows here. */
+#player-table tbody tr.search-hit { background: rgba(240, 165, 0, 0.13); }
+#player-table tbody tr.search-hit td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
 
 /* Experiments side panel */
 #experiments-panel {
