@@ -77,6 +77,9 @@ function buildChart(data) {
     pinPlayerByName(pendingPin);
     pendingPin = null;
   }
+  // A search dim must survive a sheet/content rebuild (the input keeps its
+  // text), so re-apply it against the freshly rendered dots.
+  if (searchQuery) applyHighlights();
   // Sync the hash with what actually applied (stale pin/sel entries drop out).
   updateDeepLink();
 }
