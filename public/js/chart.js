@@ -111,9 +111,13 @@ function computeFit(data) {
 // Draw the whole SVG: scales, grid, axes, fit line + band, dots, and zoom.
 function renderScatter(data, A, B, sigma) {
   const margin = { top: 16, right: 28, bottom: 52, left: 70 };
-  const totalW  = Math.min(900, window.innerWidth - 60);
+  // Measure the actual container so the SVG never overflows its padded card —
+  // the old `innerWidth - 60` guess was too wide on phones and forced h-scroll.
+  const totalW  = Math.min(900, $id('chart').clientWidth || (window.innerWidth - 60));
   const W = totalW - margin.left - margin.right;
-  const H = 420 - margin.top - margin.bottom;
+  // On phones, cap the chart height so there's always page left to scroll past.
+  const totalH = window.innerWidth < 640 ? Math.min(420, Math.round(window.innerHeight * 0.62)) : 420;
+  const H = totalH - margin.top - margin.bottom;
 
   d3.select('#chart').selectAll('*').remove();
   $id('zoom-indicator').style.display = 'none';
@@ -196,6 +200,13 @@ function renderScatter(data, A, B, sigma) {
   zoomBehavior = d3.zoom()
     .scaleExtent([1, 50])
     .extent([[0, 0], [W, H]])
+    .filter(function(event) {
+      // On touch, require two fingers so a one-finger drag scrolls the page
+      // instead of being captured as a chart pan (the page felt "stuck").
+      if (event.type === 'touchstart') return event.touches.length >= 2;
+      // Desktop: d3 default (wheel zoom + drag pan), but ignore right-click.
+      return (!event.ctrlKey || event.type === 'wheel') && !event.button;
+    })
     .on('zoom', function(event) {
       const t  = event.transform;
       const zx = t.rescaleX(xScale);
