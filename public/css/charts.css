@@ -144,6 +144,9 @@ select:focus { border-color: var(--amber); }
 /* Pivot table */
 #pivot-section { margin-top: 24px; }
 .pivot-wrap { background: var(--surface); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; }
+/* Only the table scrolls sideways on narrow screens — the filter row and the
+   Columns menu above it stay put (and the menu isn't clipped by the scroll). */
+.table-scroll { overflow-x: auto; }
 .pivot-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .pivot-table thead th {
   padding: 10px 16px;
@@ -182,7 +185,38 @@ select:focus { border-color: var(--amber); }
 .file-btn:hover { border-color: rgba(255,255,255,0.25); }
 
 /* Player table filter + sort */
-.player-filter-wrap { display: flex; align-items: center; gap: 8px; padding: 12px 16px 0; }
+.player-filter-wrap { display: flex; align-items: center; gap: 8px; padding: 12px 16px 0; flex-wrap: wrap; }
+
+/* Columns visibility menu */
+.col-menu-wrap { position: relative; flex: none; }
+.col-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+.col-menu[hidden] { display: none; }
+.col-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 6px;
+}
+.col-menu-item:hover { background: rgba(255,255,255,0.04); }
+.col-menu-item input { accent-color: var(--amber); cursor: pointer; }
 .filter-clear {
   flex: none;
   width: 32px;
@@ -292,4 +326,8 @@ select:focus { border-color: var(--amber); }
     transform: translateY(0) translateX(calc(100% - 36px));
   }
   #experiments-panel.open { transform: translateY(0) translateX(0); }
+  /* Tighter table cells so more columns fit before the table has to scroll. */
+  .pivot-table { font-size: 12px; }
+  .pivot-table thead th { padding: 9px 10px; }
+  .pivot-table td { padding: 8px 10px; }
 }

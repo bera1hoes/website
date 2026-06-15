@@ -28,6 +28,7 @@ function showPanel(cx, cy, d, pin) {
   } else {
     gwRow.style.display = 'none';
   }
+  setPanelHistory(d);
   const panel = document.getElementById('panel');
   panel.style.display = 'block';
   panel.classList.toggle('pinned', pin);

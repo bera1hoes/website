@@ -115,7 +115,12 @@
       <div class="player-filter-wrap">
         <input class="player-filter" id="player-filter" type="text" aria-label="Filter players by name, guild, or class" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
         <button id="player-filter-clear" class="filter-clear" type="button" aria-label="Clear filter" onclick="clearPlayerFilter()" hidden>×</button>
+        <div class="col-menu-wrap">
+          <button class="file-btn" id="col-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" onclick="toggleColMenu()">Columns ▾</button>
+          <div id="col-menu" class="col-menu" role="menu" hidden></div>
+        </div>
       </div>
+      <div class="table-scroll">
       <table class="pivot-table" id="player-table">
         <thead>
           <tr>
@@ -133,6 +138,7 @@
         </thead>
         <tbody id="player-body"></tbody>
       </table>
+      </div>
     </div>
   </div>
 
@@ -144,8 +150,8 @@
   <div class="p-rank" id="p-rank"></div>
   <div class="p-name" id="p-name"></div>
   <div class="p-row"><span class="p-key">CLASS</span><span id="p-cls"></span></div>
-  <div class="p-row"><span class="p-key">SCORE</span><span class="accent2" id="p-score"></span></div>
-  <div class="p-row"><span class="p-key">CP</span><span class="accent" id="p-cp"></span></div>
+  <div class="p-row"><span class="p-key">SCORE</span><span><span class="accent2" id="p-score"></span><span id="p-score-delta"></span></span></div>
+  <div class="p-row"><span class="p-key">CP</span><span><span class="accent" id="p-cp"></span><span id="p-cp-delta"></span></span></div>
   <div class="p-row"><span class="p-key">GUILD</span><span id="p-guild"></span></div>
   <div class="p-row"><span class="p-key">VS FIT</span><span id="p-fitdiff"></span></div>
   <div class="p-row" id="p-customfit-row" style="display:none"><span class="p-key">VS CUSTOM</span><span id="p-customfitdiff"></span></div>
@@ -229,6 +235,7 @@
 <script src="/js/tables.js"></script>
 <script src="/js/experiments.js"></script>
 <script src="/js/deeplink.js"></script>
+<script src="/js/history.js"></script>
 <script src="/js/search.js"></script>
 <script src="/js/main.js"></script>
 </body>
