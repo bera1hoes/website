@@ -325,9 +325,11 @@ select:focus { border-color: var(--amber); }
     width: min(340px, 92vw);
     max-height: 100vh;
     border-radius: 0 0 0 12px;
-    transform: translateY(0) translateX(calc(100% - 36px));
+    transform: translateY(0) translateX(calc(100% - 26px));
   }
   #experiments-panel.open { transform: translateY(0) translateX(0); }
+  /* Slimmer pull-tab so it intrudes less on a narrow screen. */
+  #experiments-tab { width: 26px; padding: 12px 0; font-size: 8px; letter-spacing: .12em; }
   /* Tighter table cells so more columns fit before the table has to scroll. */
   .pivot-table { font-size: 12px; }
   .pivot-table thead th { padding: 9px 10px; }
