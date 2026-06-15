@@ -14,6 +14,7 @@ function onPlayerSearch(value) {
   if (clr) clr.hidden = !value;
   if (!currentData) return;
   applyHighlights();
+  renderPlayerTable();   // re-tag matching rows (.search-hit) in the table
   // Pin only when the query is an exact, unique nick match — never on every
   // keystroke. Enter (onPlayerSearchEnter) handles partial-but-unique matches.
   if (searchQuery) {
@@ -30,6 +31,10 @@ function onPlayerSearchEnter() {
   const exact = matches.find(d => d.nick.toLowerCase() === searchQuery);
   const target = exact || (matches.length === 1 ? matches[0] : null);
   if (target) pinPlayerByName(target.nick);
+  // Bring the first highlighted row into view so a match far down the table
+  // isn't missed (only on Enter — never while typing, which would be jarring).
+  const hit = document.querySelector('#player-body tr.search-hit');
+  if (hit) hit.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }
 
 function clearPlayerSearch() {
@@ -38,6 +43,6 @@ function clearPlayerSearch() {
   searchQuery = '';
   const clr = document.getElementById('player-search-clear');
   if (clr) clr.hidden = true;
-  if (currentData) applyHighlights();
+  if (currentData) { applyHighlights(); renderPlayerTable(); }
   if (input) input.focus();
 }
