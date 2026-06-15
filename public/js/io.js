@@ -240,6 +240,7 @@ function loadSheet(name, bust) {
     currentData = cached;
     document.getElementById('loading').style.display = 'none';
     buildChart(cached);
+    loadHistory();
     return;
   }
 
@@ -259,6 +260,7 @@ function loadSheet(name, bust) {
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
     buildChart(currentData);
+    loadHistory();
     // Reload path: refresh the sheet list only after the data round-trip, so
     // the Worker can reuse the timestamp it just fetched instead of both
     // requests racing to fetch their own.
