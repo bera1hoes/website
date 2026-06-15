@@ -1,7 +1,7 @@
 // ── Player history (week-over-week deltas) ──────────────────────────────────
 // Each sheet is a dated snapshot. After a sheet renders, we also pull the
 // *previous* date's rows, join by nick, and annotate the current rows with
-// dScore / dCp / dRank so the player table and info panel can show movement.
+// dScore / dCp (with % change) so the player table and info panel show movement.
 // Players absent from the previous sheet (new, or renamed) get no deltas.
 //
 // Runs fire-and-forget after buildChart (io.js): a history failure must never
@@ -42,7 +42,9 @@ function getSheetRows(name) {
 function clearHistory() {
   hasHistory = false;
   prevSheetLabel = null;
-  if (currentData) currentData.forEach(d => { delete d.dScore; delete d.dCp; delete d.dRank; });
+  if (currentData) currentData.forEach(d => {
+    delete d.dScore; delete d.dCp; delete d.dScorePct; delete d.dCpPct;
+  });
 }
 
 // Annotate currentData with deltas vs the previous sheet, then refresh the
@@ -61,7 +63,8 @@ function loadHistory() {
       if (!p) return;             // new player → deltas stay undefined
       d.dScore = d.score - p.score;
       d.dCp    = d.cp - p.cp;
-      d.dRank  = p.rank - d.rank;  // positive = climbed (rank number dropped)
+      d.dScorePct = p.score ? (d.dScore / p.score) * 100 : undefined;
+      d.dCpPct    = p.cp    ? (d.dCp    / p.cp)    * 100 : undefined;
     });
     hasHistory = true;
     prevSheetLabel = prev;
@@ -71,33 +74,27 @@ function loadHistory() {
 }
 
 // ── Delta formatting ────────────────────────────────────────────────────────
-// Score/CP: positive is good (green). Rank: positive dRank = climbed (green).
-// Undefined (new player) → em dash, muted.
+// Positive is good (green); the percentage change rides along in parentheses,
+// dimmed. Undefined (new player) → em dash, muted. Returns HTML (the panel and
+// table both render it) so the % can be styled separately.
 
-function fmtDeltaMag(v) {
-  if (v === undefined) return { text: '—', color: 'var(--text-muted)' };
-  if (v === 0) return { text: '±0', color: 'var(--text-muted)' };
-  return { text: (v > 0 ? '+' : '−') + toGamingNotation(Math.abs(v)), color: v > 0 ? '#4ade80' : '#f87171' };
-}
-
-function fmtDeltaRank(v) {
-  if (v === undefined) return { text: '—', color: 'var(--text-muted)' };
-  if (v === 0) return { text: '±0', color: 'var(--text-muted)' };
-  return { text: (v > 0 ? '▲' : '▼') + Math.abs(v), color: v > 0 ? '#4ade80' : '#f87171' };
-}
-
-// Render a formatted delta as a right-aligned player-table cell.
-function deltaCell(f) {
-  return `<td style="text-align:right;color:${f.color}">${f.text}</td>`;
+function fmtDeltaMag(v, pct) {
+  if (v === undefined) return { html: '—', color: 'var(--text-muted)' };
+  if (v === 0) return { html: '±0', color: 'var(--text-muted)' };
+  const main = (v > 0 ? '+' : '−') + toGamingNotation(Math.abs(v));
+  let pctStr = '';
+  if (pct !== undefined && isFinite(pct)) {
+    pctStr = `<span style="opacity:.6"> (${pct > 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%)</span>`;
+  }
+  return { html: main + pctStr, color: v > 0 ? '#4ade80' : '#f87171' };
 }
 
 // ── Info-panel delta rows ───────────────────────────────────────────────────
 
 function setPanelHistory(d) {
   const rows = [
-    ['p-drank-row',  'p-drank',  fmtDeltaRank(d.dRank)],
-    ['p-dscore-row', 'p-dscore', fmtDeltaMag(d.dScore)],
-    ['p-dcp-row',    'p-dcp',    fmtDeltaMag(d.dCp)],
+    ['p-dscore-row', 'p-dscore', fmtDeltaMag(d.dScore, d.dScorePct)],
+    ['p-dcp-row',    'p-dcp',    fmtDeltaMag(d.dCp,    d.dCpPct)],
   ];
   rows.forEach(([rowId, valId, f]) => {
     const row = document.getElementById(rowId);
@@ -105,7 +102,7 @@ function setPanelHistory(d) {
     if (!hasHistory) { row.style.display = 'none'; return; }
     row.style.display = '';
     const span = document.getElementById(valId);
-    span.textContent = f.text;
+    span.innerHTML = f.html;
     span.style.color = f.color;
   });
 }

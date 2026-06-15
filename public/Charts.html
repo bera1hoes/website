@@ -105,7 +105,12 @@
       <div class="player-filter-wrap">
         <input class="player-filter" id="player-filter" type="text" aria-label="Filter players by name, guild, or class" placeholder="Filter by name, guild, or class…" oninput="filterPlayerTable(this.value)">
         <button id="player-filter-clear" class="filter-clear" type="button" aria-label="Clear filter" onclick="clearPlayerFilter()" hidden>×</button>
+        <div class="col-menu-wrap">
+          <button class="file-btn" id="col-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" onclick="toggleColMenu()">Columns ▾</button>
+          <div id="col-menu" class="col-menu" role="menu" hidden></div>
+        </div>
       </div>
+      <div class="table-scroll">
       <table class="pivot-table" id="player-table">
         <thead>
           <tr>
@@ -119,13 +124,13 @@
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
-            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="dRank"  id="player-th-drank"  style="text-align:right;display:none">Δ Rank <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="dScore" id="player-th-dscore" style="text-align:right;display:none">Δ Score <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="dCp"    id="player-th-dcp"    style="text-align:right;display:none">Δ CP <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="player-body"></tbody>
       </table>
+      </div>
     </div>
   </div>
 
@@ -143,7 +148,6 @@
   <div class="p-row"><span class="p-key">VS FIT</span><span id="p-fitdiff"></span></div>
   <div class="p-row" id="p-customfit-row" style="display:none"><span class="p-key">VS CUSTOM</span><span id="p-customfitdiff"></span></div>
   <div class="p-row" id="p-gwpts-row"><span class="p-key">GW PTS</span><span id="p-gwpts"></span></div>
-  <div class="p-row" id="p-drank-row"  style="display:none"><span class="p-key">Δ RANK</span><span id="p-drank"></span></div>
   <div class="p-row" id="p-dscore-row" style="display:none"><span class="p-key">Δ SCORE</span><span id="p-dscore"></span></div>
   <div class="p-row" id="p-dcp-row"    style="display:none"><span class="p-key">Δ CP</span><span id="p-dcp"></span></div>
 </div>

@@ -4,7 +4,72 @@ let playerTableData = [];
 let playerSortCol = 'rank';
 let playerSortDir = 'asc';
 let playerFilter = '';
-const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp', 'dRank']);
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp']);
+
+// ── Column visibility ───────────────────────────────────────────────────────
+// Columns the user can hide via the "Columns" menu (Rank/Nick/Score stay on as
+// the identity columns). `hiddenCols` persists across sheet switches.
+const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp'];
+let hiddenCols = new Set();
+
+// Whether a column is structurally present right now (independent of the user's
+// hide choice): custom fit, GW points, and deltas only exist in some states.
+function colApplicable(col) {
+  if (col === 'customFitDiff') return custom.A !== null;
+  if (col === 'gwPoints')      return currentContentType === 'Guild Wars';
+  if (col === 'dScore' || col === 'dCp') return hasHistory;
+  return true;
+}
+
+function colLabel(col) {
+  const th = document.querySelector(`#player-table thead th[data-col="${col}"]`);
+  return th ? th.textContent.replace(/[↕↑↓]/g, '').trim() : col;
+}
+
+function buildColMenu() {
+  const menu = document.getElementById('col-menu');
+  if (!menu) return;
+  menu.innerHTML = '';
+  TOGGLEABLE_COLS.filter(colApplicable).forEach(col => {
+    const label = document.createElement('label');
+    label.className = 'col-menu-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !hiddenCols.has(col);
+    cb.addEventListener('change', () => {
+      if (cb.checked) hiddenCols.delete(col); else hiddenCols.add(col);
+      renderPlayerTable();
+    });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + colLabel(col)));
+    menu.appendChild(label);
+  });
+}
+
+function toggleColMenu() {
+  const menu = document.getElementById('col-menu');
+  const btn = document.getElementById('col-menu-btn');
+  const show = menu.hidden;
+  if (show) buildColMenu();
+  menu.hidden = !show;
+  if (btn) btn.setAttribute('aria-expanded', String(show));
+}
+
+// Close the menu when clicking outside it (wired once).
+let _colMenuInit = false;
+function initColMenu() {
+  if (_colMenuInit) return;
+  _colMenuInit = true;
+  document.addEventListener('click', e => {
+    const menu = document.getElementById('col-menu');
+    if (!menu || menu.hidden) return;
+    if (!e.target.closest('.col-menu-wrap')) {
+      menu.hidden = true;
+      const btn = document.getElementById('col-menu-btn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
 
 function buildPivotTable(data) {
   const section = document.getElementById('pivot-section');
@@ -83,9 +148,7 @@ function buildPlayerTable(data) {
     };
   });
 
-  const gwCol = document.getElementById('player-th-gwpoints');
-  if (gwCol) gwCol.style.display = currentContentType === 'Guild Wars' ? '' : 'none';
-
+  initColMenu();
   document.getElementById('player-table-section').style.display = 'block';
   renderPlayerTable();
 }
@@ -118,11 +181,11 @@ function clearPlayerFilter() {
 }
 
 function renderPlayerTable() {
-  const customCol = document.getElementById('player-th-customfit');
-  if (customCol) customCol.style.display = custom.A !== null ? '' : 'none';
-  ['drank', 'dscore', 'dcp'].forEach(c => {
-    const th = document.getElementById('player-th-' + c);
-    if (th) th.style.display = hasHistory ? '' : 'none';
+  // Header visibility: a column shows when it's structurally present and the
+  // user hasn't hidden it. Drives the matching cells via data-col below.
+  document.querySelectorAll('#player-table thead th[data-col]').forEach(th => {
+    const col = th.dataset.col;
+    th.style.display = (colApplicable(col) && !hiddenCols.has(col)) ? '' : 'none';
   });
   let rows = playerTableData;
 
@@ -160,23 +223,35 @@ function renderPlayerTable() {
 
   const tbody = document.getElementById('player-body');
   tbody.innerHTML = '';
+  // data-col on every cell keeps it aligned with its header for hide/show; the
+  // inline display:none mirrors a user-hidden column without a second DOM pass.
+  const td = (col, extra, content) =>
+    `<td data-col="${col}" style="${hiddenCols.has(col) ? 'display:none;' : ''}${extra}">${content}</td>`;
   rows.forEach(d => {
     const color = getColor(d, 'guild');
     const tr = document.createElement('tr');
     const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
     const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
-    tr.innerHTML =
-      `<td style="text-align:right">${d.rank}</td>` +
-      `<td><a class="tlink" href="${nickHref}" target="_blank" rel="noopener">${d.nick}</a></td>` +
-      `<td><span class="p-swatch" style="background:${color}"></span><a class="tlink" href="${guildHref}" target="_blank" rel="noopener">${d.guild}</a></td>` +
-      `<td>${d.cls}</td>` +
-      `<td style="text-align:right">${d.level}</td>` +
-      `<td style="text-align:right">${d.cpShort}</td>` +
-      `<td style="text-align:right">${d.scoreShort}</td>` +
-      `<td style="text-align:right;color:${fitDiffColor(d.fitDiff)}">${fitDiffText(d.fitDiff)}</td>` +
-      (custom.A !== null ? `<td style="text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}">${d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—'}</td>` : '') +
-      (currentContentType === 'Guild Wars' ? `<td style="text-align:right">${d.gwPoints ? d.gwPoints.toLocaleString() : '—'}</td>` : '') +
-      (hasHistory ? deltaCell(fmtDeltaRank(d.dRank)) + deltaCell(fmtDeltaMag(d.dScore)) + deltaCell(fmtDeltaMag(d.dCp)) : '');
+    let html =
+      td('rank', 'text-align:right', d.rank) +
+      td('nick', '', `<a class="tlink" href="${nickHref}" target="_blank" rel="noopener">${d.nick}</a>`) +
+      td('guild', '', `<span class="p-swatch" style="background:${color}"></span><a class="tlink" href="${guildHref}" target="_blank" rel="noopener">${d.guild}</a>`) +
+      td('cls', '', d.cls) +
+      td('level', 'text-align:right', d.level) +
+      td('cp', 'text-align:right', d.cpShort) +
+      td('score', 'text-align:right', d.scoreShort) +
+      td('fitDiff', `text-align:right;color:${fitDiffColor(d.fitDiff)}`, fitDiffText(d.fitDiff));
+    if (custom.A !== null)
+      html += td('customFitDiff', `text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}`, d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—');
+    if (currentContentType === 'Guild Wars')
+      html += td('gwPoints', 'text-align:right', d.gwPoints ? d.gwPoints.toLocaleString() : '—');
+    if (hasHistory) {
+      const s = fmtDeltaMag(d.dScore, d.dScorePct);
+      const c = fmtDeltaMag(d.dCp, d.dCpPct);
+      html += td('dScore', `text-align:right;color:${s.color}`, s.html);
+      html += td('dCp', `text-align:right;color:${c.color}`, c.html);
+    }
+    tr.innerHTML = html;
     tbody.appendChild(tr);
   });
 }
