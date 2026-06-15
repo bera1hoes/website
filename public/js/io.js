@@ -107,6 +107,7 @@ function loadContentType(type) {
   document.getElementById('btn-gbb').classList.toggle('active',  type === 'Guild Boss Battle');
   document.getElementById('btn-ggbb').classList.toggle('active', type === 'Global GBB');
   document.getElementById('btn-gc').classList.toggle('active',   type === 'Guild Conquest');
+  document.getElementById('btn-gtt').classList.toggle('active',  type === 'Guild Training Ground');
   if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
   reloadCooldownRemaining = 0;
   latestSheet = null;
