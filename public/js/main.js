@@ -14,15 +14,25 @@ if (IS_LOCAL) {
   s1.onload = function() {
     const s2 = document.createElement('script');
     s2.src = './SampleData/GBBLocalData.js';
+    const loadS5 = function() {
+      const s5 = document.createElement('script');
+      s5.src = './SampleData/GTTLocalData.js';
+      // End of the injection chain either way: the deep-link restore needs the
+      // data constants, so it can only run now.
+      s5.onload = restoreDeepLink;
+      s5.onerror = function() {
+        console.warn('Could not load GTTLocalData.js — Guild Training Ground data will be unavailable');
+        restoreDeepLink();
+      };
+      document.head.appendChild(s5);
+    };
     const loadS4 = function() {
       const s4 = document.createElement('script');
       s4.src = './SampleData/GuildConquestLocalData.js';
-      // End of the injection chain either way: the deep-link restore needs the
-      // data constants, so it can only run now.
-      s4.onload = restoreDeepLink;
+      s4.onload = loadS5;
       s4.onerror = function() {
         console.warn('Could not load GuildConquestLocalData.js — Guild Conquest data will be unavailable');
-        restoreDeepLink();
+        loadS5();
       };
       document.head.appendChild(s4);
     };
