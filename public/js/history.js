@@ -74,37 +74,24 @@ function loadHistory() {
 }
 
 // ── Delta formatting ────────────────────────────────────────────────────────
-// Positive is good (green); the percentage change rides along in parentheses,
-// dimmed. Undefined (new player) → em dash, muted. Returns HTML (the panel and
-// table both render it) so the % can be styled separately.
+// The Score/CP value stays its own colour; only the percentage change rides
+// alongside it in green (up) / red (down). Returns an HTML fragment (empty when
+// there's no history or the player is new) to append after the value.
 
-function fmtDeltaMag(v, pct) {
-  if (v === undefined) return { html: '—', color: 'var(--text-muted)' };
-  if (v === 0) return { html: '±0', color: 'var(--text-muted)' };
-  const main = (v > 0 ? '+' : '−') + toGamingNotation(Math.abs(v));
-  let pctStr = '';
-  if (pct !== undefined && isFinite(pct)) {
-    pctStr = `<span style="opacity:.6"> (${pct > 0 ? '+' : '−'}${Math.abs(pct).toFixed(1)}%)</span>`;
-  }
-  return { html: main + pctStr, color: v > 0 ? '#4ade80' : '#f87171' };
+function fmtPct(pct) {
+  if (pct === undefined || !isFinite(pct)) return '';
+  const color = pct > 0 ? '#4ade80' : pct < 0 ? '#f87171' : 'var(--text-muted)';
+  const sign  = pct > 0 ? '+' : pct < 0 ? '−' : '±';
+  return `<span style="color:${color}"> (${sign}${Math.abs(pct).toFixed(1)}%)</span>`;
 }
 
-// ── Info-panel delta rows ───────────────────────────────────────────────────
+// ── Info-panel: append the % change after the SCORE / CP values ──────────────
 
 function setPanelHistory(d) {
-  const rows = [
-    ['p-dscore-row', 'p-dscore', fmtDeltaMag(d.dScore, d.dScorePct)],
-    ['p-dcp-row',    'p-dcp',    fmtDeltaMag(d.dCp,    d.dCpPct)],
-  ];
-  rows.forEach(([rowId, valId, f]) => {
-    const row = document.getElementById(rowId);
-    if (!row) return;
-    if (!hasHistory) { row.style.display = 'none'; return; }
-    row.style.display = '';
-    const span = document.getElementById(valId);
-    span.innerHTML = f.html;
-    span.style.color = f.color;
-  });
+  const sd = document.getElementById('p-score-delta');
+  const cd = document.getElementById('p-cp-delta');
+  if (sd) sd.innerHTML = hasHistory ? fmtPct(d.dScorePct) : '';
+  if (cd) cd.innerHTML = hasHistory ? fmtPct(d.dCpPct) : '';
 }
 
 function refreshPanelHistory() {

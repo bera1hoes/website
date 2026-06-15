@@ -4,20 +4,19 @@ let playerTableData = [];
 let playerSortCol = 'rank';
 let playerSortDir = 'asc';
 let playerFilter = '';
-const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp']);
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints']);
 
 // ── Column visibility ───────────────────────────────────────────────────────
 // Columns the user can hide via the "Columns" menu (Rank/Nick/Score stay on as
 // the identity columns). `hiddenCols` persists across sheet switches.
-const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'customFitDiff', 'gwPoints', 'dScore', 'dCp'];
+const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'customFitDiff', 'gwPoints'];
 let hiddenCols = new Set();
 
 // Whether a column is structurally present right now (independent of the user's
-// hide choice): custom fit, GW points, and deltas only exist in some states.
+// hide choice): custom fit and GW points only exist in some states.
 function colApplicable(col) {
   if (col === 'customFitDiff') return custom.A !== null;
   if (col === 'gwPoints')      return currentContentType === 'Guild Wars';
-  if (col === 'dScore' || col === 'dCp') return hasHistory;
   return true;
 }
 
@@ -238,19 +237,15 @@ function renderPlayerTable() {
       td('guild', '', `<span class="p-swatch" style="background:${color}"></span><a class="tlink" href="${guildHref}" target="_blank" rel="noopener">${d.guild}</a>`) +
       td('cls', '', d.cls) +
       td('level', 'text-align:right', d.level) +
-      td('cp', 'text-align:right', d.cpShort) +
-      td('score', 'text-align:right', d.scoreShort) +
+      // Score/CP keep their own colour; the % change (when there's history)
+      // rides alongside in green/red.
+      td('cp', 'text-align:right', d.cpShort + (hasHistory ? fmtPct(d.dCpPct) : '')) +
+      td('score', 'text-align:right', d.scoreShort + (hasHistory ? fmtPct(d.dScorePct) : '')) +
       td('fitDiff', `text-align:right;color:${fitDiffColor(d.fitDiff)}`, fitDiffText(d.fitDiff));
     if (custom.A !== null)
       html += td('customFitDiff', `text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}`, d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—');
     if (currentContentType === 'Guild Wars')
       html += td('gwPoints', 'text-align:right', d.gwPoints ? d.gwPoints.toLocaleString() : '—');
-    if (hasHistory) {
-      const s = fmtDeltaMag(d.dScore, d.dScorePct);
-      const c = fmtDeltaMag(d.dCp, d.dCpPct);
-      html += td('dScore', `text-align:right;color:${s.color}`, s.html);
-      html += td('dCp', `text-align:right;color:${c.color}`, c.html);
-    }
     tr.innerHTML = html;
     tbody.appendChild(tr);
   });
