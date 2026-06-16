@@ -25,7 +25,12 @@ function updateDeepLink() {
   if (!deepLinkReady || !currentContentType) return;
   const p = new URLSearchParams();
   p.set('ct', currentContentType);
-  if (currentSheet) p.set('sheet', currentSheet);
+  // Don't pin the sheet when it's the newest one: otherwise the auto-written
+  // address-bar/bookmark hash silently strands the viewer on an old date once
+  // a newer sheet is published (and hides the Reload button, which only shows
+  // on the latest sheet). An explicitly-selected older sheet still gets sheet=
+  // so that view stays shareable and refreshes back to itself.
+  if (currentSheet && currentSheet !== latestSheet) p.set('sheet', currentSheet);
   if (colorMode !== 'guild') p.set('color', colorMode);
   selectedGroups.forEach(g => p.append('sel', g));
   const pinnedNick = (isPinned && activeEl) ? d3.select(activeEl).datum().nick : pendingPin;
@@ -48,7 +53,11 @@ function readDeepLink() {
 function restoreDeepLink() {
   const link = readDeepLink();
   deepLinkReady = true;
-  if (!link) return;
+  // No/invalid hash: boot the default view (newest Guild Wars sheet) instead of
+  // leaving the page on the "Select a content type" prompt. This is the only
+  // boot action in both remote and local modes (main.js), so without it a clean
+  // URL never auto-loads.
+  if (!link) { loadContentType('Guild Wars'); return; }
   if (link.color === 'class' || link.color === 'guild') setColorMode(link.color);
   pendingSheet = link.sheet || null;
   pendingSel = link.sel.length ? link.sel : null;
