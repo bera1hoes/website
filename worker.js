@@ -100,6 +100,33 @@ function parseGamingNotation(text) {
   return total;
 }
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Make a managed edge page look like a real browser. Vercel's challenge 429s
+// obvious automation (navigator.webdriver === true is the giveaway), which is
+// the tell we couldn't strip via a Chrome flag on the managed browser — so strip
+// it from JS instead. Each step is best-effort: an unsupported API must not abort
+// the render.
+async function hardenPage(page) {
+  try { await page.setUserAgent(REAL_UA); } catch { /* */ }
+  try {
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'en-US,en;q=0.9',
+      'sec-ch-ua': '"Chromium";v="126", "Google Chrome";v="126", "Not.A/Brand";v="24"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Windows"',
+    });
+  } catch { /* */ }
+  try {
+    await page.evaluateOnNewDocument(() => {
+      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+      Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+      Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+      window.chrome = window.chrome || { runtime: {} };
+    });
+  } catch { /* */ }
+}
+
 // Render one guild page in the given (already challenge-warmed) browser and
 // extract its roster. mapleidle is a client-rendered SPA: each member is a
 // `[data-member-name]` element holding a /characters/<world>/<nick> link and a
@@ -109,9 +136,14 @@ function parseGamingNotation(text) {
 async function renderRoster(browser, world, name) {
   const page = await browser.newPage();
   try {
-    await page.setUserAgent(REAL_UA);
+    await hardenPage(page);
     const target = MAPLEIDLE_BASE + '/guild/' + encodeURIComponent(world) + '/' + encodeURIComponent(name);
-    const resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
+    let resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
+    // A 429 is Vercel's challenge; it sets a clearance cookie, so wait + retry once.
+    if (resp && resp.status() === 429) {
+      await sleep(4000);
+      resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
+    }
     if (resp && resp.status() === 429) throw new Error('mapleidle rate-limited (429)');
     // Member rows hydrate client-side; wait for them (best-effort).
     await page.waitForSelector('[data-member-name]', { timeout: 15000 }).catch(() => {});
@@ -297,11 +329,13 @@ async function handleGuild(url, env, ctx) {
     }
     try {
       // Warm up once: the first hit clears Vercel's challenge and sets a cookie
-      // the whole browser then reuses for the guild pages.
+      // the whole browser then reuses for the guild pages. Pause after load so the
+      // challenge JS has time to run and set that cookie.
       try {
         const warm = await browser.newPage();
-        await warm.setUserAgent(REAL_UA);
+        await hardenPage(warm);
         await warm.goto(MAPLEIDLE_BASE + '/', { waitUntil: 'networkidle0', timeout: 30000 });
+        await sleep(4000);
         await warm.close();
       } catch { /* non-fatal: the per-guild loads still try on their own */ }
 
