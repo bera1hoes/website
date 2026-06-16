@@ -8,5 +8,12 @@
   },
   "services": [
     { "binding": "USERINFO_WORKER", "service": "userinfo-worker" }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CHART_DATA",
+      "id": "1b5aa7e017d2466c9b614b551f4ac467",
+      "preview_id": "8dbd710fef3448bca00cc7ad2753a248"
+    }
   ]
 }
