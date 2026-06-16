@@ -143,7 +143,9 @@ async function handleApi(url, env) {
 // Guarded by the SEED_KEY Wrangler secret. Scope with ?type= to stay under the
 // per-invocation subrequest limit on large spreadsheets.
 async function handleSeed(url, env) {
-  if (!env.SEED_KEY || url.searchParams.get('key') !== env.SEED_KEY) {
+  const provided = (url.searchParams.get('key') || '').trim();
+  const expected = (env.SEED_KEY || '').trim();
+  if (!expected || provided !== expected) {
     return jsonError(403, 'Forbidden');
   }
   const only = url.searchParams.get('type');
