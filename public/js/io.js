@@ -64,7 +64,6 @@ let currentContentType = null;
 let latestSheet = null;
 let reloadCooldownRemaining = 0;
 let reloadTimerInterval = null;
-let pendingNamesRefresh = false;
 
 function populateLocalSheets(type) {
   const dataObj = getLocalData(type);
@@ -111,7 +110,6 @@ function loadContentType(type) {
   if (reloadTimerInterval) { clearInterval(reloadTimerInterval); reloadTimerInterval = null; }
   reloadCooldownRemaining = 0;
   latestSheet = null;
-  pendingNamesRefresh = false;
   const reloadBtn = document.getElementById('reload-btn');
   if (reloadBtn) { reloadBtn.disabled = false; reloadBtn.textContent = '↺ Reload'; }
   document.getElementById('reload-ctrl').style.display = 'none';
@@ -173,10 +171,12 @@ function fetchLastUpdated(type) {
   google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
 }
 
-// Re-fetch the sheet list past the edge cache (Reload path) and refresh the
-// dropdown in place — no auto-load, the current selection stays put. A newly
-// published date shows up as a new option and becomes `latestSheet`.
-function refreshSheetNames(type) {
+// Re-fetch the sheet list past the cache (Reload path) and rebuild the dropdown.
+// With `loadLatest` (the Reload button), it then selects and loads the newest
+// sheet — so Reload lands on a freshly-published date instead of merely adding
+// it as a dropdown option while leaving the stale sheet on screen. Without it,
+// the current selection stays put.
+function refreshSheetNames(type, loadLatest) {
   const onNames = function(json) {
     const names = typeof json === 'string' ? JSON.parse(json) : json;
     sheetNamesCache[type] = names;
@@ -190,11 +190,26 @@ function refreshSheetNames(type) {
       sel.appendChild(opt);
     });
     latestSheet = names[0];
-    sel.value = names.includes(currentSheet) ? currentSheet : names[0];
-    updateReloadButton(currentSheet);
+    const target = loadLatest ? latestSheet : (names.includes(currentSheet) ? currentSheet : names[0]);
+    sel.value = target;
+    if (loadLatest) {
+      // Drop any cached copy so the latest sheet's data is refetched (it may be
+      // newly published, or the actively-edited sheet the user was already on).
+      if (localFiles[type]) delete localFiles[type][target];
+      loadSheet(target, true);
+    } else {
+      updateReloadButton(currentSheet);
+    }
   };
-  // Non-critical: the reload of the current sheet's data proceeds regardless.
-  const onNamesErr = function(err) { console.warn('getSheetNames refresh failed:', err); };
+  const onNamesErr = function(err) {
+    console.warn('getSheetNames refresh failed:', err);
+    // Reload still owes the user fresh data even if the list fetch fails — fall
+    // back to refetching whatever sheet they're currently on.
+    if (loadLatest && type === currentContentType) {
+      if (localFiles[type]) delete localFiles[type][currentSheet];
+      loadSheet(currentSheet, true);
+    }
+  };
   if (HAS_GAS) {
     google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
   } else {
@@ -227,8 +242,8 @@ function applyLastUpdated(iso) {
 
 // ── Load a sheet ───────────────────────────────────────────────────────────
 
-// `bust` (Reload path) is forwarded to the Worker so it skips its edge cache
-// — getData caches for hours there, since dated sheets rarely change.
+// `bust` (Reload path) is forwarded to the Worker so it refetches from Apps
+// Script and overwrites the KV entry instead of serving the stored copy.
 function loadSheet(name, bust) {
   currentSheet = name;
   updateDeepLink();
@@ -261,13 +276,6 @@ function loadSheet(name, bust) {
     localFiles[currentContentType][name] = currentData;
     buildChart(currentData);
     loadHistory();
-    // Reload path: refresh the sheet list only after the data round-trip, so
-    // the Worker can reuse the timestamp it just fetched instead of both
-    // requests racing to fetch their own.
-    if (pendingNamesRefresh) {
-      pendingNamesRefresh = false;
-      refreshSheetNames(currentContentType);
-    }
   };
   const onDataErr = function(err) {
     showLoadError('Error: ' + err.message, function() { loadSheet(name); });
@@ -289,10 +297,12 @@ function updateReloadButton(name) {
 
 function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
-  if (localFiles[currentContentType]) delete localFiles[currentContentType][currentSheet];
   delete lastUpdatedCache[currentContentType];
-  pendingNamesRefresh = true;
-  loadSheet(currentSheet, true);
+  // Names-first: refresh the sheet list, then load whatever is now the latest
+  // sheet. A newly-published date is shown (not just added to the dropdown),
+  // and when there's no new date this falls through to refetching the current
+  // (latest) sheet — the only one Reload is offered on.
+  refreshSheetNames(currentContentType, true);
   fetchLastUpdated(currentContentType);
   startReloadCooldown();
 }
