@@ -12,25 +12,37 @@
 // Session cache: guild name -> normalized roster [{nick, cp, cls, level}].
 const rosterCache = {};
 
-const ROSTER_TIMEOUT_MS = 15000;
-const ROSTER_CONCURRENCY = 3;   // be polite to mapleidle
+// Browser Rendering can be slow — one edge browser renders every uncached guild
+// in the batch — so allow a generous timeout.
+const ROSTER_TIMEOUT_MS = 90000;
 
-// Same-origin GET to the Worker's /guild proxy. Tolerates string-or-object JSON
-// like apiCall (io.js). Resolves to a normalized roster array.
-function fetchGuildRoster(guild) {
-  if (rosterCache[guild]) return Promise.resolve(rosterCache[guild]);
+// One batched GET to the Worker's /guild proxy for all guilds at once. Returns a
+// map { guild: roster[] | { error } }. Tolerates string-or-object JSON like
+// apiCall (io.js). Caches successful rosters per guild for the session and only
+// requests guilds not already cached.
+function fetchRosters(guilds) {
+  const need = guilds.filter(g => !rosterCache[g]);
+  if (!need.length) {
+    const out = {};
+    guilds.forEach(g => { out[g] = rosterCache[g]; });
+    return Promise.resolve(out);
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ROSTER_TIMEOUT_MS);
-  const qs = new URLSearchParams({ world: 'bera', name: guild });
+  const qs = new URLSearchParams({ world: 'bera', names: need.join(',') });
   return fetch('/guild?' + qs.toString(), { signal: ctrl.signal }).then(r => {
     if (!r.ok) return r.json().then(j => { throw new Error((j && j.error) || ('HTTP ' + r.status)); },
                                          () => { throw new Error('HTTP ' + r.status); });
     return r.json();
   }).then(json => {
-    const roster = typeof json === 'string' ? JSON.parse(json) : json;
-    if (json && json.error) throw new Error(json.error);
-    rosterCache[guild] = roster;
-    return roster;
+    const map = typeof json === 'string' ? JSON.parse(json) : json;
+    if (map && map.error) throw new Error(map.error);
+    // Cache only successful rosters (arrays); error entries stay uncached so a
+    // later run retries them.
+    Object.keys(map).forEach(g => { if (Array.isArray(map[g])) rosterCache[g] = map[g]; });
+    const out = {};
+    guilds.forEach(g => { out[g] = rosterCache[g] || map[g]; });
+    return out;
   }).catch(err => {
     throw err.name === 'AbortError' ? new Error('Request timed out') : err;
   }).finally(() => clearTimeout(timer));
@@ -45,30 +57,6 @@ function projectMemberScore(member) {
     proj *= Math.pow(10, frozenFit.classBias[member.cls] || 0);
   }
   return proj;
-}
-
-// Run up to `limit` promises at a time; calls onProgress(done, total) as each
-// settles. Resolves to an array of { value } | { error } in input order.
-function mapWithConcurrency(items, limit, fn, onProgress) {
-  const results = new Array(items.length);
-  let next = 0, done = 0;
-  return new Promise(resolve => {
-    if (!items.length) return resolve(results);
-    const launch = () => {
-      while (next < items.length && (next - done) < limit) {
-        const i = next++;
-        Promise.resolve(fn(items[i], i)).then(
-          v => { results[i] = { value: v }; },
-          e => { results[i] = { error: e }; }
-        ).finally(() => {
-          done++;
-          if (onProgress) onProgress(done, items.length);
-          if (done === items.length) resolve(results); else launch();
-        });
-      }
-    };
-    launch();
-  });
 }
 
 function setPredictionStatus(msg, color) {
@@ -94,22 +82,19 @@ function runPrediction() {
   const participants = new Set(currentData.map(d => d.nick));
   const btn = document.getElementById('predict-btn');
   if (btn) btn.disabled = true;
-  setPredictionStatus('Fetching rosters… (0/' + guilds.length + ')');
+  setPredictionStatus('Rendering rosters via Browser Rendering… (this can take a moment)');
 
-  mapWithConcurrency(
-    guilds, ROSTER_CONCURRENCY, fetchGuildRoster,
-    (d, t) => setPredictionStatus('Fetching rosters… (' + d + '/' + t + ')')
-  ).then(results => {
+  fetchRosters(guilds).then(map => {
     if (btn) btn.disabled = false;
 
     // Collect missing members per guild + count failures.
     const missingByGuild = {};
     let failed = 0;
-    guilds.forEach((guild, i) => {
-      const res = results[i];
+    guilds.forEach(guild => {
       missingByGuild[guild] = [];
-      if (!res || res.error) { failed++; return; }
-      res.value.forEach(m => {
+      const roster = map[guild];
+      if (!Array.isArray(roster)) { failed++; return; }
+      roster.forEach(m => {
         if (!participants.has(m.nick)) {
           missingByGuild[guild].push({ nick: m.nick, cp: m.cp, cls: m.cls, guild });
         }

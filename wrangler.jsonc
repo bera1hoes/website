@@ -2,11 +2,16 @@
   "name": "website",
   "main": "worker.js",
   "compatibility_date": "2025-05-30",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
   },
   "services": [
     { "binding": "USERINFO_WORKER", "service": "userinfo-worker" }
-  ]
+  ],
+  // Browser Rendering: drives a real edge Chromium for the /guild roster proxy.
+  // mapleidle.gg (Vercel) serves guild data only to a challenge-cleared browser,
+  // so a plain fetch gets 429'd — Browser Rendering is the way past it.
+  "browser": { "binding": "BROWSER" }
 }

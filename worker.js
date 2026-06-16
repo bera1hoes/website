@@ -1,3 +1,5 @@
+import puppeteer from '@cloudflare/puppeteer';
+
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K49YOZ1ropYZCbyAsuBfnrB2sERlh2y40ylivWxtdsgcQ2kTTpS4VG5w/exec';
 
 // Edge-cache strategy: the sheets are mutable (edits cluster around the last
@@ -15,11 +17,15 @@ const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
 const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
 
 // Guild-roster proxy (/guild): mapleidle.gg holds each guild's full member list
-// (including players absent from a given content run). It's a Next.js site behind
-// Vercel that blocks non-browser/CORS access, so we fetch it server-side here and
-// hand back a normalized roster. Rosters move ~daily, so cache long.
+// (including players absent from a given content run). It's a Vercel-hosted SPA
+// that serves guild data only to a challenge-cleared real browser — a plain
+// fetch (even from a residential IP) gets 429'd by automation fingerprinting.
+// So we drive a real edge Chromium via Browser Rendering, warm up the challenge
+// once per browser, then read each guild's rendered roster. Rosters move ~daily,
+// so each guild is edge-cached long.
 const MAPLEIDLE_BASE = 'https://mapleidle.gg';
 const ROSTER_TTL = 21600;     // 6h
+const REAL_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
@@ -69,73 +75,83 @@ async function fetchUpstream(search) {
 }
 
 // ── Guild-roster parsing ────────────────────────────────────────────────────
-// mapleidle's exact JSON field names couldn't be confirmed at build time (the
-// site IP-rate-limits dev probes), so members are matched by candidate field
-// names case-insensitively rather than against a fixed schema. If the live shape
-// turns out to differ, widen these lists — nothing downstream hard-codes a key.
-const NAME_KEYS  = ['nick', 'name', 'charactername', 'charname', 'ign', 'character', 'characImgName'];
-const CP_KEYS    = ['combatpower', 'cp', 'battlepower', 'power', 'totalcombatpower', 'combat_power'];
-const CLASS_KEYS = ['class', 'job', 'classname', 'jobname', 'jobid'];
-const LEVEL_KEYS = ['level', 'lvl'];
+// mapleidle renders CP in this project's own gaming notation (e.g. "1AA 642T"),
+// so parse it back to a number — inverse of toGamingNotation in public/js/util.js.
+// Suffix N is 1000^N: ''=0, K=1, M=2, B=3, T=4, then AA=5, AB=6, … AT=24.
+const GN_SUFFIX = (() => {
+  const list = ['', 'K', 'M', 'B', 'T',
+    'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ',
+    'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT'];
+  const m = {};
+  list.forEach((s, i) => { m[s] = i; });
+  return m;
+})();
 
-function pickKey(obj, keys) {
-  for (const k of Object.keys(obj)) {
-    if (keys.includes(k.toLowerCase())) return obj[k];
+function parseGamingNotation(text) {
+  let total = 0;
+  for (const part of String(text).trim().split(/\s+/)) {
+    const m = part.match(/^([\d.,]+)\s*([A-Z]{0,2})$/);
+    if (!m) continue;
+    const num = Number(m[1].replace(/,/g, ''));
+    const exp = GN_SUFFIX[m[2] || ''];
+    if (!Number.isFinite(num) || exp === undefined) continue;
+    total += num * Math.pow(1000, exp);
   }
-  return undefined;
+  return total;
 }
 
-function rosterNumber(v) {
-  if (typeof v === 'number') return v;
-  if (typeof v === 'string') {
-    const n = Number(v.replace(/[^0-9.eE+-]/g, ''));
-    return Number.isFinite(n) ? n : 0;
+// Render one guild page in the given (already challenge-warmed) browser and
+// extract its roster. mapleidle is a client-rendered SPA: each member is a
+// `[data-member-name]` element holding a /characters/<world>/<nick> link and a
+// CP span in gaming notation. Class is icon-only (no text) so it's left blank —
+// projected members then use the raw fit (no class bias). Returns
+// [{ nick, cp, cls, level }].
+async function renderRoster(browser, world, name) {
+  const page = await browser.newPage();
+  try {
+    await page.setUserAgent(REAL_UA);
+    const target = MAPLEIDLE_BASE + '/guild/' + encodeURIComponent(world) + '/' + encodeURIComponent(name);
+    const resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
+    if (resp && resp.status() === 429) throw new Error('mapleidle rate-limited (429)');
+    // Member rows hydrate client-side; wait for them (best-effort).
+    await page.waitForSelector('[data-member-name]', { timeout: 15000 }).catch(() => {});
+    const raw = await page.evaluate(() => {
+      const rows = [];
+      document.querySelectorAll('[data-member-name]').forEach(el => {
+        const a = el.querySelector('a[href*="/characters/"]');
+        let nick = '';
+        if (a) {
+          const parts = a.getAttribute('href').split('/');
+          nick = decodeURIComponent(parts[parts.length - 1] || '');
+        }
+        if (!nick) nick = el.getAttribute('data-member-name') || '';
+        // CP is the span whose text is a gaming-notation number (e.g. "1AA 642T").
+        let cpText = '';
+        el.querySelectorAll('span').forEach(s => {
+          if (cpText) return;
+          const t = (s.textContent || '').trim();
+          if (/^\d[\d.,]*\s*(K|M|B|T|A[A-Z])(\s+\d[\d.,]*\s*(K|M|B|T|A[A-Z]))?$/.test(t)) cpText = t;
+        });
+        rows.push({ nick, cpText });
+      });
+      return rows;
+    });
+    return raw
+      .map(r => ({ nick: String(r.nick || '').trim(), cp: parseGamingNotation(r.cpText), cls: '', level: 0 }))
+      .filter(r => r.nick && r.cp > 0);
+  } finally {
+    await page.close();
   }
-  return 0;
 }
 
-function looksLikeMember(o) {
-  return o && typeof o === 'object' && !Array.isArray(o)
-    && pickKey(o, NAME_KEYS) !== undefined && pickKey(o, CP_KEYS) !== undefined;
-}
-
-// Walk the parsed __NEXT_DATA__ tree and return the largest array whose elements
-// look like roster members (most are a name + a CP). The member list is the
-// biggest such array on a guild page.
-function findMemberArray(node, best) {
-  best = best || { len: 0, arr: null };
-  if (Array.isArray(node)) {
-    if (node.length >= 3 && node.filter(looksLikeMember).length >= node.length * 0.6 && node.length > best.len) {
-      best = { len: node.length, arr: node };
-    }
-    for (const el of node) best = findMemberArray(el, best);
-  } else if (node && typeof node === 'object') {
-    for (const k of Object.keys(node)) best = findMemberArray(node[k], best);
-  }
-  return best;
-}
-
-function normalizeMember(o) {
-  const cls = pickKey(o, CLASS_KEYS);
-  const lvl = pickKey(o, LEVEL_KEYS);
-  return {
-    nick:  String(pickKey(o, NAME_KEYS) ?? '').trim(),
-    cp:    rosterNumber(pickKey(o, CP_KEYS)),
-    cls:   cls != null ? String(cls) : '',
-    level: lvl != null ? rosterNumber(lvl) : 0,
-  };
-}
-
-// Extract + normalize the roster from a guild page's HTML. Returns an array of
-// { nick, cp, cls, level } or null if the embedded JSON can't be located/parsed.
-function parseRoster(html) {
-  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-  if (!m) return null;
-  let data;
-  try { data = JSON.parse(m[1]); } catch { return null; }
-  const found = findMemberArray(data);
-  if (!found.arr) return null;
-  return found.arr.map(normalizeMember).filter(x => x.nick && x.cp > 0);
+// Per-guild edge-cache key (world+name), independent of which sheet/content type
+// asked — rosters are shared. Normalized so a batch request reuses single-guild
+// entries and vice-versa.
+function rosterCacheKey(origin, world, name) {
+  const u = new URL(origin + '/guild');
+  u.searchParams.set('world', world);
+  u.searchParams.set('name', name);
+  return new Request(u.toString(), { method: 'GET' });
 }
 
 // getLastUpdated returns a bare JSON string (the spreadsheet's Drive modified
@@ -245,51 +261,73 @@ async function handleApi(url, ctx) {
   return response;
 }
 
-// Proxy /guild to mapleidle.gg's guild page, scrape + normalize the roster, and
-// return it as JSON. Server-side so the browser never hits mapleidle directly
-// (CORS + bot-gating). `bust=1` skips the edge cache. A browser-like User-Agent
-// is used because mapleidle 429s obvious bots.
-async function handleGuild(url, ctx) {
+// GET /guild?world=bera&names=hoes,rivals,…  → { "<guild>": [{nick,cp,cls,level}] | {error} }
+// Drives one edge Chromium (Browser Rendering) for the whole batch: cached
+// guilds are served from the edge cache, and only the misses are rendered — in a
+// single browser that's warmed against Vercel's challenge once up front. Batching
+// matters because each browser launch is slow and Browser Rendering caps
+// concurrent browsers per account. `bust=1` re-renders past the cache.
+async function handleGuild(url, env, ctx) {
   const cache = caches.default;
   const canonical = new URL(url);
   const bust = canonical.searchParams.has('bust');
-  canonical.searchParams.delete('bust');
   const world = (canonical.searchParams.get('world') || 'bera').toLowerCase();
-  const name = canonical.searchParams.get('name') || '';
-  if (!name) return jsonError(400, 'Missing guild name');
-  const cacheKey = new Request(canonical.toString(), { method: 'GET' });
+  // Accept ?names=a,b,c (batch) or ?name=a (single).
+  const rawNames = canonical.searchParams.get('names') || canonical.searchParams.get('name') || '';
+  const names = [...new Set(rawNames.split(',').map(s => s.trim()).filter(Boolean))];
+  if (!names.length) return jsonError(400, 'Missing guild name(s)');
 
-  if (!bust) {
-    const hit = await cache.match(cacheKey);
-    if (hit) return asCacheHit(hit);
+  const result = {};
+  const misses = [];
+  for (const name of names) {
+    if (!bust) {
+      const hit = await cache.match(rosterCacheKey(url.origin, world, name));
+      if (hit) { result[name] = await hit.json(); continue; }
+    }
+    misses.push(name);
   }
 
-  const target = MAPLEIDLE_BASE + '/guild/' + encodeURIComponent(world) + '/' + encodeURIComponent(name);
-  let upstream;
-  try {
-    upstream = await fetch(target, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-      redirect: 'follow',
-    });
-  } catch (err) {
-    return jsonError(502, 'Roster request failed: ' + String(err.message || err));
-  }
-  if (upstream.status === 429) return jsonError(429, 'mapleidle rate-limited the roster request — try again shortly');
-  if (!upstream.ok) return jsonError(502, 'mapleidle returned HTTP ' + upstream.status);
+  if (misses.length) {
+    if (!env.BROWSER) return jsonError(503, 'Browser Rendering is not configured for this environment');
+    let browser;
+    try {
+      browser = await puppeteer.launch(env.BROWSER);
+    } catch (err) {
+      return jsonError(502, 'Could not start Browser Rendering: ' + String(err.message || err));
+    }
+    try {
+      // Warm up once: the first hit clears Vercel's challenge and sets a cookie
+      // the whole browser then reuses for the guild pages.
+      try {
+        const warm = await browser.newPage();
+        await warm.setUserAgent(REAL_UA);
+        await warm.goto(MAPLEIDLE_BASE + '/', { waitUntil: 'networkidle0', timeout: 30000 });
+        await warm.close();
+      } catch { /* non-fatal: the per-guild loads still try on their own */ }
 
-  const html = await upstream.text();
-  const roster = parseRoster(html);
-  if (!roster || !roster.length) {
-    return jsonError(502, 'Could not parse a roster for "' + name + '" (guild empty or page shape changed)');
+      for (const name of misses) {
+        try {
+          const roster = await renderRoster(browser, world, name);
+          if (!roster.length) throw new Error('empty roster (guild not found or page shape changed)');
+          result[name] = roster;
+          ctx.waitUntil(cache.put(
+            rosterCacheKey(url.origin, world, name),
+            jsonResponse(JSON.stringify(roster), ROSTER_TTL)
+          ));
+        } catch (err) {
+          result[name] = { error: String(err.message || err) };
+        }
+      }
+    } finally {
+      await browser.close();
+    }
   }
 
-  const response = jsonResponse(JSON.stringify(roster), ROSTER_TTL);
-  ctx.waitUntil(cache.put(cacheKey, response.clone()));
-  return response;
+  // Short browser-cache; the per-guild edge entries carry the long TTL.
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=30' },
+  });
 }
 
 export default {
@@ -301,7 +339,7 @@ export default {
     }
 
     if (url.pathname === '/guild') {
-      return handleGuild(url, ctx);
+      return handleGuild(url, env, ctx);
     }
 
     // /charts -> Charts.html
