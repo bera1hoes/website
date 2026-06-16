@@ -14,6 +14,13 @@ const TS_BUST_REUSE_MS = 10000; // a bust still reuses a timestamp this fresh
 const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
 const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
 
+// Guild-roster proxy (/guild): mapleidle.gg holds each guild's full member list
+// (including players absent from a given content run). It's a Next.js site behind
+// Vercel that blocks non-browser/CORS access, so we fetch it server-side here and
+// hand back a normalized roster. Rosters move ~daily, so cache long.
+const MAPLEIDLE_BASE = 'https://mapleidle.gg';
+const ROSTER_TTL = 21600;     // 6h
+
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
     status,
@@ -59,6 +66,76 @@ async function fetchUpstream(search) {
     return { error: jsonError(502, 'Upstream returned a non-JSON response') };
   }
   return { body };
+}
+
+// ── Guild-roster parsing ────────────────────────────────────────────────────
+// mapleidle's exact JSON field names couldn't be confirmed at build time (the
+// site IP-rate-limits dev probes), so members are matched by candidate field
+// names case-insensitively rather than against a fixed schema. If the live shape
+// turns out to differ, widen these lists — nothing downstream hard-codes a key.
+const NAME_KEYS  = ['nick', 'name', 'charactername', 'charname', 'ign', 'character', 'characImgName'];
+const CP_KEYS    = ['combatpower', 'cp', 'battlepower', 'power', 'totalcombatpower', 'combat_power'];
+const CLASS_KEYS = ['class', 'job', 'classname', 'jobname', 'jobid'];
+const LEVEL_KEYS = ['level', 'lvl'];
+
+function pickKey(obj, keys) {
+  for (const k of Object.keys(obj)) {
+    if (keys.includes(k.toLowerCase())) return obj[k];
+  }
+  return undefined;
+}
+
+function rosterNumber(v) {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') {
+    const n = Number(v.replace(/[^0-9.eE+-]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+}
+
+function looksLikeMember(o) {
+  return o && typeof o === 'object' && !Array.isArray(o)
+    && pickKey(o, NAME_KEYS) !== undefined && pickKey(o, CP_KEYS) !== undefined;
+}
+
+// Walk the parsed __NEXT_DATA__ tree and return the largest array whose elements
+// look like roster members (most are a name + a CP). The member list is the
+// biggest such array on a guild page.
+function findMemberArray(node, best) {
+  best = best || { len: 0, arr: null };
+  if (Array.isArray(node)) {
+    if (node.length >= 3 && node.filter(looksLikeMember).length >= node.length * 0.6 && node.length > best.len) {
+      best = { len: node.length, arr: node };
+    }
+    for (const el of node) best = findMemberArray(el, best);
+  } else if (node && typeof node === 'object') {
+    for (const k of Object.keys(node)) best = findMemberArray(node[k], best);
+  }
+  return best;
+}
+
+function normalizeMember(o) {
+  const cls = pickKey(o, CLASS_KEYS);
+  const lvl = pickKey(o, LEVEL_KEYS);
+  return {
+    nick:  String(pickKey(o, NAME_KEYS) ?? '').trim(),
+    cp:    rosterNumber(pickKey(o, CP_KEYS)),
+    cls:   cls != null ? String(cls) : '',
+    level: lvl != null ? rosterNumber(lvl) : 0,
+  };
+}
+
+// Extract + normalize the roster from a guild page's HTML. Returns an array of
+// { nick, cp, cls, level } or null if the embedded JSON can't be located/parsed.
+function parseRoster(html) {
+  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!m) return null;
+  let data;
+  try { data = JSON.parse(m[1]); } catch { return null; }
+  const found = findMemberArray(data);
+  if (!found.arr) return null;
+  return found.arr.map(normalizeMember).filter(x => x.nick && x.cp > 0);
 }
 
 // getLastUpdated returns a bare JSON string (the spreadsheet's Drive modified
@@ -168,12 +245,63 @@ async function handleApi(url, ctx) {
   return response;
 }
 
+// Proxy /guild to mapleidle.gg's guild page, scrape + normalize the roster, and
+// return it as JSON. Server-side so the browser never hits mapleidle directly
+// (CORS + bot-gating). `bust=1` skips the edge cache. A browser-like User-Agent
+// is used because mapleidle 429s obvious bots.
+async function handleGuild(url, ctx) {
+  const cache = caches.default;
+  const canonical = new URL(url);
+  const bust = canonical.searchParams.has('bust');
+  canonical.searchParams.delete('bust');
+  const world = (canonical.searchParams.get('world') || 'bera').toLowerCase();
+  const name = canonical.searchParams.get('name') || '';
+  if (!name) return jsonError(400, 'Missing guild name');
+  const cacheKey = new Request(canonical.toString(), { method: 'GET' });
+
+  if (!bust) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return asCacheHit(hit);
+  }
+
+  const target = MAPLEIDLE_BASE + '/guild/' + encodeURIComponent(world) + '/' + encodeURIComponent(name);
+  let upstream;
+  try {
+    upstream = await fetch(target, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      redirect: 'follow',
+    });
+  } catch (err) {
+    return jsonError(502, 'Roster request failed: ' + String(err.message || err));
+  }
+  if (upstream.status === 429) return jsonError(429, 'mapleidle rate-limited the roster request — try again shortly');
+  if (!upstream.ok) return jsonError(502, 'mapleidle returned HTTP ' + upstream.status);
+
+  const html = await upstream.text();
+  const roster = parseRoster(html);
+  if (!roster || !roster.length) {
+    return jsonError(502, 'Could not parse a roster for "' + name + '" (guild empty or page shape changed)');
+  }
+
+  const response = jsonResponse(JSON.stringify(roster), ROSTER_TTL);
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === '/api') {
       return handleApi(url, ctx);
+    }
+
+    if (url.pathname === '/guild') {
+      return handleGuild(url, ctx);
     }
 
     // /charts -> Charts.html
