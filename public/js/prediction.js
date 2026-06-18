@@ -1,52 +1,17 @@
 // ── Win prediction ──────────────────────────────────────────────────────────
-// Read each guild's full roster from the /guild Worker route (backed by KV; the
-// rosters are captured from mapleidle.gg by the SwissKnife mitmproxy addon and
-// uploaded there), find members missing from the current content run, project
+// Rosters are captured from mapleidle.gg by the SwissKnife mitmproxy addon and
+// stored per-guild in KV (ROSTERS). When a sheet's data entry is created, a
+// snapshot of its guilds' rosters is embedded into the chart data and rides along
+// in the getData response as `sheetRosters` (data.js) — so prediction needs NO
+// extra KV/network call. We find members missing from the content run, project
 // their score from the live power-law fit (Score ≈ A·CP^B, optionally
-// class-adjusted), and aggregate a projected per-guild total to predict who would
-// win if everyone showed up.
+// class-adjusted), and aggregate a projected per-guild total.
 //
 // Metric per content type (mirrors buildPivotTable): GW Points for Guild Wars
 // (rank-based via GW_POINTS_DATA), total Score for everything else.
 //
-// Needs the Worker, so it only runs in IS_REMOTE (and `wrangler dev`).
-
-// Session cache: guild name -> normalized roster [{nick, cp, cls, level}].
-const rosterCache = {};
-
-const ROSTER_TIMEOUT_MS = 15000;  // KV reads are fast
-
-// One batched GET to the Worker's /guild route for all guilds at once. Returns a
-// map { guild: roster[] | { error } }. Tolerates string-or-object JSON like
-// apiCall (io.js). Caches successful rosters per guild for the session and only
-// requests guilds not already cached.
-function fetchRosters(guilds) {
-  const need = guilds.filter(g => !rosterCache[g]);
-  if (!need.length) {
-    const out = {};
-    guilds.forEach(g => { out[g] = rosterCache[g]; });
-    return Promise.resolve(out);
-  }
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), ROSTER_TIMEOUT_MS);
-  const qs = new URLSearchParams({ world: 'bera', names: need.join(',') });
-  return fetch('/guild?' + qs.toString(), { signal: ctrl.signal }).then(r => {
-    if (!r.ok) return r.json().then(j => { throw new Error((j && j.error) || ('HTTP ' + r.status)); },
-                                         () => { throw new Error('HTTP ' + r.status); });
-    return r.json();
-  }).then(json => {
-    const map = typeof json === 'string' ? JSON.parse(json) : json;
-    if (map && map.error) throw new Error(map.error);
-    // Cache only successful rosters (arrays); error entries stay uncached so a
-    // later run retries them.
-    Object.keys(map).forEach(g => { if (Array.isArray(map[g])) rosterCache[g] = map[g]; });
-    const out = {};
-    guilds.forEach(g => { out[g] = rosterCache[g] || map[g]; });
-    return out;
-  }).catch(err => {
-    throw err.name === 'AbortError' ? new Error('Request timed out') : err;
-  }).finally(() => clearTimeout(timer));
-}
+// `Refresh rosters` (refreshRosters) re-pulls the snapshot from ROSTERS into the
+// current sheet — the only path that touches the roster store, and only on demand.
 
 // Project a missing member's score from the live fit. Honors the classAdjust
 // flag the same way computeFitDiffs picks raw vs class-adjusted (regression.js):
@@ -66,53 +31,82 @@ function setPredictionStatus(msg, color) {
   el.style.color = color || '#6b7280';
 }
 
-// Experiments button handler.
+// Experiments button handler. Uses the in-memory sheetRosters embedded in the
+// sheet's chart data (no fetch) → zero extra KV reads.
 function runPrediction() {
-  if (!IS_REMOTE) {
-    setPredictionStatus('Needs live data — open the deployed site (remote mode).', '#f87171');
-    return;
-  }
   if (!currentData || activeFit.A == null) {
     setPredictionStatus('Load a chart first.', '#f87171');
+    return;
+  }
+  if (!sheetRosters || !Object.keys(sheetRosters).length) {
+    setPredictionStatus(IS_REMOTE
+      ? 'No rosters in this sheet yet — click “Refresh rosters”.'
+      : 'Needs live data (remote mode).', '#facc15');
     return;
   }
 
   const isGW = currentContentType === 'Guild Wars';
   const guilds = [...new Set(currentData.map(d => d.guild))];
   const participants = new Set(currentData.map(d => d.nick));
-  const btn = document.getElementById('predict-btn');
-  if (btn) btn.disabled = true;
-  setPredictionStatus('Loading rosters…');
 
-  fetchRosters(guilds).then(map => {
-    if (btn) btn.disabled = false;
-
-    // Collect missing members per guild + count failures.
-    const missingByGuild = {};
-    let failed = 0;
-    guilds.forEach(guild => {
-      missingByGuild[guild] = [];
-      const roster = map[guild];
-      if (!Array.isArray(roster)) { failed++; return; }
-      roster.forEach(m => {
-        if (!participants.has(m.nick)) {
-          missingByGuild[guild].push({ nick: m.nick, cp: m.cp, cls: m.cls, guild });
-        }
-      });
+  // Collect missing members per guild from the embedded snapshot.
+  const missingByGuild = {};
+  let withRoster = 0;
+  guilds.forEach(guild => {
+    missingByGuild[guild] = [];
+    const roster = sheetRosters[guild];
+    if (!Array.isArray(roster)) return;  // no roster snapshot for this guild
+    withRoster++;
+    roster.forEach(m => {
+      if (!participants.has(m.nick)) {
+        missingByGuild[guild].push({ nick: m.nick, cp: m.cp, cls: m.cls, guild });
+      }
     });
+  });
 
-    const rows = isGW
-      ? aggregateGwPoints(guilds, missingByGuild)
-      : aggregateScore(guilds, missingByGuild);
+  const rows = isGW
+    ? aggregateGwPoints(guilds, missingByGuild)
+    : aggregateScore(guilds, missingByGuild);
 
-    renderPredictionTable(rows, isGW);
-    const note = failed ? '  ·  ' + failed + ' guild(s) failed to load' : '';
-    setPredictionStatus('Done — projected ' + rows.reduce((s, r) => s + r.missingCount, 0) +
-      ' missing members across ' + (guilds.length - failed) + ' guild(s)' + note,
-      failed ? '#facc15' : '#4ade80');
+  renderPredictionTable(rows, isGW);
+  const without = guilds.length - withRoster;
+  const note = without ? '  ·  ' + without + ' guild(s) have no roster (try Refresh rosters)' : '';
+  setPredictionStatus('Projected ' + rows.reduce((s, r) => s + r.missingCount, 0) +
+    ' missing members across ' + withRoster + ' guild(s)' + note,
+    without ? '#facc15' : '#4ade80');
+}
+
+// "Refresh rosters" button: re-pull the roster snapshot from the ROSTERS store
+// into the current sheet's chart data (the only on-demand call to the store), then
+// update the in-memory sheetRosters so the next Predict uses the fresh snapshot.
+function refreshRosters() {
+  if (!IS_REMOTE) {
+    setPredictionStatus('Needs live data (remote mode).', '#f87171');
+    return;
+  }
+  if (!currentSheet || !currentContentType) {
+    setPredictionStatus('Load a sheet first.', '#f87171');
+    return;
+  }
+  const btn = document.getElementById('refresh-rosters-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Refreshing…'; }
+  setPredictionStatus('Refreshing rosters from store…');
+
+  apiCall('refreshRosters', { contentType: currentContentType, sheet: currentSheet }).then(json => {
+    const data = typeof json === 'string' ? JSON.parse(json) : json;
+    sheetRosters = rostersOf(data);
+    // Keep the per-sheet cache in sync so a later cache-hit restores the refresh.
+    if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
+    rostersCache[currentContentType][currentSheet] = sheetRosters;
+    const n = sheetRosters ? Object.keys(sheetRosters).length : 0;
+    setPredictionStatus(n
+      ? 'Rosters refreshed (' + n + ' guild(s)). Click “Predict winner”.'
+      : 'No rosters in the store yet — capture them in SwissKnife first.',
+      n ? '#4ade80' : '#facc15');
   }).catch(err => {
-    if (btn) btn.disabled = false;
-    setPredictionStatus('Prediction failed: ' + err.message, '#f87171');
+    setPredictionStatus('Refresh failed: ' + err.message, '#f87171');
+  }).finally(() => {
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh rosters'; }
   });
 }
 
@@ -220,11 +214,11 @@ function clearPrediction() {
   setPredictionStatus(IS_REMOTE ? '' : 'Needs live data (remote mode).');
 }
 
-// Gate the button when there's no Worker proxy to reach mapleidle through.
+// Refresh rosters hits the roster store via the Worker — disable it off-remote.
+// (Predict stays enabled; it just reports "needs live data" when there's no
+// embedded snapshot, which is always the case in local sample mode.)
 if (typeof IS_REMOTE !== 'undefined' && !IS_REMOTE) {
-  const btn = document.getElementById('predict-btn');
-  if (btn) {
-    btn.disabled = true;
-    setPredictionStatus('Needs live data (remote mode).');
-  }
+  const btn = document.getElementById('refresh-rosters-btn');
+  if (btn) { btn.disabled = true; btn.title = 'Available on the deployed site'; }
+  setPredictionStatus('Needs live data (remote mode).');
 }

@@ -250,7 +250,10 @@
         members’ scores from the current fit and rank guilds by projected total.
         <span style="color:#6b7280">GW Points are an approximation (re-ranks only guilds in this sheet).</span>
       </div>
-      <button id="predict-btn" class="file-btn" style="width:100%" onclick="runPrediction()">Predict winner</button>
+      <div style="display:flex;gap:8px">
+        <button id="predict-btn" class="file-btn" style="flex:1" onclick="runPrediction()">Predict winner</button>
+        <button id="refresh-rosters-btn" class="file-btn" style="flex:none" title="Re-pull guild rosters from the store into this sheet" onclick="refreshRosters()">Refresh rosters</button>
+      </div>
       <div id="prediction-status" style="font-size:11px;color:#6b7280;font-family:'Space Mono',monospace;margin-top:6px;min-height:14px"></div>
     </div>
   </div>
