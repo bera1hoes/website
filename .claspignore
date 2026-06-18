@@ -1,0 +1,11 @@
+# clasp pushes EVERYTHING under rootDir (".") by default — and this repo's root
+# is full of files that must never reach Apps Script (worker.js, the whole
+# public/ front-end, SampleData/, node_modules…). So: ignore everything, then
+# explicitly allow ONLY the two files that belong in the Apps Script project.
+#
+# Touch this list with care. Anything you un-ignore here gets uploaded to the
+# public web app on the next `npm run deploy:gas`.
+**/**
+
+!appsscript.json
+!Code.gs

@@ -101,13 +101,32 @@ repo. If you don't have one, the chart still works fully — just drop the
 
 Two independent targets:
 
-**Apps Script (data API)**
-1. Upload only `Code.gs` to Apps Script (never the HTML or `SampleData/*` files).
-2. Deploy as a Web App: *Execute as: Me* · *Who has access: **Anyone*** (must be
-   unauthenticated public, or the Worker's server-side fetch gets a Google login
-   page instead of JSON).
-3. Paste the `/exec` URL into `APPS_SCRIPT_URL` in `worker.js` if it ever changes
-   (a new deployment gets a new URL).
+**Apps Script (data API)** — automated with [clasp](https://github.com/google/clasp)
+
+Once set up, every deploy is a single command:
+
+```
+npm run deploy:gas
+```
+
+This `clasp push`es `Code.gs`, then `clasp deploy`s to the **existing** web-app
+deployment (its id is read from the `/exec` URL in `worker.js`), so the
+`APPS_SCRIPT_URL` never changes. A strict `.claspignore` whitelists only
+`Code.gs` + `appsscript.json` — the HTML and `SampleData/*` files can never be
+uploaded. The web app stays *Execute as: Me* · *Who has access: **Anyone***
+(encoded in `appsscript.json`); it must be unauthenticated public, or the
+Worker's server-side fetch gets a Google login page instead of JSON.
+
+One-time setup:
+
+1. `npm install`
+2. Enable the Apps Script API at <https://script.google.com/home/usersettings>.
+3. `npm run gas:login`
+4. Create `.clasp.json` (git-ignored): `{ "scriptId": "<your script id>", "rootDir": "." }`
+   — the Script ID is in the Apps Script editor under ⚙ Project Settings.
+
+If you ever mint a *brand-new* deployment (new `/exec` URL), paste it into
+`APPS_SCRIPT_URL` in `worker.js`; the deploy script picks up the new id from there.
 
 **Cloudflare Worker (static front-end + KV data API)**
 1. Deploy with `wrangler` — `wrangler.jsonc` binds `main: worker.js`,
