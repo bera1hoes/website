@@ -1,26 +1,28 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K49YOZ1ropYZCbyAsuBfnrB2sERlh2y40ylivWxtdsgcQ2kTTpS4VG5w/exec';
 
-// Edge-cache strategy: the sheets are mutable (edits cluster around the last
-// day of a content run), so getData/getSheetNames responses can't just expire
-// on a timer. Instead each cached entry stores the spreadsheet's Drive
-// modified timestamp (x-last-updated) and is revalidated against the current
-// timestamp on every request. The timestamp itself is edge-cached for TS_TTL,
-// so validation is normally a pure cache lookup — at most one getLastUpdated
-// round-trip to Apps Script per content type per TS_TTL window. The same
-// header rides every /api response so the client never has to request
-// getLastUpdated itself.
-const TS_TTL = 60;            // how long a fetched timestamp is trusted
-const TS_BUST_REUSE_MS = 10000; // a bust still reuses a timestamp this fresh
-const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
-const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
+// Content types — must mirror the keys of CONTENT_SOURCES in Code.gs. Used only
+// by the seed/migration loop; the read path keys off whatever ?contentType= asks.
+const CONTENT_TYPES = [
+  'Guild Wars',
+  'Guild Boss Battle',
+  'Global GBB',
+  'Guild Conquest',
+  'Guild Training Ground',
+];
 
-// Guild rosters (/guild): mapleidle.gg serves guild member lists (incl. players
-// absent from a content run) only to a challenge-cleared real browser, so neither
-// a server fetch (datacenter IP) nor a browser fetch (CORS) can reach it. Instead
-// the rosters are captured locally by the SwissKnife mitmproxy addon — which reads
-// them from the operator's real browser traffic — and POSTed here into KV. The
-// chart then reads them back. So this Worker only stores + serves; it never talks
-// to mapleidle.
+// ── Data model ───────────────────────────────────────────────────────────────
+// Chart data lives in Workers KV (binding CHART_DATA), so the read path never
+// touches Google. Two key shapes:
+//   names:<type>        -> { updated: <Drive ISO|null>, sheets: ["MM-DD-YYYY", …] }
+//   data:<type>:<sheet> -> [ {rank, nick, score, …}, … ]   (bare rows array)
+// The Drive modified timestamp is per-spreadsheet, so it lives once in `names`;
+// getData carries no timestamp (the client's "Last updated" display is fed by
+// getSheetNames' x-last-updated header). Apps Script is reached only on a KV
+// miss (lazy first-fill) or an explicit Reload (?bust=1). KV is the cache, so
+// responses are no-store.
+const namesKey = (type) => `names:${type}`;
+const dataKey = (type, sheet) => `data:${type}:${sheet}`;
+
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
     status,
@@ -28,157 +30,152 @@ function jsonError(status, message) {
   });
 }
 
-function jsonResponse(body, sMaxage, lastUpdated) {
+function jsonResponse(body, lastUpdated) {
   const headers = {
     'content-type': 'application/json; charset=utf-8',
-    // Long TTLs go in s-maxage only — the browser max-age stays short so
-    // busts and timestamp invalidations aren't masked by the local HTTP cache.
-    'cache-control': `public, max-age=30, s-maxage=${sMaxage}`,
-    'x-cache': 'MISS',
+    'cache-control': 'no-store',
   };
   if (lastUpdated) headers['x-last-updated'] = lastUpdated;
   return new Response(body, { status: 200, headers });
 }
 
-// Re-wrap a cached response so the x-cache debug header reflects how it was
-// actually served (stored entries carry MISS from when they were created).
-function asCacheHit(response) {
-  const r = new Response(response.body, response);
-  r.headers.set('x-cache', 'HIT');
-  return r;
-}
-
-// Fetch from Apps Script and validate that it actually returned JSON — it
-// serves an HTML login/error page on failure, which must not be passed
-// through labeled as JSON. Returns { body } or { error: Response }.
-async function fetchUpstream(search) {
+// Fetch + parse one Apps Script action. Apps Script serves an HTML login/error
+// page on failure and reports logic errors as a 200 {error} object — both are
+// rejected here so a bad upstream never gets stored or passed through as data.
+// Returns { value } (parsed JSON) or { error: Response }.
+async function appsScript(action, params) {
+  const qs = new URLSearchParams(Object.assign({ action }, params || {}));
   let upstream;
   try {
-    upstream = await fetch(APPS_SCRIPT_URL + search, { redirect: 'follow' });
+    upstream = await fetch(APPS_SCRIPT_URL + '?' + qs.toString(), { redirect: 'follow' });
   } catch (err) {
     return { error: jsonError(502, 'Upstream request failed: ' + String(err.message || err)) };
   }
-  const body = await upstream.text();
+  const text = await upstream.text();
   if (!upstream.ok) return { error: jsonError(502, 'Upstream returned HTTP ' + upstream.status) };
+  let value;
   try {
-    JSON.parse(body);
+    value = JSON.parse(text);
   } catch {
     return { error: jsonError(502, 'Upstream returned a non-JSON response') };
   }
-  return { body };
+  if (value && value.error) return { error: jsonError(502, 'Upstream error: ' + value.error) };
+  return { value };
 }
+
+// Refetch a content type's sheet list + Drive timestamp from Apps Script and
+// store names:<type>. getLastUpdated failing is non-fatal — the names list is
+// what matters, so it's stored with updated=null. Returns { record } or { error }.
+async function syncNames(env, type) {
+  const namesRes = await appsScript('getSheetNames', { contentType: type });
+  if (namesRes.error) return namesRes;
+  const tsRes = await appsScript('getLastUpdated', { contentType: type });
+  const updated = (!tsRes.error && typeof tsRes.value === 'string') ? tsRes.value : null;
+  const record = { updated, sheets: namesRes.value };
+  await env.CHART_DATA.put(namesKey(type), JSON.stringify(record));
+  return { record };
+}
+
+// Refetch one sheet's rows from Apps Script and store data:<type>:<sheet>.
+// Returns { rows } or { error }.
+async function syncData(env, type, sheet) {
+  const dataRes = await appsScript('getData', { contentType: type, sheet });
+  if (dataRes.error) return dataRes;
+  await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(dataRes.value));
+  return { rows: dataRes.value };
+}
+
+// Serve /api from KV. ?bust=1 (the client's Reload) bypasses KV, refetches from
+// Apps Script, overwrites the key, and returns fresh — Reload's getData and
+// getSheetNames each refetch their own key, so there is no KV read-after-write
+// dependency between them. The 60s client cooldown rate-limits this path.
+async function handleApi(url, env) {
+  const params = url.searchParams;
+  const action = params.get('action');
+  const type = params.get('contentType') || '';
+  const bust = params.has('bust');
+
+  if (action === 'getSheetNames') {
+    if (!bust) {
+      const stored = await env.CHART_DATA.get(namesKey(type));
+      if (stored) {
+        const rec = JSON.parse(stored);
+        return jsonResponse(JSON.stringify(rec.sheets), rec.updated);
+      }
+    }
+    const res = await syncNames(env, type); // bust, or lazy first-fill
+    if (res.error) return res.error;
+    return jsonResponse(JSON.stringify(res.record.sheets), res.record.updated);
+  }
+
+  if (action === 'getData') {
+    const sheet = params.get('sheet') || '';
+    if (!bust) {
+      const stored = await env.CHART_DATA.get(dataKey(type, sheet));
+      if (stored) return jsonResponse(stored);
+    }
+    const res = await syncData(env, type, sheet); // bust, or lazy first-fill
+    if (res.error) return res.error;
+    return jsonResponse(JSON.stringify(res.rows));
+  }
+
+  // Legacy/compat: HAS_GAS clients call getLastUpdated directly. Serve it from
+  // the names record (lazy-fill or bust refreshes it).
+  if (action === 'getLastUpdated') {
+    let rec = null;
+    if (!bust) {
+      const stored = await env.CHART_DATA.get(namesKey(type));
+      if (stored) rec = JSON.parse(stored);
+    }
+    if (!rec) {
+      const res = await syncNames(env, type);
+      if (res.error) return res.error;
+      rec = res.record;
+    }
+    return jsonResponse(JSON.stringify(rec.updated), rec.updated);
+  }
+
+  return jsonError(400, 'Unknown or missing action: ' + action);
+}
+
+// One-time / on-demand seed: GET /admin/seed?key=<SEED_KEY>[&type=<contentType>].
+// Populates KV from Apps Script for one content type (?type=) or all of them.
+// Guarded by the SEED_KEY Wrangler secret. Scope with ?type= to stay under the
+// per-invocation subrequest limit on large spreadsheets.
+async function handleSeed(url, env) {
+  const provided = (url.searchParams.get('key') || '').trim();
+  const expected = (env.SEED_KEY || '').trim();
+  if (!expected || provided !== expected) {
+    return jsonError(403, 'Forbidden');
+  }
+  const only = url.searchParams.get('type');
+  const types = only ? [only] : CONTENT_TYPES;
+  const summary = {};
+  for (const type of types) {
+    const namesRes = await syncNames(env, type);
+    if (namesRes.error) { summary[type] = { error: 'getSheetNames/getLastUpdated failed' }; continue; }
+    const sheets = namesRes.record.sheets || [];
+    let written = 0, failed = 0;
+    for (const sheet of sheets) {
+      const dr = await syncData(env, type, sheet);
+      if (dr.error) failed++; else written++;
+    }
+    summary[type] = { updated: namesRes.record.updated, sheets: sheets.length, dataWritten: written, dataFailed: failed };
+  }
+  return jsonResponse(JSON.stringify(summary, null, 2));
+}
+
+// ── Guild rosters (/guild) ───────────────────────────────────────────────────
+// mapleidle.gg serves guild member lists only to a challenge-cleared real browser
+// (Vercel blocks datacenter IPs + scripted fetches; CORS blocks visitor fetches),
+// so rosters are captured locally by the SwissKnife mitmproxy addon and POSTed
+// here into KV (binding ROSTERS). The chart's Win Prediction reads them back. This
+// Worker only stores + serves; it never talks to mapleidle.
 
 // KV key for a guild roster. World + guild are lowercased so the chart's
-// exact-case guild names and the captured-from-URL names map to one entry.
+// exact-case names and the captured-from-URL names map to one entry.
 function rosterKvKey(world, name) {
   return 'roster:' + String(world).toLowerCase() + ':' + String(name).toLowerCase();
-}
-
-// getLastUpdated returns a bare JSON string (the spreadsheet's Drive modified
-// time, ISO); Code.gs reports failures as a 200 {error} object, which yields
-// null here.
-function parseTimestamp(body) {
-  try {
-    const v = JSON.parse(body);
-    return typeof v === 'string' ? v : null;
-  } catch {
-    return null;
-  }
-}
-
-// In-flight getLastUpdated fetches by content type. A Reload busts
-// getSheetNames and getData together; both validations must share one
-// upstream timestamp call, not race to make their own.
-const tsInflight = new Map();
-
-// Current modified timestamp for a content type's spreadsheet, edge-cached
-// for TS_TTL under the same key a client ?action=getLastUpdated request maps
-// to (so both share one entry). Returns null when it can't be determined —
-// callers fail open and serve what they have.
-async function currentTimestamp(origin, contentType, bust) {
-  const cache = caches.default;
-  const tsUrl = new URL(origin + '/api');
-  tsUrl.searchParams.set('action', 'getLastUpdated');
-  tsUrl.searchParams.set('contentType', contentType);
-  const key = new Request(tsUrl.toString(), { method: 'GET' });
-
-  const hit = await cache.match(key);
-  if (hit) {
-    // A bust doesn't trust the TS_TTL window, but does reuse a timestamp
-    // fetched moments ago — i.e. by the preceding request of the same Reload.
-    const age = Date.now() - Number(hit.headers.get('x-fetched-at') || 0);
-    if (!bust || age < TS_BUST_REUSE_MS) return parseTimestamp(await hit.text());
-  }
-
-  if (tsInflight.has(contentType)) return tsInflight.get(contentType);
-  const fetching = (async () => {
-    const res = await fetchUpstream('?' + tsUrl.searchParams.toString());
-    if (res.error) return null;
-    const ts = parseTimestamp(res.body);
-    if (ts) {
-      const stored = jsonResponse(res.body, TS_TTL, ts);
-      stored.headers.set('x-fetched-at', String(Date.now()));
-      // Awaited (not waitUntil): follow-up requests arrive within
-      // milliseconds of this response — the entry must already be stored,
-      // or they each trigger their own upstream timestamp fetch.
-      await cache.put(key, stored);
-    }
-    return ts;
-  })();
-  tsInflight.set(contentType, fetching);
-  try {
-    return await fetching;
-  } finally {
-    tsInflight.delete(contentType);
-  }
-}
-
-// Proxy /api to the Apps Script JSON API (server-side, no CORS issue).
-// `bust=1` (sent by the client's Reload) forces a fresh timestamp check; the
-// param is stripped from the cache key so a refetch overwrites the canonical
-// entry rather than caching beside it.
-async function handleApi(url, ctx) {
-  const cache = caches.default;
-  const canonical = new URL(url);
-  const bust = canonical.searchParams.has('bust');
-  canonical.searchParams.delete('bust');
-  const cacheKey = new Request(canonical.toString(), { method: 'GET' });
-
-  const action = canonical.searchParams.get('action');
-  if (action === 'getData' || action === 'getSheetNames') {
-    const contentType = canonical.searchParams.get('contentType') || '';
-    // Kick off the timestamp lookup without awaiting it: on a cache miss the
-    // upstream data fetch runs in parallel with it, so a cold load pays
-    // max(timestamp, data) latency rather than the sum.
-    const tsPromise = currentTimestamp(url.origin, contentType, bust);
-    const hit = await cache.match(cacheKey);
-    if (hit) {
-      // Unchanged timestamp means unchanged data — serve the cached entry
-      // even on bust. A failed timestamp lookup (ts === null) fails open,
-      // except on an explicit bust, where the user asked for fresh data.
-      const cachedTs = await tsPromise;
-      const unchanged = cachedTs !== null && hit.headers.get('x-last-updated') === cachedTs;
-      if (unchanged || (cachedTs === null && !bust)) return asCacheHit(hit);
-    }
-    const [res, ts] = await Promise.all([fetchUpstream(canonical.search), tsPromise]);
-    if (res.error) return res.error;
-    const response = jsonResponse(res.body, VALIDATED_TTL, ts);
-    ctx.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
-  }
-
-  // Everything else (getLastUpdated for older clients, unknown actions):
-  // plain short-TTL proxy. getLastUpdated shares its cache entry with
-  // currentTimestamp above.
-  if (!bust) {
-    const hit = await cache.match(cacheKey);
-    if (hit) return asCacheHit(hit);
-  }
-  const res = await fetchUpstream(canonical.search);
-  if (res.error) return res.error;
-  const response = jsonResponse(res.body, DEFAULT_TTL);
-  ctx.waitUntil(cache.put(cacheKey, response.clone()));
-  return response;
 }
 
 // Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0).
@@ -259,7 +256,11 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === '/api') {
-      return handleApi(url, ctx);
+      return handleApi(url, env);
+    }
+
+    if (url.pathname === '/admin/seed') {
+      return handleSeed(url, env);
     }
 
     if (url.pathname === '/guild') {
