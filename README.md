@@ -2,27 +2,32 @@
 
 Maplestory guild content visualizer — CP vs Score scatter plot with a power-law
 regression fit. Supports Guild Wars, Guild Boss Battle, Global GBB, and Guild
-Conquest data pulled live from private Google Sheets, plus an **Arena** player
-lookup tool.
+Conquest data synced from private Google Sheets into Cloudflare Workers KV, plus
+an **Arena** player lookup tool.
 
 ## Architecture
 
 ```
-Cloudflare Worker (worker.js)               Apps Script (Code.gs)
+Cloudflare Worker (worker.js)               Workers KV (CHART_DATA)        Apps Script (Code.gs)
   public/index.html  — (s)hoes landing  ─┐
-  public/Charts.html — chart app (/charts)│   same-origin /api proxy   JSON API over Google Sheets
-  public/Arena.html  — arena tool (/arena)├─►  (avoids CORS on        ─► (spreadsheet IDs stay
-  public/js/, css/, SampleData/  (assets) │    Apps Script)              server-side)
-                                          ┘
+  public/Charts.html — chart app (/charts)│   /api reads chart data   ◄── fills/refreshes on a KV
+  public/Arena.html  — arena tool (/arena)├─►  from Workers KV             miss or Reload, from the
+  public/js/, css/, SampleData/  (assets) │                                GET-only JSON API
+                                          ┘                                (spreadsheet IDs stay server-side)
 ```
 
 The front-end is a **fully static site** (`public/`) served by a Cloudflare
 Worker whose `assets` binding publishes the whole `public/` tree. The Worker also
-acts as a same-origin router/proxy:
+routes a few same-origin paths:
 
-- `/api?action=...` → Apps Script `/exec` (server-side fetch, edge-cached ~60s — Apps Script can't set CORS headers, so a direct browser call would fail)
+- `/api?action=...` → **Workers KV** (binding `CHART_DATA`). Chart data is served
+  from KV, not Google. A missing key lazily fills from Apps Script `/exec`
+  (server-side, so no browser CORS), and `?bust=1` (Reload) refetches from Apps
+  Script and overwrites the key. KV *is* the cache — there's no edge-cache layer
+  in front of it, and responses are `no-store`.
 - `/charts` → `Charts.html`, `/arena` → `Arena.html`
 - `/userinfo` + `/userinfo/suggest` → a separate UserInfo Worker (Arena lookups)
+- `/admin/seed?key=<SEED_KEY>` → one-time KV seed / on-demand resync from Apps Script
 - everything else → `public/` assets (`/` serves `index.html`)
 
 `Code.gs` is a thin **read-only, GET-only JSON API** over the private Sheets —
@@ -80,7 +85,11 @@ and a line in the local boot sequence in `public/js/main.js`.
 
 **4. Configure the Worker.** Set `APPS_SCRIPT_URL` in `worker.js` to your own
 Apps Script `/exec` URL, and rename `name` in `wrangler.jsonc` to your Worker's
-name. Then deploy as below.
+name. Create a KV namespace — `wrangler kv namespace create CHART_DATA` (plus
+`--preview` for local dev) — and put the returned IDs under `kv_namespaces` in
+`wrangler.jsonc`. Then deploy as below. KV self-fills from Apps Script on first
+request; to pre-warm it, set the `SEED_KEY` secret (`wrangler secret put SEED_KEY`)
+and hit `/admin/seed?key=<SEED_KEY>`.
 
 **Arena is optional.** The `/arena` page depends on a *separate* UserInfo Worker
 (the `/userinfo` proxy route, the `USERINFO_WORKER` service binding in
@@ -95,15 +104,17 @@ Two independent targets:
 **Apps Script (data API)**
 1. Upload only `Code.gs` to Apps Script (never the HTML or `SampleData/*` files).
 2. Deploy as a Web App: *Execute as: Me* · *Who has access: **Anyone*** (must be
-   unauthenticated public, or the proxy's server-side fetch gets a Google login
+   unauthenticated public, or the Worker's server-side fetch gets a Google login
    page instead of JSON).
 3. Paste the `/exec` URL into `APPS_SCRIPT_URL` in `worker.js` if it ever changes
    (a new deployment gets a new URL).
 
-**Cloudflare Worker (static front-end + proxy)**
-1. Deploy with `wrangler` — `wrangler.jsonc` binds `main: worker.js` and
-   `assets.directory: ./public`, publishing the whole `public/` tree.
-2. The `/userinfo` route needs the `USERINFO_READ_KEY` secret and the
+**Cloudflare Worker (static front-end + KV data API)**
+1. Deploy with `wrangler` — `wrangler.jsonc` binds `main: worker.js`,
+   `assets.directory: ./public` (publishing the whole `public/` tree), and the
+   `CHART_DATA` KV namespace.
+2. Seed/pre-warm KV with `/admin/seed?key=<SEED_KEY>` (or rely on lazy first-fill).
+3. The `/userinfo` route needs the `USERINFO_READ_KEY` secret and the
    `USERINFO_WORKER` service binding configured for the Arena tool to work.
 
 Spreadsheet IDs live only in `Code.gs` (server-side). The only public exposure is
