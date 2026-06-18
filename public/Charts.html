@@ -246,11 +246,11 @@
     <div class="exp-section">
       <div class="exp-label">Win Prediction</div>
       <div style="font-size:11px;color:#8b919e;line-height:1.5;margin-bottom:8px">
-        Fetches each guild’s full roster from mapleidle.gg, projects absent members’
-        scores from the current fit, and ranks guilds by projected total.
+        Uses guild rosters synced from mapleidle.gg (via SwissKnife) to project absent
+        members’ scores from the current fit and rank guilds by projected total.
         <span style="color:#6b7280">GW Points are an approximation (re-ranks only guilds in this sheet).</span>
       </div>
-      <button id="predict-btn" class="file-btn" style="width:100%" onclick="runPrediction()">Fetch rosters &amp; predict</button>
+      <button id="predict-btn" class="file-btn" style="width:100%" onclick="runPrediction()">Predict winner</button>
       <div id="prediction-status" style="font-size:11px;color:#6b7280;font-family:'Space Mono',monospace;margin-top:6px;min-height:14px"></div>
     </div>
   </div>

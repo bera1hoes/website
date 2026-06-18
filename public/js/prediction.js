@@ -1,22 +1,22 @@
 // ── Win prediction ──────────────────────────────────────────────────────────
-// Fetch each guild's full roster from mapleidle.gg (via the /guild Worker proxy),
-// find members missing from the current content run, project their score from the
-// live power-law fit (Score ≈ A·CP^B, optionally class-adjusted), and aggregate a
-// projected per-guild total to predict who would win if everyone showed up.
+// Read each guild's full roster from the /guild Worker route (backed by KV; the
+// rosters are captured from mapleidle.gg by the SwissKnife mitmproxy addon and
+// uploaded there), find members missing from the current content run, project
+// their score from the live power-law fit (Score ≈ A·CP^B, optionally
+// class-adjusted), and aggregate a projected per-guild total to predict who would
+// win if everyone showed up.
 //
 // Metric per content type (mirrors buildPivotTable): GW Points for Guild Wars
 // (rank-based via GW_POINTS_DATA), total Score for everything else.
 //
-// Needs the Worker proxy, so it only runs in IS_REMOTE (and `wrangler dev`).
+// Needs the Worker, so it only runs in IS_REMOTE (and `wrangler dev`).
 
 // Session cache: guild name -> normalized roster [{nick, cp, cls, level}].
 const rosterCache = {};
 
-// Browser Rendering can be slow — one edge browser renders every uncached guild
-// in the batch — so allow a generous timeout.
-const ROSTER_TIMEOUT_MS = 90000;
+const ROSTER_TIMEOUT_MS = 15000;  // KV reads are fast
 
-// One batched GET to the Worker's /guild proxy for all guilds at once. Returns a
+// One batched GET to the Worker's /guild route for all guilds at once. Returns a
 // map { guild: roster[] | { error } }. Tolerates string-or-object JSON like
 // apiCall (io.js). Caches successful rosters per guild for the session and only
 // requests guilds not already cached.
@@ -82,7 +82,7 @@ function runPrediction() {
   const participants = new Set(currentData.map(d => d.nick));
   const btn = document.getElementById('predict-btn');
   if (btn) btn.disabled = true;
-  setPredictionStatus('Rendering rosters via Browser Rendering… (this can take a moment)');
+  setPredictionStatus('Loading rosters…');
 
   fetchRosters(guilds).then(map => {
     if (btn) btn.disabled = false;

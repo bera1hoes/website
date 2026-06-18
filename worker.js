@@ -1,5 +1,3 @@
-import puppeteer from '@cloudflare/puppeteer';
-
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV3Ui_OS5LJ7K49YOZ1ropYZCbyAsuBfnrB2sERlh2y40ylivWxtdsgcQ2kTTpS4VG5w/exec';
 
 // Edge-cache strategy: the sheets are mutable (edits cluster around the last
@@ -16,17 +14,13 @@ const TS_BUST_REUSE_MS = 10000; // a bust still reuses a timestamp this fresh
 const VALIDATED_TTL = 86400;  // backstop for timestamp-validated entries
 const DEFAULT_TTL = 60;       // plain proxy TTL for everything else
 
-// Guild-roster proxy (/guild): mapleidle.gg holds each guild's full member list
-// (including players absent from a given content run). It's a Vercel-hosted SPA
-// that serves guild data only to a challenge-cleared real browser — a plain
-// fetch (even from a residential IP) gets 429'd by automation fingerprinting.
-// So we drive a real edge Chromium via Browser Rendering, warm up the challenge
-// once per browser, then read each guild's rendered roster. Rosters move ~daily,
-// so each guild is edge-cached long.
-const MAPLEIDLE_BASE = 'https://mapleidle.gg';
-const ROSTER_TTL = 21600;     // 6h
-const REAL_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
-
+// Guild rosters (/guild): mapleidle.gg serves guild member lists (incl. players
+// absent from a content run) only to a challenge-cleared real browser, so neither
+// a server fetch (datacenter IP) nor a browser fetch (CORS) can reach it. Instead
+// the rosters are captured locally by the SwissKnife mitmproxy addon — which reads
+// them from the operator's real browser traffic — and POSTed here into KV. The
+// chart then reads them back. So this Worker only stores + serves; it never talks
+// to mapleidle.
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
     status,
@@ -74,116 +68,10 @@ async function fetchUpstream(search) {
   return { body };
 }
 
-// ── Guild-roster parsing ────────────────────────────────────────────────────
-// mapleidle renders CP in this project's own gaming notation (e.g. "1AA 642T"),
-// so parse it back to a number — inverse of toGamingNotation in public/js/util.js.
-// Suffix N is 1000^N: ''=0, K=1, M=2, B=3, T=4, then AA=5, AB=6, … AT=24.
-const GN_SUFFIX = (() => {
-  const list = ['', 'K', 'M', 'B', 'T',
-    'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ',
-    'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT'];
-  const m = {};
-  list.forEach((s, i) => { m[s] = i; });
-  return m;
-})();
-
-function parseGamingNotation(text) {
-  let total = 0;
-  for (const part of String(text).trim().split(/\s+/)) {
-    const m = part.match(/^([\d.,]+)\s*([A-Z]{0,2})$/);
-    if (!m) continue;
-    const num = Number(m[1].replace(/,/g, ''));
-    const exp = GN_SUFFIX[m[2] || ''];
-    if (!Number.isFinite(num) || exp === undefined) continue;
-    total += num * Math.pow(1000, exp);
-  }
-  return total;
-}
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-// Make a managed edge page look like a real browser. Vercel's challenge 429s
-// obvious automation (navigator.webdriver === true is the giveaway), which is
-// the tell we couldn't strip via a Chrome flag on the managed browser — so strip
-// it from JS instead. Each step is best-effort: an unsupported API must not abort
-// the render.
-async function hardenPage(page) {
-  try { await page.setUserAgent(REAL_UA); } catch { /* */ }
-  try {
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'en-US,en;q=0.9',
-      'sec-ch-ua': '"Chromium";v="126", "Google Chrome";v="126", "Not.A/Brand";v="24"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-    });
-  } catch { /* */ }
-  try {
-    await page.evaluateOnNewDocument(() => {
-      Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-      Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-      Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-      window.chrome = window.chrome || { runtime: {} };
-    });
-  } catch { /* */ }
-}
-
-// Render one guild page in the given (already challenge-warmed) browser and
-// extract its roster. mapleidle is a client-rendered SPA: each member is a
-// `[data-member-name]` element holding a /characters/<world>/<nick> link and a
-// CP span in gaming notation. Class is icon-only (no text) so it's left blank —
-// projected members then use the raw fit (no class bias). Returns
-// [{ nick, cp, cls, level }].
-async function renderRoster(browser, world, name) {
-  const page = await browser.newPage();
-  try {
-    await hardenPage(page);
-    const target = MAPLEIDLE_BASE + '/guild/' + encodeURIComponent(world) + '/' + encodeURIComponent(name);
-    let resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
-    // A 429 is Vercel's challenge; it sets a clearance cookie, so wait + retry once.
-    if (resp && resp.status() === 429) {
-      await sleep(4000);
-      resp = await page.goto(target, { waitUntil: 'networkidle0', timeout: 30000 });
-    }
-    if (resp && resp.status() === 429) throw new Error('mapleidle rate-limited (429)');
-    // Member rows hydrate client-side; wait for them (best-effort).
-    await page.waitForSelector('[data-member-name]', { timeout: 15000 }).catch(() => {});
-    const raw = await page.evaluate(() => {
-      const rows = [];
-      document.querySelectorAll('[data-member-name]').forEach(el => {
-        const a = el.querySelector('a[href*="/characters/"]');
-        let nick = '';
-        if (a) {
-          const parts = a.getAttribute('href').split('/');
-          nick = decodeURIComponent(parts[parts.length - 1] || '');
-        }
-        if (!nick) nick = el.getAttribute('data-member-name') || '';
-        // CP is the span whose text is a gaming-notation number (e.g. "1AA 642T").
-        let cpText = '';
-        el.querySelectorAll('span').forEach(s => {
-          if (cpText) return;
-          const t = (s.textContent || '').trim();
-          if (/^\d[\d.,]*\s*(K|M|B|T|A[A-Z])(\s+\d[\d.,]*\s*(K|M|B|T|A[A-Z]))?$/.test(t)) cpText = t;
-        });
-        rows.push({ nick, cpText });
-      });
-      return rows;
-    });
-    return raw
-      .map(r => ({ nick: String(r.nick || '').trim(), cp: parseGamingNotation(r.cpText), cls: '', level: 0 }))
-      .filter(r => r.nick && r.cp > 0);
-  } finally {
-    await page.close();
-  }
-}
-
-// Per-guild edge-cache key (world+name), independent of which sheet/content type
-// asked — rosters are shared. Normalized so a batch request reuses single-guild
-// entries and vice-versa.
-function rosterCacheKey(origin, world, name) {
-  const u = new URL(origin + '/guild');
-  u.searchParams.set('world', world);
-  u.searchParams.set('name', name);
-  return new Request(u.toString(), { method: 'GET' });
+// KV key for a guild roster. World + guild are lowercased so the chart's
+// exact-case guild names and the captured-from-URL names map to one entry.
+function rosterKvKey(world, name) {
+  return 'roster:' + String(world).toLowerCase() + ':' + String(name).toLowerCase();
 }
 
 // getLastUpdated returns a bare JSON string (the spreadsheet's Drive modified
@@ -293,74 +181,76 @@ async function handleApi(url, ctx) {
   return response;
 }
 
+// Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0).
+function cleanRoster(members) {
+  if (!Array.isArray(members)) return [];
+  return members
+    .map(m => ({
+      nick:  String((m && m.nick) || '').trim(),
+      cp:    Number(m && m.cp) || 0,
+      cls:   String((m && m.cls) || ''),
+      level: Number(m && m.level) || 0,
+    }))
+    .filter(m => m.nick && m.cp > 0);
+}
+
+// POST /guild  (Authorization: Bearer <ROSTER_WRITE_KEY>) — SwissKnife uploads
+// captured rosters here. Body: { world, guild, members:[…] } or a batch
+// { world, rosters: { "<guild>": [members] } }. Stores each guild in KV.
+async function handleRosterUpload(request, env) {
+  if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
+  const auth = request.headers.get('authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!env.ROSTER_WRITE_KEY || token !== env.ROSTER_WRITE_KEY) return jsonError(401, 'Unauthorized');
+
+  let body;
+  try { body = await request.json(); } catch { return jsonError(400, 'Invalid JSON body'); }
+
+  const world = String(body.world || 'bera').toLowerCase();
+  const stored = [];
+  const put = async (guild, members) => {
+    const g = String(guild || '').trim();
+    if (!g) return;
+    const roster = cleanRoster(members);
+    await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
+    stored.push({ guild: g, count: roster.length });
+  };
+
+  if (body.rosters && typeof body.rosters === 'object') {
+    for (const [g, members] of Object.entries(body.rosters)) await put(g, members);
+  } else {
+    await put(body.guild, body.members);
+  }
+
+  return new Response(JSON.stringify({ ok: true, stored }), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
+}
+
 // GET /guild?world=bera&names=hoes,rivals,…  → { "<guild>": [{nick,cp,cls,level}] | {error} }
-// Drives one edge Chromium (Browser Rendering) for the whole batch: cached
-// guilds are served from the edge cache, and only the misses are rendered — in a
-// single browser that's warmed against Vercel's challenge once up front. Batching
-// matters because each browser launch is slow and Browser Rendering caps
-// concurrent browsers per account. `bust=1` re-renders past the cache.
-async function handleGuild(url, env, ctx) {
-  const cache = caches.default;
-  const canonical = new URL(url);
-  const bust = canonical.searchParams.has('bust');
-  const world = (canonical.searchParams.get('world') || 'bera').toLowerCase();
+// Reads each guild's roster from KV (stored by the SwissKnife uploader). A guild
+// with no stored roster comes back as { error } so the client can flag it.
+async function handleGuild(request, url, env, ctx) {
+  if (request.method === 'POST') return handleRosterUpload(request, env);
+  if (request.method !== 'GET') return jsonError(405, 'Method not allowed');
+  if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
+
+  const world = (url.searchParams.get('world') || 'bera').toLowerCase();
   // Accept ?names=a,b,c (batch) or ?name=a (single).
-  const rawNames = canonical.searchParams.get('names') || canonical.searchParams.get('name') || '';
+  const rawNames = url.searchParams.get('names') || url.searchParams.get('name') || '';
   const names = [...new Set(rawNames.split(',').map(s => s.trim()).filter(Boolean))];
   if (!names.length) return jsonError(400, 'Missing guild name(s)');
 
   const result = {};
-  const misses = [];
-  for (const name of names) {
-    if (!bust) {
-      const hit = await cache.match(rosterCacheKey(url.origin, world, name));
-      if (hit) { result[name] = await hit.json(); continue; }
-    }
-    misses.push(name);
-  }
+  await Promise.all(names.map(async name => {
+    const roster = await env.ROSTERS.get(rosterKvKey(world, name), { type: 'json' });
+    result[name] = Array.isArray(roster) ? roster : { error: 'no roster captured yet — sync it in SwissKnife' };
+  }));
 
-  if (misses.length) {
-    if (!env.BROWSER) return jsonError(503, 'Browser Rendering is not configured for this environment');
-    let browser;
-    try {
-      browser = await puppeteer.launch(env.BROWSER);
-    } catch (err) {
-      return jsonError(502, 'Could not start Browser Rendering: ' + String(err.message || err));
-    }
-    try {
-      // Warm up once: the first hit clears Vercel's challenge and sets a cookie
-      // the whole browser then reuses for the guild pages. Pause after load so the
-      // challenge JS has time to run and set that cookie.
-      try {
-        const warm = await browser.newPage();
-        await hardenPage(warm);
-        await warm.goto(MAPLEIDLE_BASE + '/', { waitUntil: 'networkidle0', timeout: 30000 });
-        await sleep(4000);
-        await warm.close();
-      } catch { /* non-fatal: the per-guild loads still try on their own */ }
-
-      for (const name of misses) {
-        try {
-          const roster = await renderRoster(browser, world, name);
-          if (!roster.length) throw new Error('empty roster (guild not found or page shape changed)');
-          result[name] = roster;
-          ctx.waitUntil(cache.put(
-            rosterCacheKey(url.origin, world, name),
-            jsonResponse(JSON.stringify(roster), ROSTER_TTL)
-          ));
-        } catch (err) {
-          result[name] = { error: String(err.message || err) };
-        }
-      }
-    } finally {
-      await browser.close();
-    }
-  }
-
-  // Short browser-cache; the per-guild edge entries carry the long TTL.
   return new Response(JSON.stringify(result), {
     status: 200,
-    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=30' },
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=60' },
   });
 }
 
@@ -373,7 +263,7 @@ export default {
     }
 
     if (url.pathname === '/guild') {
-      return handleGuild(url, env, ctx);
+      return handleGuild(request, url, env, ctx);
     }
 
     // /charts -> Charts.html
