@@ -14,6 +14,12 @@
       "binding": "CHART_DATA",
       "id": "1b5aa7e017d2466c9b614b551f4ac467",
       "preview_id": "8dbd710fef3448bca00cc7ad2753a248"
+    },
+    // Guild rosters captured by SwissKnife (POST /guild), read by Win Prediction.
+    // Write key is the ROSTER_WRITE_KEY secret (`wrangler secret put ROSTER_WRITE_KEY`).
+    {
+      "binding": "ROSTERS",
+      "id": "34c42bd61ddf47509052a9194e988fc7"
     }
   ]
 }

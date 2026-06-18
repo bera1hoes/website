@@ -50,6 +50,7 @@ function drawBand(sel, pts, x, y) {
 
 function buildChart(data) {
   closePanel();
+  clearPrediction();  // stale win-prediction must not carry across sheets/content
   selectedGroups.clear();
   assignGuildColors(data);
   joinGwPoints(data);

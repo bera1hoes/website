@@ -165,6 +165,92 @@ async function handleSeed(url, env) {
   return jsonResponse(JSON.stringify(summary, null, 2));
 }
 
+// ── Guild rosters (/guild) ───────────────────────────────────────────────────
+// mapleidle.gg serves guild member lists only to a challenge-cleared real browser
+// (Vercel blocks datacenter IPs + scripted fetches; CORS blocks visitor fetches),
+// so rosters are captured locally by the SwissKnife mitmproxy addon and POSTed
+// here into KV (binding ROSTERS). The chart's Win Prediction reads them back. This
+// Worker only stores + serves; it never talks to mapleidle.
+
+// KV key for a guild roster. World + guild are lowercased so the chart's
+// exact-case names and the captured-from-URL names map to one entry.
+function rosterKvKey(world, name) {
+  return 'roster:' + String(world).toLowerCase() + ':' + String(name).toLowerCase();
+}
+
+// Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0).
+function cleanRoster(members) {
+  if (!Array.isArray(members)) return [];
+  return members
+    .map(m => ({
+      nick:  String((m && m.nick) || '').trim(),
+      cp:    Number(m && m.cp) || 0,
+      cls:   String((m && m.cls) || ''),
+      level: Number(m && m.level) || 0,
+    }))
+    .filter(m => m.nick && m.cp > 0);
+}
+
+// POST /guild  (Authorization: Bearer <ROSTER_WRITE_KEY>) — SwissKnife uploads
+// captured rosters here. Body: { world, guild, members:[…] } or a batch
+// { world, rosters: { "<guild>": [members] } }. Stores each guild in KV.
+async function handleRosterUpload(request, env) {
+  if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
+  const auth = request.headers.get('authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!env.ROSTER_WRITE_KEY || token !== env.ROSTER_WRITE_KEY) return jsonError(401, 'Unauthorized');
+
+  let body;
+  try { body = await request.json(); } catch { return jsonError(400, 'Invalid JSON body'); }
+
+  const world = String(body.world || 'bera').toLowerCase();
+  const stored = [];
+  const put = async (guild, members) => {
+    const g = String(guild || '').trim();
+    if (!g) return;
+    const roster = cleanRoster(members);
+    await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
+    stored.push({ guild: g, count: roster.length });
+  };
+
+  if (body.rosters && typeof body.rosters === 'object') {
+    for (const [g, members] of Object.entries(body.rosters)) await put(g, members);
+  } else {
+    await put(body.guild, body.members);
+  }
+
+  return new Response(JSON.stringify({ ok: true, stored }), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
+}
+
+// GET /guild?world=bera&names=hoes,rivals,…  → { "<guild>": [{nick,cp,cls,level}] | {error} }
+// Reads each guild's roster from KV (stored by the SwissKnife uploader). A guild
+// with no stored roster comes back as { error } so the client can flag it.
+async function handleGuild(request, url, env, ctx) {
+  if (request.method === 'POST') return handleRosterUpload(request, env);
+  if (request.method !== 'GET') return jsonError(405, 'Method not allowed');
+  if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
+
+  const world = (url.searchParams.get('world') || 'bera').toLowerCase();
+  // Accept ?names=a,b,c (batch) or ?name=a (single).
+  const rawNames = url.searchParams.get('names') || url.searchParams.get('name') || '';
+  const names = [...new Set(rawNames.split(',').map(s => s.trim()).filter(Boolean))];
+  if (!names.length) return jsonError(400, 'Missing guild name(s)');
+
+  const result = {};
+  await Promise.all(names.map(async name => {
+    const roster = await env.ROSTERS.get(rosterKvKey(world, name), { type: 'json' });
+    result[name] = Array.isArray(roster) ? roster : { error: 'no roster captured yet — sync it in SwissKnife' };
+  }));
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=60' },
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -175,6 +261,10 @@ export default {
 
     if (url.pathname === '/admin/seed') {
       return handleSeed(url, env);
+    }
+
+    if (url.pathname === '/guild') {
+      return handleGuild(request, url, env, ctx);
     }
 
     // /charts -> Charts.html
