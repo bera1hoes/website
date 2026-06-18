@@ -253,6 +253,7 @@ function loadSheet(name, bust) {
   if (cached) {
     closePanel();
     currentData = cached;
+    sheetRosters = (rostersCache[currentContentType] || {})[name] || null;
     document.getElementById('loading').style.display = 'none';
     buildChart(cached);
     loadHistory();
@@ -271,9 +272,13 @@ function loadSheet(name, bust) {
 
   const onData = function(json) {
     document.getElementById('loading').style.display = 'none';
-    currentData = typeof json === 'string' ? JSON.parse(json) : json;
+    const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+    currentData = rowsOf(parsed);
+    sheetRosters = rostersOf(parsed);
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
+    if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
+    rostersCache[currentContentType][name] = sheetRosters;
     buildChart(currentData);
     loadHistory();
   };
@@ -346,6 +351,7 @@ function loadLocalFiles(files) {
       sel.value = name;
       closePanel();
       currentData = data;
+      sheetRosters = null;  // local TSV has no roster snapshot
       document.getElementById('loading').style.display = 'none';
       clearStats();
       document.getElementById('chart').innerHTML = '';

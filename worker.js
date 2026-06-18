@@ -14,7 +14,12 @@ const CONTENT_TYPES = [
 // Chart data lives in Workers KV (binding CHART_DATA), so the read path never
 // touches Google. Two key shapes:
 //   names:<type>        -> { updated: <Drive ISO|null>, sheets: ["MM-DD-YYYY", …] }
-//   data:<type>:<sheet> -> [ {rank, nick, score, …}, … ]   (bare rows array)
+//   data:<type>:<sheet> -> { rows: [ {rank, nick, score, …}, … ],
+//                            rosters: { "<guild>": [ {nick,cp,cls,level}, … ] } }
+// `rosters` is a frozen snapshot of the sheet's guilds' rosters (from the ROSTERS
+// namespace), embedded when the entry is first created and carried over on updates so
+// Win Prediction reads it with no extra KV call (see syncData / refreshRosters). Legacy
+// bare-array entries are still served (rows with no rosters) until refreshed.
 // The Drive modified timestamp is per-spreadsheet, so it lives once in `names`;
 // getData carries no timestamp (the client's "Last updated" display is fed by
 // getSheetNames' x-last-updated header). Apps Script is reached only on a KV
@@ -76,13 +81,44 @@ async function syncNames(env, type) {
   return { record };
 }
 
-// Refetch one sheet's rows from Apps Script and store data:<type>:<sheet>.
-// Returns { rows } or { error }.
+// Unique guild names present in a sheet's rows.
+function guildsOf(rows) {
+  return [...new Set((rows || []).map((r) => r && r.guild).filter(Boolean))];
+}
+
+// Snapshot of the given guilds' rosters from the ROSTERS namespace (per-guild keys).
+// Skips guilds with no stored/empty roster. Returns { "<guild>": members[] }.
+async function pullRosters(env, world, guilds) {
+  if (!env.ROSTERS) return {};
+  const out = {};
+  await Promise.all([...new Set(guilds)].map(async (g) => {
+    const r = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
+    if (Array.isArray(r) && r.length) out[g] = r;
+  }));
+  return out;
+}
+
+// Refetch one sheet's rows from Apps Script and store data:<type>:<sheet> as
+// { rows, rosters }. The roster snapshot is carried over from the previous entry on
+// an update (Reload/reseed); on initial creation it's pulled fresh from ROSTERS for
+// the guilds in rows. Returns the stored { rows, rosters } object or { error }.
 async function syncData(env, type, sheet) {
   const dataRes = await appsScript('getData', { contentType: type, sheet });
   if (dataRes.error) return dataRes;
-  await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(dataRes.value));
-  return { rows: dataRes.value };
+  const rows = dataRes.value;
+
+  const prevRaw = await env.CHART_DATA.get(dataKey(type, sheet));
+  let rosters;
+  if (prevRaw) {
+    const prev = JSON.parse(prevRaw);          // update: carry over (don't re-pull)
+    rosters = (prev && !Array.isArray(prev) && prev.rosters) ? prev.rosters : {};
+  } else {
+    rosters = await pullRosters(env, 'bera', guildsOf(rows)); // initial create: embed
+  }
+
+  const value = { rows, rosters };
+  await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(value));
+  return value;
 }
 
 // Serve /api from KV. ?bust=1 (the client's Reload) bypasses KV, refetches from
@@ -112,11 +148,27 @@ async function handleApi(url, env) {
     const sheet = params.get('sheet') || '';
     if (!bust) {
       const stored = await env.CHART_DATA.get(dataKey(type, sheet));
-      if (stored) return jsonResponse(stored);
+      if (stored) return jsonResponse(stored); // { rows, rosters } (or legacy bare array)
     }
     const res = await syncData(env, type, sheet); // bust, or lazy first-fill
     if (res.error) return res.error;
-    return jsonResponse(JSON.stringify(res.rows));
+    return jsonResponse(JSON.stringify(res));
+  }
+
+  // Re-pull the roster snapshot for a sheet from the ROSTERS namespace into its
+  // data:<type>:<sheet> entry (the chart's "Refresh rosters" button). The data
+  // rows are left as-is; only `rosters` is refreshed. Same UI-writes-KV posture as
+  // the Reload/bust path above.
+  if (action === 'refreshRosters') {
+    const sheet = params.get('sheet') || '';
+    const stored = await env.CHART_DATA.get(dataKey(type, sheet));
+    if (!stored) return jsonError(404, 'No data for that sheet yet — load it first');
+    const entry = JSON.parse(stored);
+    const rows = Array.isArray(entry) ? entry : (entry.rows || []);
+    const rosters = await pullRosters(env, 'bera', guildsOf(rows));
+    const value = { rows, rosters };
+    await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(value));
+    return jsonResponse(JSON.stringify(value));
   }
 
   // Legacy/compat: HAS_GAS clients call getLastUpdated directly. Serve it from

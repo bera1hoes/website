@@ -1,9 +1,23 @@
 // ── Parsed data + caches ───────────────────────────────────────────────────
 // `currentData` is the array of player objects currently rendered.
 // `localFiles` caches parsed sheets: contentType -> { sheetName -> data[] }.
+// `sheetRosters` is the current sheet's embedded guild rosters (from the getData
+// `{ rows, rosters }` payload), used by Win Prediction with no extra call; cached
+// per sheet in `rostersCache` so cache hits restore it.
 
 let currentData = null;
+let sheetRosters = null;
 const localFiles = {};
+const rostersCache = {};   // contentType -> { sheetName -> rostersObj|null }
+
+// getData returns `{ rows, rosters }` now; older entries (and local TSV) are a
+// bare rows array. These read either shape.
+function rowsOf(json) {
+  return Array.isArray(json) ? json : ((json && json.rows) || []);
+}
+function rostersOf(json) {
+  return (json && !Array.isArray(json) && json.rosters) ? json.rosters : null;
+}
 
 // ── Local data helpers ─────────────────────────────────────────────────────
 
