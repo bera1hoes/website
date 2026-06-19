@@ -162,6 +162,29 @@
     </div>
   </div>
 
+  <!-- Projected absentees — per-player projected scores for members who didn't run -->
+  <div id="missing-players-section" style="display:none">
+    <div class="eyebrow" style="margin: 24px 0 12px">Projected Absentees — members who didn’t run</div>
+    <div class="pivot-wrap">
+      <div class="table-scroll">
+      <table class="pivot-table" id="missing-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Guild</th>
+            <th style="text-align:left">Nick</th>
+            <th style="text-align:right">CP</th>
+            <th style="text-align:right">Fit base</th>
+            <th style="text-align:right">Adjustment</th>
+            <th style="text-align:center" title="Manual % over/under the projection — saved in this browser">Override %</th>
+            <th style="text-align:right">Projected</th>
+          </tr>
+        </thead>
+        <tbody id="missing-body"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
 </div><!-- /page -->
 
 <!-- Info panel — fixed position, populated by JS -->
@@ -254,6 +277,20 @@
         <button id="predict-btn" class="file-btn" style="flex:1" onclick="runPrediction()">Predict winner</button>
         <button id="refresh-rosters-btn" class="file-btn" style="flex:none" title="Re-pull guild rosters from the store into this sheet" onclick="refreshRosters()">Refresh rosters</button>
       </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:#8b919e">
+        <label for="adjust-mode" style="white-space:nowrap">Adjust projections by</label>
+        <select id="adjust-mode" class="file-btn" style="flex:1;padding:4px 6px" onchange="onAdjustModeChange(this.value)"
+                title="Tune absent members' projections by their past over/under-performance">
+          <option value="none">None</option>
+          <option value="lastweek">Last week</option>
+          <option value="history">History (weighted)</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#8b919e;cursor:pointer">
+        <input type="checkbox" id="show-tables" checked style="margin:0;accent-color:#f0a500"
+               onchange="onShowTablesToggle(this.checked)">
+        Show prediction tables
+      </label>
       <div id="prediction-status" style="font-size:11px;color:#6b7280;font-family:'Space Mono',monospace;margin-top:6px;min-height:14px"></div>
     </div>
   </div>

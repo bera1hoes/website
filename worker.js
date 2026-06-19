@@ -10,16 +10,32 @@ const CONTENT_TYPES = [
   'Guild Training Ground',
 ];
 
+// Content types that get a week-over-week per-player performance profile (Win
+// Prediction's "adjust by history/last week"). Global GBB / Guild Conquest are
+// excluded — they have no comparable week-over-week per-player performance.
+const PERF_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Guild Training Ground'];
+
+// Recency weight for the multi-week performance profile: the most-recent prior
+// week counts 1, the next DECAY, then DECAY², … (an exponential decay).
+const PERF_DECAY = 0.6;
+
 // ── Data model ───────────────────────────────────────────────────────────────
 // Chart data lives in Workers KV (binding CHART_DATA), so the read path never
 // touches Google. Two key shapes:
 //   names:<type>        -> { updated: <Drive ISO|null>, sheets: ["MM-DD-YYYY", …] }
 //   data:<type>:<sheet> -> { rows: [ {rank, nick, score, …}, … ],
-//                            rosters: { "<guild>": [ {nick,cp,cls,level}, … ] } }
+//                            rosters:     { "<guild>": [ {nick,cp,cls,level}, … ] },
+//                            perfProfile: { "<nick>": <factor> } }   (optional)
+//   guildweeks:<type>   -> { "<guild>": ["MM-DD-YYYY", …] }   (PERF_TYPES only)
 // `rosters` is a frozen snapshot of the sheet's guilds' rosters (from the ROSTERS
 // namespace), embedded when the entry is first created and carried over on updates so
 // Win Prediction reads it with no extra KV call (see syncData / refreshRosters). Legacy
 // bare-array entries are still served (rows with no rosters) until refreshed.
+// `perfProfile` is a recency-weighted per-player over/under-performance factor built
+// once from the PRIOR sheets where the current guilds appeared (buildPerfProfile),
+// embedded here and carried over on update so Win Prediction's history adjustment is
+// also a 0-read read. `guildweeks` is the lookup that lets buildPerfProfile pick the
+// relevant prior sheets without scanning every one.
 // The Drive modified timestamp is per-spreadsheet, so it lives once in `names`;
 // getData carries no timestamp (the client's "Last updated" display is fed by
 // getSheetNames' x-last-updated header). Apps Script is reached only on a KV
@@ -27,6 +43,7 @@ const CONTENT_TYPES = [
 // responses are no-store.
 const namesKey = (type) => `names:${type}`;
 const dataKey = (type, sheet) => `data:${type}:${sheet}`;
+const guildWeeksKey = (type) => `guildweeks:${type}`;
 
 function jsonError(status, message) {
   return new Response(JSON.stringify({ error: message }), {
@@ -98,25 +115,158 @@ async function pullRosters(env, world, guilds) {
   return out;
 }
 
+// Add a sheet to each of its guilds' lists in guildweeks:<type> (PERF_TYPES only).
+// Idempotent set-merge, so re-runs / out-of-order calls are safe. This is the
+// lookup buildPerfProfile uses to skip prior sheets that don't contain the current
+// guilds.
+async function mergeGuildWeeks(env, type, sheet, rows) {
+  if (!PERF_TYPES.includes(type)) return;
+  const raw = await env.CHART_DATA.get(guildWeeksKey(type));
+  const idx = raw ? JSON.parse(raw) : {};
+  let changed = false;
+  for (const g of guildsOf(rows)) {
+    const arr = idx[g] || (idx[g] = []);
+    if (!arr.includes(sheet)) { arr.push(sheet); changed = true; }
+  }
+  if (changed) await env.CHART_DATA.put(guildWeeksKey(type), JSON.stringify(idx));
+}
+
 // Refetch one sheet's rows from Apps Script and store data:<type>:<sheet> as
-// { rows, rosters }. The roster snapshot is carried over from the previous entry on
-// an update (Reload/reseed); on initial creation it's pulled fresh from ROSTERS for
-// the guilds in rows. Returns the stored { rows, rosters } object or { error }.
+// { rows, rosters, perfProfile? }. The roster snapshot is carried over from the
+// previous entry on an update (Reload/reseed); on initial creation it's pulled fresh
+// from ROSTERS for the guilds in rows. The perfProfile (if any) is always carried over
+// (prior weeks never change). Returns the stored object or { error }.
 async function syncData(env, type, sheet) {
   const dataRes = await appsScript('getData', { contentType: type, sheet });
   if (dataRes.error) return dataRes;
   const rows = dataRes.value;
 
   const prevRaw = await env.CHART_DATA.get(dataKey(type, sheet));
-  let rosters;
+  let rosters, perfProfile;
   if (prevRaw) {
-    const prev = JSON.parse(prevRaw);          // update: carry over (don't re-pull)
-    rosters = (prev && !Array.isArray(prev) && prev.rosters) ? prev.rosters : {};
+    const prev = JSON.parse(prevRaw);          // update: carry over (don't re-pull/rebuild)
+    const obj = (prev && !Array.isArray(prev)) ? prev : {};
+    rosters = obj.rosters || {};
+    perfProfile = obj.perfProfile;
   } else {
     rosters = await pullRosters(env, 'bera', guildsOf(rows)); // initial create: embed
   }
 
   const value = { rows, rosters };
+  if (perfProfile) value.perfProfile = perfProfile;
+  await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(value));
+  await mergeGuildWeeks(env, type, sheet, rows);
+  return value;
+}
+
+// Raw power-law fit Score ≈ A·CP^B over a sheet's rows (log-log least squares).
+// Ported from regression.js (client) so the profile build can run server-side.
+// Returns {A,B}; A=1,B=1 when there aren't enough usable points.
+function powerRegression(rows) {
+  const pts = (rows || []).filter((d) => d && d.cp > 0 && d.score > 0);
+  const n = pts.length;
+  if (n < 2) return { A: 1, B: 1 };
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for (const d of pts) {
+    const lx = Math.log10(d.cp), ly = Math.log10(d.score);
+    sx += lx; sy += ly; sxx += lx * lx; sxy += lx * ly;
+  }
+  const denom = n * sxx - sx * sx;
+  if (!denom) return { A: 1, B: 1 };
+  const B = (n * sxy - sx * sy) / denom;
+  const A = Math.pow(10, (sy - B * sx) / n);
+  return { A, B };
+}
+
+// A sheet's rows from KV (.rows), Apps-Script-filling the entry if missing. Never
+// builds a profile, so buildPerfProfile can call it for prior sheets without cascading.
+async function readRows(env, type, sheet) {
+  const stored = await env.CHART_DATA.get(dataKey(type, sheet));
+  if (stored) {
+    const e = JSON.parse(stored);
+    return Array.isArray(e) ? e : (e.rows || []);
+  }
+  const res = await syncData(env, type, sheet);
+  return res.error ? [] : (res.rows || []);
+}
+
+// Build (and embed) the recency-weighted per-player performance profile for one
+// sheet. For each PRIOR sheet where one of this sheet's guilds appeared (guildweeks
+// lookup; self-heals to all prior sheets if the index is missing/incomplete), fit
+// that sheet and record each player's score/fit ratio, weighted by recency. Writes
+// { nick: factor } into the entry's perfProfile and returns the entry. No-op (returns
+// the entry unchanged) for content types not in PERF_TYPES.
+async function buildPerfProfile(env, type, sheet) {
+  // Current entry — need its rows/guilds and must preserve rows+rosters on write-back.
+  const curRaw = await env.CHART_DATA.get(dataKey(type, sheet));
+  let cur;
+  if (curRaw) {
+    const e = JSON.parse(curRaw);
+    cur = Array.isArray(e) ? { rows: e, rosters: {} } : e;
+  } else {
+    const res = await syncData(env, type, sheet);
+    if (res.error) return res;
+    cur = res;
+  }
+  if (!PERF_TYPES.includes(type)) return cur;  // skipped types: no profile
+
+  const curGuilds = new Set(guildsOf(cur.rows));
+
+  // Sheet order (newest-first) → priors are the sheets after this one (older dates).
+  let names = [];
+  const nraw = await env.CHART_DATA.get(namesKey(type));
+  if (nraw) names = JSON.parse(nraw).sheets || [];
+  else {
+    const res = await syncNames(env, type);
+    if (!res.error) names = res.record.sheets || [];
+  }
+  const ci = names.indexOf(sheet);
+  let priors = ci >= 0 ? names.slice(ci + 1) : [];
+
+  // Guild→weeks lookup. Skip a prior only if the index KNOWS that sheet and none of
+  // the current guilds appeared in it; sheets the index hasn't seen yet are read (and
+  // then recorded below), so the index self-heals and later builds prune properly.
+  const gw = (await env.CHART_DATA.get(guildWeeksKey(type), { type: 'json' })) || {};
+  const known = new Set();
+  Object.values(gw).forEach((list) => (list || []).forEach((s) => known.add(s)));
+  const relevant = new Set();
+  for (const g of curGuilds) (gw[g] || []).forEach((s) => relevant.add(s));
+  priors = priors.filter((s) => relevant.has(s) || !known.has(s));
+
+  // Record a sheet's guilds back into the in-memory lookup (one write at the end).
+  let gwChanged = false;
+  const recordGuilds = (sheetName, rows) => {
+    for (const g of guildsOf(rows)) {
+      const arr = gw[g] || (gw[g] = []);
+      if (!arr.includes(sheetName)) { arr.push(sheetName); gwChanged = true; }
+    }
+  };
+  recordGuilds(sheet, cur.rows);
+
+  // Recency-weighted accumulation: newest prior weight 1, then PERF_DECAY^i.
+  const sum = {}, wsum = {};
+  for (let i = 0; i < priors.length; i++) {
+    const w = Math.pow(PERF_DECAY, i);
+    const rows = await readRows(env, type, priors[i]);
+    recordGuilds(priors[i], rows);
+    const { A, B } = powerRegression(rows);
+    if (!(A > 0) || !isFinite(B)) continue;
+    for (const r of rows) {
+      if (!r || !curGuilds.has(r.guild) || !(r.cp > 0) || !(r.score > 0)) continue;
+      const pred = A * Math.pow(r.cp, B);
+      if (!(pred > 0)) continue;
+      sum[r.nick]  = (sum[r.nick]  || 0) + w * (r.score / pred);
+      wsum[r.nick] = (wsum[r.nick] || 0) + w;
+    }
+  }
+  if (gwChanged) await env.CHART_DATA.put(guildWeeksKey(type), JSON.stringify(gw));
+
+  const perfProfile = {};
+  for (const nick of Object.keys(sum)) {
+    if (wsum[nick] > 0) perfProfile[nick] = sum[nick] / wsum[nick];
+  }
+
+  const value = { rows: cur.rows, rosters: cur.rosters || {}, perfProfile };
   await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(value));
   return value;
 }
@@ -167,8 +317,22 @@ async function handleApi(url, env) {
     const rows = Array.isArray(entry) ? entry : (entry.rows || []);
     const rosters = await pullRosters(env, 'bera', guildsOf(rows));
     const value = { rows, rosters };
+    // Preserve any embedded perfProfile — refreshing rosters must not drop it.
+    if (!Array.isArray(entry) && entry.perfProfile) value.perfProfile = entry.perfProfile;
     await env.CHART_DATA.put(dataKey(type, sheet), JSON.stringify(value));
     return jsonResponse(JSON.stringify(value));
+  }
+
+  // Build + embed the recency-weighted per-player performance profile for a sheet
+  // (Win Prediction's "adjust by history"). Read only the relevant prior sheets via
+  // the guildweeks lookup; write { rows, rosters, perfProfile } back. The client
+  // auto-triggers this once when a sheet has no embedded profile yet. Same
+  // UI-writes-KV posture as Reload/refreshRosters (server recomputes from trusted KV).
+  if (action === 'buildPerfProfile') {
+    const sheet = params.get('sheet') || '';
+    const res = await buildPerfProfile(env, type, sheet);
+    if (res && res.error) return res.error;
+    return jsonResponse(JSON.stringify(res));
   }
 
   // Legacy/compat: HAS_GAS clients call getLastUpdated directly. Serve it from
