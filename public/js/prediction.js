@@ -339,9 +339,12 @@ function computeGwProjection(guilds, missingByGuild) {
     m => pop.push({ nick: m.nick, guild, score: projectMemberScore(m), absent: true })));
   pop.sort((a, b) => b.score - a.score);
 
+  // GW_POINTS_DATA + joinGwPoints are 0-indexed (rank 0 = 1st place = 1,000,000),
+  // so award the top scorer pointsFor(0), not pointsFor(1) — otherwise everyone is
+  // shifted down a place and nobody gets the rank-0 value.
   const guildPoints = {}, partByNick = {}, absentByNick = {};
   pop.forEach((p, i) => {
-    const pts = pointsFor(i + 1);
+    const pts = pointsFor(i);
     guildPoints[p.guild] = (guildPoints[p.guild] || 0) + pts;
     if (p.absent) absentByNick[p.nick] = pts; else partByNick[p.nick] = pts;
   });
