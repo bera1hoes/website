@@ -171,6 +171,34 @@ select:focus { border-color: var(--amber); }
 .pivot-table a.tlink:hover { text-decoration: underline; }
 .pivot-total-row td { color: var(--text); font-weight: 500; border-top: 1px solid rgba(255,255,255,0.1) !important; }
 
+/* Win Prediction: per-player override input + adjustment-source pill */
+.wp-ovr {
+  width: 58px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  text-align: right;
+}
+.wp-ovr:focus { outline: none; border-color: var(--amber); }
+.wp-pill {
+  display: inline-block;
+  padding: 1px 6px;
+  margin-right: 4px;
+  border-radius: 999px;
+  background: rgba(240,165,0,0.12);
+  color: var(--amber);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .02em;
+}
+/* Likely-sandbagger rows in the player table (performance well below their norm) */
+.sandbag-row td { background: rgba(248,113,113,0.07); }
+.sandbag-row:hover td { background: rgba(248,113,113,0.13); }
+
 .file-btn {
   display: inline-block;
   background: var(--surface);

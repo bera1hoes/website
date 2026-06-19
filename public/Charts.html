@@ -152,11 +152,37 @@
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="cp" style="text-align:right">CP <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="score" style="text-align:right">Score <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="histDelta" id="player-th-vshist" style="text-align:right;display:none" title="This week's performance vs the player's historical norm (⚠ = likely sandbagger)">vs History <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="projGwPoints" id="player-th-projgw" style="text-align:right;display:none" title="Projected GW points after absent members are added to the ranking">Proj GW Pts <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="player-body"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projected absentees — per-player projected scores for members who didn't run -->
+  <div id="missing-players-section" style="display:none">
+    <div class="eyebrow" style="margin: 24px 0 12px">Projected Absentees — members who didn’t run</div>
+    <div class="pivot-wrap">
+      <div class="table-scroll">
+      <table class="pivot-table" id="missing-table">
+        <thead>
+          <tr>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="guild" style="text-align:left" onclick="sortMissingBy('guild')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('guild');}">Guild <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="nick" style="text-align:left" onclick="sortMissingBy('nick')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('nick');}">Nick <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="cp" style="text-align:right" onclick="sortMissingBy('cp')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('cp');}">CP <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="base" style="text-align:right" onclick="sortMissingBy('base')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('base');}">Fit base <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="factor" style="text-align:right" onclick="sortMissingBy('factor')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('factor');}">Adjustment <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="overridePct" style="text-align:center" title="Manual % over/under the projection — saved in this browser" onclick="sortMissingBy('overridePct')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('overridePct');}">Override % <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="projGw" id="missing-th-gwpoints" style="text-align:right;display:none" onclick="sortMissingBy('projGw')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('projGw');}">Proj GW Pts <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="descending" data-col="final" style="text-align:right" onclick="sortMissingBy('final')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('final');}">Projected <span class="sort-icon active">↓</span></th>
+          </tr>
+        </thead>
+        <tbody id="missing-body"></tbody>
       </table>
       </div>
     </div>
@@ -254,6 +280,20 @@
         <button id="predict-btn" class="file-btn" style="flex:1" onclick="runPrediction()">Predict winner</button>
         <button id="refresh-rosters-btn" class="file-btn" style="flex:none" title="Re-pull guild rosters from the store into this sheet" onclick="refreshRosters()">Refresh rosters</button>
       </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:#8b919e">
+        <label for="adjust-mode" style="white-space:nowrap">Adjust projections by</label>
+        <select id="adjust-mode" class="file-btn" style="flex:1;padding:4px 6px" onchange="onAdjustModeChange(this.value)"
+                title="Tune absent members' projections by their past over/under-performance">
+          <option value="none">None</option>
+          <option value="lastweek" selected>Last week</option>
+          <option value="history">History (weighted)</option>
+        </select>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#8b919e;cursor:pointer">
+        <input type="checkbox" id="show-tables" checked style="margin:0;accent-color:#f0a500"
+               onchange="onShowTablesToggle(this.checked)">
+        Show prediction tables
+      </label>
       <div id="prediction-status" style="font-size:11px;color:#6b7280;font-family:'Space Mono',monospace;margin-top:6px;min-height:14px"></div>
     </div>
   </div>
