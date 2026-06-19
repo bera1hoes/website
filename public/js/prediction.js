@@ -25,7 +25,10 @@
 const PREDICTION_PERF_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Guild Training Ground'];
 
 // 'none' | 'lastweek' | 'history' — how missing members' projections are tuned.
-let adjustMode = 'none';
+// Default to last-week adjustment. `preferredAdjustMode` remembers the user's choice
+// across content switches so visiting a skipped type (which forces None) doesn't lose it.
+let adjustMode = 'lastweek';
+let preferredAdjustMode = 'lastweek';
 // Client-built { nick -> factor } for Last-week mode (from the previous sheet that
 // history.js already loads); rebuilt per sheet. History mode uses sheetPerf (data.js).
 let lastWeekPerf = null;
@@ -124,13 +127,16 @@ function syncAdjustControls() {
   if (!sel) return;
   const allowed = adjustAllowed();
   Array.from(sel.options).forEach(o => { if (o.value !== 'none') o.disabled = !allowed; });
-  if (!allowed && adjustMode !== 'none') adjustMode = 'none';
+  // Allowed content types use the remembered preference (default "last week");
+  // skipped types (Global GBB / Guild Conquest) force None.
+  adjustMode = allowed ? preferredAdjustMode : 'none';
   sel.value = adjustMode;
   sel.title = allowed ? '' : 'History adjustment isn’t available for this content type';
 }
 
 function onAdjustModeChange(val) {
   adjustMode = val;
+  if (adjustAllowed()) preferredAdjustMode = val;  // remember across content switches
   if (lastPrediction) runPrediction();   // re-run with the new mode
 }
 
