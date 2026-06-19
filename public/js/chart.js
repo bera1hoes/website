@@ -57,6 +57,7 @@ function buildChart(data) {
 
   const { A, B, r2, sigma } = computeFit(data);
 
+  annotateSandbag();  // flag under-performers vs history (no-op without a profile)
   buildPivotTable(data);
   buildPlayerTable(data);
   setStats(A, B, r2);

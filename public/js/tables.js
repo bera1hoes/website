@@ -4,19 +4,22 @@ let playerTableData = [];
 let playerSortCol = 'rank';
 let playerSortDir = 'asc';
 let playerFilter = '';
-const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'customFitDiff', 'gwPoints']);
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'histDelta', 'customFitDiff', 'gwPoints', 'projGwPoints']);
 
 // ── Column visibility ───────────────────────────────────────────────────────
 // Columns the user can hide via the "Columns" menu (Rank/Nick/Score stay on as
 // the identity columns). `hiddenCols` persists across sheet switches.
-const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'customFitDiff', 'gwPoints'];
+const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'histDelta', 'customFitDiff', 'gwPoints', 'projGwPoints'];
 let hiddenCols = new Set();
 
 // Whether a column is structurally present right now (independent of the user's
-// hide choice): custom fit and GW points only exist in some states.
+// hide choice): custom fit, GW points, history, and projected GW points only exist
+// in some states.
 function colApplicable(col) {
   if (col === 'customFitDiff') return custom.A !== null;
   if (col === 'gwPoints')      return currentContentType === 'Guild Wars';
+  if (col === 'histDelta')     return !!(currentData && currentData.some(d => d.histDelta != null));
+  if (col === 'projGwPoints')  return currentContentType === 'Guild Wars' && !!(currentData && currentData.some(d => d.projGwPoints != null));
   return true;
 }
 
@@ -226,11 +229,16 @@ function renderPlayerTable() {
   // inline display:none mirrors a user-hidden column without a second DOM pass.
   const td = (col, extra, content) =>
     `<td data-col="${col}" style="${hiddenCols.has(col) ? 'display:none;' : ''}${extra}">${content}</td>`;
+  const histApplies = colApplicable('histDelta');
+  const projGwApplies = colApplicable('projGwPoints');
   rows.forEach(d => {
     const color = getColor(d, 'guild');
     const tr = document.createElement('tr');
-    // Mirror the chart's player-search dim: emphasise matching rows here.
-    if (searchQuery && d.nick.toLowerCase().includes(searchQuery)) tr.className = 'search-hit';
+    // Mirror the chart's player-search dim; flag likely sandbaggers with a row tint.
+    const cls = [];
+    if (searchQuery && d.nick.toLowerCase().includes(searchQuery)) cls.push('search-hit');
+    if (d.sandbag) cls.push('sandbag-row');
+    if (cls.length) tr.className = cls.join(' ');
     const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
     const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
     let html =
@@ -244,11 +252,36 @@ function renderPlayerTable() {
       td('cp', 'text-align:right', d.cpShort + (hasHistory ? fmtPct(d.dCpPct) : '')) +
       td('score', 'text-align:right', d.scoreShort + (hasHistory ? fmtPct(d.dScorePct) : '')) +
       td('fitDiff', `text-align:right;color:${fitDiffColor(d.fitDiff)}`, fitDiffText(d.fitDiff));
+    if (histApplies)
+      html += td('histDelta', `text-align:right;color:${histDeltaColor(d)}`, histDeltaText(d));
     if (custom.A !== null)
       html += td('customFitDiff', `text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}`, d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—');
     if (currentContentType === 'Guild Wars')
       html += td('gwPoints', 'text-align:right', d.gwPoints ? d.gwPoints.toLocaleString() : '—');
+    if (projGwApplies)
+      html += td('projGwPoints', 'text-align:right', projGwText(d));
     tr.innerHTML = html;
     tbody.appendChild(tr);
   });
+}
+
+// "vs History" cell: how this week's performance compares to the player's recency-
+// weighted norm. Sandbaggers (notably below) get a ⚠ and red; absent history → —.
+function histDeltaColor(d) {
+  if (d.histDelta == null) return 'var(--text-dim)';
+  if (d.sandbag) return '#f87171';
+  return d.histDelta >= 0 ? '#4ade80' : '#facc15';
+}
+function histDeltaText(d) {
+  if (d.histDelta == null) return '—';
+  return (d.sandbag ? '⚠ ' : '') + (d.histDelta > 0 ? '+' : '') + d.histDelta.toFixed(1) + '%';
+}
+
+// "Proj GW Pts" cell: projected GW points after absentees are inserted, with the
+// signed change vs the player's actual points alongside.
+function projGwText(d) {
+  if (d.projGwPoints == null) return '—';
+  const delta = d.projGwPoints - (d.gwPoints || 0);
+  const tag = delta ? ` <span style="color:${delta > 0 ? '#4ade80' : '#f87171'}">(${delta > 0 ? '+' : ''}${delta.toLocaleString()})</span>` : '';
+  return d.projGwPoints.toLocaleString() + tag;
 }

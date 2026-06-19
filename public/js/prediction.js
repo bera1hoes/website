@@ -35,6 +35,13 @@ let lastWeekFor = null;   // "contentType sheet" the lastWeekPerf was built for
 // can re-render without recomputing the missing-member diff.
 let lastPrediction = null;       // { guilds, missingByGuild, isGW }
 let missingFlat = [];            // flattened missing rows backing the override inputs
+let missingSortCol = 'final';    // absentees-table sort (like the player table)
+let missingSortDir = 'desc';
+let projAbsentGwPoints = {};     // nick -> projected GW points for absent members (GW only)
+
+// A participant flagged as a likely sandbagger when this week's performance is at
+// least this fraction below their historical norm (see annotateSandbag).
+const SANDBAG_THRESHOLD = 0.20;  // 20% below history
 
 // ── Manual per-player overrides (persisted) ──────────────────────────────────
 // { "<nick>": <pct> } in localStorage, keyed by nick globally (a player's tendency
@@ -164,6 +171,9 @@ function ensureAdjustData() {
       sheetPerf = perfOf(data);
       if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
       perfCache[currentContentType][currentSheet] = sheetPerf;
+      // Now that we have history, flag sandbaggers in the player table.
+      annotateSandbag();
+      if (typeof renderPlayerTable === 'function') renderPlayerTable();
     });
   }
   if (adjustMode === 'lastweek') {
@@ -237,13 +247,29 @@ function computeAndRender() {
 }
 
 // Recompute aggregates from the cached missing-member diff and re-render both tables
-// (used after an override edit, mode change, or toggle).
+// (used after an override edit, mode change, or toggle). For Guild Wars it also
+// re-ranks the combined population once to give each participant + absentee their
+// projected GW points (shown in the player table and the absentees table).
 function renderAll() {
   if (!lastPrediction) { applyTableVisibility(); return; }
   const { guilds, missingByGuild, isGW } = lastPrediction;
-  const rows = isGW ? aggregateGwPoints(guilds, missingByGuild) : aggregateScore(guilds, missingByGuild);
+
+  let rows, proj = null;
+  if (isGW) {
+    proj = computeGwProjection(guilds, missingByGuild);
+    projAbsentGwPoints = proj.absentByNick;
+    currentData.forEach(d => { d.projGwPoints = proj.partByNick[d.nick]; });
+    rows = aggregateGwPoints(guilds, missingByGuild, proj);
+    if (typeof renderPlayerTable === 'function') renderPlayerTable();  // show Proj GW Pts
+  } else {
+    projAbsentGwPoints = {};
+    currentData.forEach(d => { delete d.projGwPoints; });
+    rows = aggregateScore(guilds, missingByGuild);
+  }
+
   renderPredictionTable(rows, isGW);
-  renderMissingTable(missingByGuild);
+  buildMissingFlat(missingByGuild, isGW);
+  renderMissingRows();
   applyTableVisibility();
 }
 
@@ -298,34 +324,61 @@ function aggregateScore(guilds, missingByGuild) {
   return rankRows(rows, r => r.current, r => r.total);
 }
 
-// GW-points aggregation: rebuild the ranking over the combined population
-// (participants with real scores + missing members with projected scores),
-// assign ranks 1..N, map rank→points via GW_POINTS_DATA, and sum per guild.
-// Approximation: real GW ranking spans the whole league including guilds we
-// have no roster for — this re-ranks only the guilds present in the sheet.
-function aggregateGwPoints(guilds, missingByGuild) {
+// Re-rank the combined population (participants with real scores + missing members
+// with projected scores), assign ranks 1..N, map rank→points via GW_POINTS_DATA, and
+// return per-guild totals plus per-player points (split into participants vs absentees).
+// Approximation: real GW ranking spans the whole league including guilds we have no
+// roster for — this re-ranks only the guilds present in the sheet.
+function computeGwProjection(guilds, missingByGuild) {
   const gwMap = parseGWPoints(GW_POINTS_DATA);
   const pointsFor = rank => gwMap.get(String(rank)) || 0;
 
-  const current = {};
-  currentData.forEach(d => { current[d.guild] = (current[d.guild] || 0) + (d.gwPoints || 0); });
-
-  // Combined population sorted by score; missing members get a projected score.
   const pop = [];
-  currentData.forEach(d => pop.push({ guild: d.guild, score: d.score || 0 }));
+  currentData.forEach(d => pop.push({ nick: d.nick, guild: d.guild, score: d.score || 0, absent: false }));
   guilds.forEach(guild => missingByGuild[guild].forEach(
-    m => pop.push({ guild, score: projectMemberScore(m) })));
+    m => pop.push({ nick: m.nick, guild, score: projectMemberScore(m), absent: true })));
   pop.sort((a, b) => b.score - a.score);
 
-  const projected = {};
-  pop.forEach((p, i) => { projected[p.guild] = (projected[p.guild] || 0) + pointsFor(i + 1); });
+  const guildPoints = {}, partByNick = {}, absentByNick = {};
+  pop.forEach((p, i) => {
+    const pts = pointsFor(i + 1);
+    guildPoints[p.guild] = (guildPoints[p.guild] || 0) + pts;
+    if (p.absent) absentByNick[p.nick] = pts; else partByNick[p.nick] = pts;
+  });
+  return { guildPoints, partByNick, absentByNick };
+}
+
+// GW-points aggregation: per-guild current vs projected GW points. `proj` is the
+// computeGwProjection result (computed once in renderAll); recomputed if omitted.
+function aggregateGwPoints(guilds, missingByGuild, proj) {
+  const current = {};
+  currentData.forEach(d => { current[d.guild] = (current[d.guild] || 0) + (d.gwPoints || 0); });
+  const guildPoints = (proj || computeGwProjection(guilds, missingByGuild)).guildPoints;
 
   const rows = guilds.map(guild => {
     const cur = current[guild] || 0;
-    const tot = projected[guild] || 0;
+    const tot = guildPoints[guild] || 0;
     return { guild, current: cur, missingCount: missingByGuild[guild].length, added: tot - cur, total: tot };
   });
   return rankRows(rows, r => r.current, r => r.total);
+}
+
+// Flag participants whose THIS-week performance is notably below their historical
+// norm (likely sandbaggers). Compares each player's current ratio score/(A·cp^B)
+// against their recency-weighted history factor (sheetPerf, built from prior weeks).
+// Annotates currentData with d.histDelta (% vs their norm) and d.sandbag. No-op
+// until a history profile exists for the sheet (sheetPerf, via History mode).
+function annotateSandbag() {
+  if (!currentData) return;
+  currentData.forEach(d => { delete d.histDelta; delete d.sandbag; });
+  if (!sheetPerf || activeFit.A == null) return;
+  currentData.forEach(d => {
+    const hist = sheetPerf[d.nick];
+    if (typeof hist !== 'number' || !(hist > 0) || !(d.cp > 0) || !(d.score > 0)) return;
+    const cur = d.score / (activeFit.A * Math.pow(d.cp, activeFit.B));
+    d.histDelta = (cur / hist - 1) * 100;
+    d.sandbag = d.histDelta <= -SANDBAG_THRESHOLD * 100;
+  });
 }
 
 // Sort by projected total desc and annotate each row with Δ rank (current rank
@@ -388,43 +441,77 @@ function factorText(factor, source) {
   return `<span class="wp-pill">${source}</span> <span style="color:${color}">${sign}${pct.toFixed(0)}%</span>`;
 }
 
-function renderMissingTable(missingByGuild) {
-  const section = document.getElementById('missing-players-section');
-  if (!section) return;
-  const tbody = document.getElementById('missing-body');
-  tbody.innerHTML = '';
-
-  // Flatten + project; sort by guild then projected desc. missingFlat backs the
-  // override inputs (data-idx), avoiding any name-in-attribute escaping concerns.
+// Flatten the missing-member diff into missingFlat (the rows backing the table +
+// the override inputs, addressed by a stable _idx so sorting can't desync them).
+function buildMissingFlat(missingByGuild, isGW) {
   missingFlat = [];
   Object.keys(missingByGuild).forEach(guild => {
     missingByGuild[guild].forEach(m => {
       const p = projectMember(m);
-      missingFlat.push({ nick: m.nick, cp: m.cp, cls: m.cls, guild, ...p });
+      const projGw = isGW ? (projAbsentGwPoints[m.nick] || 0) : null;
+      missingFlat.push({ _idx: missingFlat.length, nick: m.nick, cp: m.cp, cls: m.cls, guild, projGw, ...p });
     });
   });
-  missingFlat.sort((a, b) => a.guild === b.guild ? b.final - a.final : a.guild.localeCompare(b.guild));
+}
 
+const MISSING_NUMERIC = new Set(['cp', 'base', 'factor', 'overridePct', 'final', 'projGw']);
+
+// Sortable headers (onclick in the markup), mirroring the player table's behavior.
+function sortMissingBy(col) {
+  if (missingSortCol === col) missingSortDir = missingSortDir === 'asc' ? 'desc' : 'asc';
+  else { missingSortCol = col; missingSortDir = MISSING_NUMERIC.has(col) ? 'desc' : 'asc'; }
+  renderMissingRows();
+}
+
+function renderMissingRows() {
+  const tbody = document.getElementById('missing-body');
+  if (!tbody) return;
+  const isGW = !!(lastPrediction && lastPrediction.isGW);
+
+  // GW-points column shows only for Guild Wars.
+  const gwTh = document.getElementById('missing-th-gwpoints');
+  if (gwTh) gwTh.style.display = isGW ? '' : 'none';
+
+  // Sort-icon + aria state on the headers.
+  document.querySelectorAll('#missing-table thead th.sortable').forEach(th => {
+    const icon = th.querySelector('.sort-icon'); if (!icon) return;
+    const active = th.dataset.col === missingSortCol;
+    icon.textContent = active ? (missingSortDir === 'asc' ? '↑' : '↓') : '↕';
+    icon.className = 'sort-icon' + (active ? ' active' : '');
+    th.setAttribute('aria-sort', active ? (missingSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+  });
+
+  const cols = 7 + (isGW ? 1 : 0);
   if (!missingFlat.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#6b7280">' +
+    tbody.innerHTML = '<tr><td colspan="' + cols + '" style="text-align:center;color:#6b7280">' +
       'No absent members — everyone in the rosters participated (or no rosters loaded).</td></tr>';
     return;
   }
 
-  missingFlat.forEach((row, idx) => {
+  const col = missingSortCol, dir = missingSortDir, num = MISSING_NUMERIC.has(col);
+  const val = r => num ? (Number(r[col]) || 0) : String(r[col] == null ? '' : r[col]);
+  const sorted = [...missingFlat].sort((a, b) => {
+    const cmp = num ? (val(a) - val(b)) : String(val(a)).localeCompare(String(val(b)));
+    return dir === 'asc' ? cmp : -cmp;
+  });
+
+  tbody.innerHTML = '';
+  sorted.forEach(row => {
     const color = GUILD_COLORS[row.guild] || GUILD_COLORS['default'];
     const nickHref = 'https://mapleidle.gg/characters/bera/' + encodeURIComponent(row.nick);
     const ovrVal = row.overridePct == null ? '' : row.overridePct;
     const tr = document.createElement('tr');
-    tr.innerHTML =
+    let html =
       `<td><span class="p-swatch" style="background:${color}"></span>` +
         `<a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(row.guild)}" target="_blank" rel="noopener">${row.guild}</a></td>` +
       `<td><a class="tlink" href="${nickHref}" target="_blank" rel="noopener">${row.nick}</a></td>` +
       `<td style="text-align:right">${toGamingNotation(row.cp)}</td>` +
       `<td style="text-align:right">${fmtScore(row.base)}</td>` +
       `<td style="text-align:right">${factorText(row.factor, row.source)}</td>` +
-      `<td style="text-align:center"><input class="wp-ovr" type="number" step="5" value="${ovrVal}" placeholder="0" data-idx="${idx}" onchange="onOverrideInput(this)" aria-label="Override % for ${row.nick}"></td>` +
-      `<td style="text-align:right"><strong>${fmtScore(row.final)}</strong></td>`;
+      `<td style="text-align:center"><input class="wp-ovr" type="number" step="5" value="${ovrVal}" placeholder="0" data-idx="${row._idx}" onchange="onOverrideInput(this)" aria-label="Override % for ${row.nick}"></td>`;
+    if (isGW) html += `<td style="text-align:right">${row.projGw != null ? Math.round(row.projGw).toLocaleString() : '—'}</td>`;
+    html += `<td style="text-align:right"><strong>${fmtScore(row.final)}</strong></td>`;
+    tr.innerHTML = html;
     tbody.appendChild(tr);
   });
 }
@@ -463,6 +550,8 @@ function clearPrediction() {
   missingFlat = [];
   lastWeekPerf = null;
   lastWeekFor = null;
+  projAbsentGwPoints = {};
+  if (currentData) currentData.forEach(d => { delete d.projGwPoints; });
   applyTableVisibility();
   const tbody = document.getElementById('prediction-body');
   if (tbody) tbody.innerHTML = '';
