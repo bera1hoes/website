@@ -1,21 +1,20 @@
 // ── Environment detection + data fetching ──────────────────────────────────
-// Chart data comes from Google Sheets via the Apps Script JSON API (Code.gs),
-// reached through a same-origin Cloudflare Worker proxy (worker.js) to avoid
-// CORS. The real Apps Script /exec URL lives in worker.js, not here.
-const API_URL = '/api';  // same-origin proxy; see worker.js
+// Chart data lives in Cloudflare Workers KV and is served by the same-origin
+// Worker (worker.js) at /api. SwissKnife feeds KV via POST /chart; there is no
+// Google in the loop.
+const API_URL = '/api';  // same-origin Worker; see worker.js
 
-const HAS_GAS = typeof google !== 'undefined' && !!google.script;
 // Local sample-data mode: file:// or a localhost dev server, with no remote API.
-const IS_LOCAL = !HAS_GAS && (
+const IS_LOCAL = (
   !API_URL ||
   location.protocol === 'file:' ||
   location.hostname === 'localhost' ||
   location.hostname === '127.0.0.1'
 );
-// Remote mode: static page (Cloudflare) fetching JSON from the Apps Script API.
-const IS_REMOTE = !HAS_GAS && !IS_LOCAL;
+// Remote mode: static page (Cloudflare) fetching JSON from the Worker's /api.
+const IS_REMOTE = !IS_LOCAL;
 
-// Read-only GET wrapper for the Apps Script JSON API (remote mode).
+// Read-only GET wrapper for the Worker's /api (remote mode).
 // Aborts after a timeout so a hung request can't leave the UI stuck on "Loading…".
 const API_TIMEOUT_MS = 15000;
 
@@ -25,8 +24,8 @@ function apiCall(action, params) {
   const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
   return fetch(API_URL + '?' + qs.toString(), { signal: ctrl.signal }).then(r => {
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    // The Worker fetches the spreadsheet's modified timestamp to validate its
-    // edge cache and attaches it to every response — read it here instead of
+    // The Worker stamps each names record with an `updated` time at upload and
+    // attaches it as x-last-updated on every response — read it here instead of
     // making a separate getLastUpdated call.
     const ts = r.headers.get('x-last-updated');
     if (ts && params && params.contentType) noteLastUpdated(params.contentType, ts);
@@ -138,18 +137,15 @@ function loadContentType(type) {
       const onNamesErr = function(err) {
         showLoadError('Error: ' + err.message, function() { loadContentType(type); });
       };
-      if (HAS_GAS) {
-        google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
-      } else {
-        apiCall('getSheetNames', { contentType: type }).then(onNames).catch(onNamesErr);
-      }
+      apiCall('getSheetNames', { contentType: type }).then(onNames).catch(onNamesErr);
     }
 
+    // "Last updated" rides the x-last-updated header on the getSheetNames
+    // response (noteLastUpdated in apiCall) — no separate fetch needed.
     if (lastUpdatedCache[type]) {
       applyLastUpdated(lastUpdatedCache[type]);
     } else {
       document.getElementById('updated-ctrl').style.display = 'none';
-      fetchLastUpdated(type);
     }
   }
 }
@@ -157,18 +153,6 @@ function loadContentType(type) {
 function noteLastUpdated(type, iso) {
   lastUpdatedCache[type] = iso;
   if (type === currentContentType) applyLastUpdated(iso);
-}
-
-// HAS_GAS only — in remote mode the Worker attaches x-last-updated to every
-// /api response (it fetches the timestamp anyway to validate its cache; see
-// apiCall), so the client never requests getLastUpdated itself.
-function fetchLastUpdated(type) {
-  if (!HAS_GAS) return;
-  const onUpdated = function(iso) { noteLastUpdated(type, iso); };
-  // "Last updated" is non-critical metadata: on failure, log it and leave
-  // the control as-is rather than blocking the chart.
-  const onUpdatedErr = function(err) { console.warn('getLastUpdated failed:', err); };
-  google.script.run.withSuccessHandler(onUpdated).withFailureHandler(onUpdatedErr).getLastUpdated(type);
 }
 
 // Re-fetch the sheet list past the cache (Reload path) and rebuild the dropdown.
@@ -210,11 +194,7 @@ function refreshSheetNames(type, loadLatest) {
       loadSheet(currentSheet, true);
     }
   };
-  if (HAS_GAS) {
-    google.script.run.withSuccessHandler(onNames).withFailureHandler(onNamesErr).getSheetNames(type);
-  } else {
-    apiCall('getSheetNames', { contentType: type, bust: 1 }).then(onNames).catch(onNamesErr);
-  }
+  apiCall('getSheetNames', { contentType: type }).then(onNames).catch(onNamesErr);
 }
 
 function applySheetNames(names) {
@@ -242,8 +222,9 @@ function applyLastUpdated(iso) {
 
 // ── Load a sheet ───────────────────────────────────────────────────────────
 
-// `bust` (Reload path) is forwarded to the Worker so it refetches from Apps
-// Script and overwrites the KV entry instead of serving the stored copy.
+// `bust` (Reload path) drops the in-memory cache for this sheet (done by the
+// caller) and re-reads /api. KV is no-store, so the re-read is always fresh —
+// the Worker needs no bust signal.
 function loadSheet(name, bust) {
   currentSheet = name;
   updateDeepLink();
@@ -280,13 +261,7 @@ function loadSheet(name, bust) {
   const onDataErr = function(err) {
     showLoadError('Error: ' + err.message, function() { loadSheet(name); });
   };
-  if (HAS_GAS) {
-    google.script.run.withSuccessHandler(onData).withFailureHandler(onDataErr).getData(currentContentType, name);
-  } else {
-    const params = { contentType: currentContentType, sheet: name };
-    if (bust) params.bust = 1;
-    apiCall('getData', params).then(onData).catch(onDataErr);
-  }
+  apiCall('getData', { contentType: currentContentType, sheet: name }).then(onData).catch(onDataErr);
 }
 
 function updateReloadButton(name) {
@@ -301,9 +276,9 @@ function reloadSheet() {
   // Names-first: refresh the sheet list, then load whatever is now the latest
   // sheet. A newly-published date is shown (not just added to the dropdown),
   // and when there's no new date this falls through to refetching the current
-  // (latest) sheet — the only one Reload is offered on.
+  // (latest) sheet — the only one Reload is offered on. The refreshed
+  // getSheetNames response carries x-last-updated, refreshing the timestamp too.
   refreshSheetNames(currentContentType, true);
-  fetchLastUpdated(currentContentType);
   startReloadCooldown();
 }
 

@@ -24,7 +24,3 @@ _codecheck.js
 
 # Local secrets — never commit
 .dev.vars
-
-# clasp (Apps Script deploy) — OAuth token + local project link
-.clasprc.json
-.clasp.json

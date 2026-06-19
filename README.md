@@ -1,42 +1,42 @@
 # hoes.fyi
 
 Maplestory guild content visualizer — CP vs Score scatter plot with a power-law
-regression fit. Supports Guild Wars, Guild Boss Battle, Global GBB, and Guild
-Conquest data synced from private Google Sheets into Cloudflare Workers KV, plus
+regression fit. Supports Guild Wars, Guild Boss Battle, Global GBB, Guild
+Conquest, and Guild Training Ground data stored in Cloudflare Workers KV, plus
 an **Arena** player lookup tool.
 
 ## Architecture
 
 ```
-Cloudflare Worker (worker.js)               Workers KV (CHART_DATA)        Apps Script (Code.gs)
-  public/index.html  — (s)hoes landing  ─┐
-  public/Charts.html — chart app (/charts)│   /api reads chart data   ◄── fills/refreshes on a KV
-  public/Arena.html  — arena tool (/arena)├─►  from Workers KV             miss or Reload, from the
-  public/js/, css/, SampleData/  (assets) │                                GET-only JSON API
-                                          ┘                                (spreadsheet IDs stay server-side)
+Cloudflare Worker (worker.js)               Workers KV (CHART_DATA)        SwissKnife (mitmproxy)
+  public/index.html  — (s)hoes landing  ─┐                                  captures guild-content
+  public/Charts.html — chart app (/charts)│   /api reads chart data   ◄──   rankings from game traffic
+  public/Arena.html  — arena tool (/arena)├─►  from Workers KV               and POSTs them to /chart
+  public/js/, css/, SampleData/  (assets) │                                  (+ writes a local CSV backup)
+                                          ┘
 ```
 
 The front-end is a **fully static site** (`public/`) served by a Cloudflare
-Worker whose `assets` binding publishes the whole `public/` tree. The Worker also
+Worker whose `assets` binding publishes the whole `public/` tree. Chart data
+lives entirely in **Workers KV** — there is no Google in the loop. The Worker
 routes a few same-origin paths:
 
-- `/api?action=...` → **Workers KV** (binding `CHART_DATA`). Chart data is served
-  from KV, not Google. A missing key lazily fills from Apps Script `/exec`
-  (server-side, so no browser CORS), and `?bust=1` (Reload) refetches from Apps
-  Script and overwrites the key. KV *is* the cache — there's no edge-cache layer
-  in front of it, and responses are `no-store`.
+- `/api?action=...` → reads chart data from **Workers KV** (binding `CHART_DATA`).
+  KV is the source of truth; responses are `no-store` (no edge-cache layer). A
+  missing key returns an empty result rather than erroring.
+- `/chart` (**POST**) → ingestion endpoint. SwissKnife uploads captured rankings
+  here; guarded by the `CHART_WRITE_KEY` secret. Writes `data:<type>:<date>` and
+  upserts the date into `names:<type>`.
+- `/guild` → guild-roster KV store (binding `ROSTERS`) for the Win Prediction
+  feature, also fed by SwissKnife.
 - `/charts` → `Charts.html`, `/arena` → `Arena.html`
 - `/userinfo` + `/userinfo/suggest` → a separate UserInfo Worker (Arena lookups)
-- `/admin/seed?key=<SEED_KEY>` → one-time KV seed / on-demand resync from Apps Script
 - everything else → `public/` assets (`/` serves `index.html`)
 
-`Code.gs` is a thin **read-only, GET-only JSON API** over the private Sheets —
-it no longer serves any HTML. No build step, no bundler.
-
-The chart JavaScript lives in `public/js/` as plain (non-module) `<script src>`
-files that share one global scope, loaded in a fixed order (d3 → … → `main.js`
-last). See `CLAUDE.md` for the per-file responsibilities, and `API.md` for the
-`/api` action surface.
+No build step, no bundler. The chart JavaScript lives in `public/js/` as plain
+(non-module) `<script src>` files that share one global scope, loaded in a fixed
+order (d3 → … → `main.js` last). See `CLAUDE.md` for the per-file
+responsibilities and the KV key shapes.
 
 ## Local development
 
@@ -50,46 +50,52 @@ from `public/`) — opening files as `file://` blocks the `js/*.js` and sample-d
 3. Pick a content type from the toggle to render it (the page no longer
    auto-loads Guild Wars on open).
 4. To add new sample data, add a key to `GW_LOCAL_DATA` in
-   `SampleData/GWLocalData.js` (or the equivalent for GBB / Global GBB / Guild
-   Conquest). Never upload the `SampleData/*` files to Apps Script.
+   `SampleData/GWLocalData.js` (or the equivalent for the other content types).
+
+## Data ingestion (how chart data gets in)
+
+Chart data is captured locally by the **SwissKnife** mitmproxy addon
+(`nexon_analyzer`), which reads guild-content ranking responses out of the game
+traffic. For each capture it:
+
+1. Writes a per-week, per-content-type CSV backup to its `backups/` directory
+   (`<mode>_<MM-DD-YYYY>.csv`), the durable local record.
+2. **Pushes** the rows to the Worker's `POST /chart` with an
+   `Authorization: Bearer <CHART_WRITE_KEY>` header (and a real-browser
+   User-Agent, since the site is behind Cloudflare Bot Fight Mode). The Worker
+   normalizes the rows and stores them in KV.
+
+An optional **direct Google Sheets upload** remains available in SwissKnife as a
+secondary safety backup (its own OAuth creds) — the site does not read it.
+
+KV key shapes:
+
+- `names:<type>` → `{ updated: <ISO>, sheets: ["MM-DD-YYYY", …] }` (newest-first)
+- `data:<type>:<sheet>` → bare array of `{ rank, nick, score, cls, level, cp, guild, scoreShort, cpShort }`
+
+The `type` must be one of the `CONTENT_TYPES` in `worker.js` (mirrored by
+SwissKnife's mode → content-type map in `guild_wars.py`).
 
 ## Run your own copy
 
-To host this against your own data, you need your own Google Sheet(s), your own
-Apps Script deployment, and your own Cloudflare Worker. Nothing in the repo is
-tied to `hoes.fyi` except the values below, which you replace.
+To host this against your own data you need a Cloudflare Worker and the SwissKnife
+capture tool. Nothing in the repo is tied to `hoes.fyi` except the values below.
 
-**1. Set up your Sheets.** Create one spreadsheet per content type you want. In
-each, add one tab **per export, named `MM-DD-YYYY`** (e.g. `05-18-2026`) — the
-API only lists tabs matching that pattern, newest first. Each tab is
-tab-separated with this header row:
-
-```
-Rank   Nick   Score   Class   Level   CP   GuildName   ScoreShort   CP Short
-```
-
-Rows with an empty `CP` or `Score` are skipped. CP may be in scientific notation
-(`1.90229E+15`) — that's handled. The GW Points pivot/column only appear for the
-content type literally named `Guild Wars`.
-
-**2. Point `Code.gs` at your sheets.** Edit `CONTENT_SOURCES` at the top of
-`Code.gs`, replacing each `SpreadsheetApp.openById('…')` with your own
-spreadsheet ID. Add or remove entries to match the content types you want. These
-IDs stay server-side and are never exposed to the browser.
-
-**3. Add/remove a content type** (if you want different ones than the defaults) —
-follow the checklist in `CLAUDE.md` → *Adding a New Content Type*: an entry in
-`CONTENT_SOURCES`, a toggle button in `public/Charts.html`, a case in
-`getLocalData()` in `public/js/data.js`, a `SampleData/<Name>LocalData.js` file,
-and a line in the local boot sequence in `public/js/main.js`.
-
-**4. Configure the Worker.** Set `APPS_SCRIPT_URL` in `worker.js` to your own
-Apps Script `/exec` URL, and rename `name` in `wrangler.jsonc` to your Worker's
-name. Create a KV namespace — `wrangler kv namespace create CHART_DATA` (plus
+**1. Configure the Worker.** Rename `name` in `wrangler.jsonc` to your Worker's
+name. Create the KV namespace — `wrangler kv namespace create CHART_DATA` (plus
 `--preview` for local dev) — and put the returned IDs under `kv_namespaces` in
-`wrangler.jsonc`. Then deploy as below. KV self-fills from Apps Script on first
-request; to pre-warm it, set the `SEED_KEY` secret (`wrangler secret put SEED_KEY`)
-and hit `/admin/seed?key=<SEED_KEY>`.
+`wrangler.jsonc`. Deploy with `npm run deploy:cf`, then set the ingestion secret:
+`wrangler secret put CHART_WRITE_KEY`.
+
+**2. Add/remove a content type** — follow the checklist in `CLAUDE.md` →
+*Adding a New Content Type*: an entry in `CONTENT_TYPES` (`worker.js`), the
+matching mode in `guild_wars.py`, a toggle button in `public/Charts.html`, a case
+in `getLocalData()` in `public/js/data.js`, a `SampleData/<Name>LocalData.js`
+file, and a line in the local boot sequence in `public/js/main.js`.
+
+**3. Point SwissKnife at the Worker.** In the addon's Settings, set the site URL
+(shared with the roster uploader) and the **Chart Write Key** to match
+`CHART_WRITE_KEY`. Capture rankings, then **Push to site** (or enable auto-push).
 
 **Arena is optional.** The `/arena` page depends on a *separate* UserInfo Worker
 (the `/userinfo` proxy route, the `USERINFO_WORKER` service binding in
@@ -99,55 +105,25 @@ repo. If you don't have one, the chart still works fully — just drop the
 
 ## Deployment
 
-Two independent targets:
+**Cloudflare Worker (static front-end + KV data API)** — the only deploy target:
 
-**Apps Script (data API)** — automated with [clasp](https://github.com/google/clasp)
-
-Once set up, every deploy is a single command:
-
-```
-npm run deploy:gas
-```
-
-This `clasp push`es `Code.gs`, then `clasp deploy`s to the **existing** web-app
-deployment (its id is read from the `/exec` URL in `worker.js`), so the
-`APPS_SCRIPT_URL` never changes. A strict `.claspignore` whitelists only
-`Code.gs` + `appsscript.json` — the HTML and `SampleData/*` files can never be
-uploaded. The web app stays *Execute as: Me* · *Who has access: **Anyone***
-(encoded in `appsscript.json`); it must be unauthenticated public, or the
-Worker's server-side fetch gets a Google login page instead of JSON.
-
-One-time setup:
-
-1. `npm install`
-2. Enable the Apps Script API at <https://script.google.com/home/usersettings>.
-3. `npm run gas:login`
-4. Create `.clasp.json` (git-ignored): `{ "scriptId": "<your script id>", "rootDir": "." }`
-   — the Script ID is in the Apps Script editor under ⚙ Project Settings.
-
-If you ever mint a *brand-new* deployment (new `/exec` URL), paste it into
-`APPS_SCRIPT_URL` in `worker.js`; the deploy script picks up the new id from there.
-
-**Cloudflare Worker (static front-end + KV data API)**
-1. Deploy with `wrangler` — `wrangler.jsonc` binds `main: worker.js`,
-   `assets.directory: ./public` (publishing the whole `public/` tree), and the
-   `CHART_DATA` KV namespace.
-2. Seed/pre-warm KV with `/admin/seed?key=<SEED_KEY>` (or rely on lazy first-fill).
+1. `npm run deploy:cf` (`wrangler deploy`) — `wrangler.jsonc` binds
+   `main: worker.js`, `assets.directory: ./public` (publishing the whole
+   `public/` tree), and the `CHART_DATA` + `ROSTERS` KV namespaces.
+2. Set the `CHART_WRITE_KEY` secret (chart ingestion) and `ROSTER_WRITE_KEY`
+   (roster ingestion) via `wrangler secret put`.
 3. The `/userinfo` route needs the `USERINFO_READ_KEY` secret and the
-   `USERINFO_WORKER` service binding configured for the Arena tool to work.
-
-Spreadsheet IDs live only in `Code.gs` (server-side). The only public exposure is
-the read-only `/exec` URL embedded in `worker.js`.
+   `USERINFO_WORKER` service binding for the Arena tool to work.
 
 ## Smoke test
 
 After deploying, hit these in order:
 
 ```
-https://hoes.fyi/api?action=getLastUpdated&contentType=Guild+Boss+Battle
+https://hoes.fyi/api?action=getSheetNames&contentType=Guild+Boss+Battle
 ```
-Should return a raw JSON ISO date. If it returns HTML, the Apps Script access
-setting is wrong.
+Should return a JSON array of `MM-DD-YYYY` date strings (empty `[]` if nothing
+has been uploaded for that type yet).
 
 ```
 https://hoes.fyi/charts
