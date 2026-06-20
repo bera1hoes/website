@@ -24,3 +24,7 @@ _codecheck.js
 
 # Local secrets — never commit
 .dev.vars
+
+# Fork setup wizard (per-fork; guild.config.json holds generated write keys)
+guild.config.json
+wrangler.fork.jsonc

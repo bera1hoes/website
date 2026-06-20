@@ -1,0 +1,34 @@
+// Template consumed by `npm run setup` (scripts/setup.mjs) to generate a fork's
+// own `wrangler.fork.jsonc`. The owner's committed `wrangler.jsonc` is never
+// touched; the wizard fills the __PLACEHOLDERS__ below and deploys the fork with
+// `wrangler deploy -c wrangler.fork.jsonc`.
+//
+// Differences from the owner's wrangler.jsonc, on purpose:
+//   - no `services` (USERINFO_WORKER): Arena is owner-only; worker.js now 404s
+//     /userinfo when the binding is absent, so a fork just omits it.
+//   - KV ids are per-account, so the wizard creates fresh namespaces and injects
+//     their ids here (the owner's ids would fail to bind in another account).
+//   - secrets (CHART_WRITE_KEY / ROSTER_WRITE_KEY) are set via `wrangler secret
+//     put`, never stored in this file.
+{
+  "name": "__WORKER_NAME__",
+  "main": "worker.js",
+  "compatibility_date": "2025-05-30",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CHART_DATA",
+      "id": "__CHART_DATA_ID__",
+      "preview_id": "__CHART_DATA_PREVIEW_ID__"
+    },
+    // Guild rosters (POST /guild), read by Win Prediction. Drop this entry if you
+    // don't want the roster/Win-Prediction feature.
+    {
+      "binding": "ROSTERS",
+      "id": "__ROSTERS_ID__"
+    }
+  ]
+}
