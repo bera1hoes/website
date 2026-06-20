@@ -456,6 +456,10 @@ export default {
     // Proxy /userinfo and /userinfo/suggest to the separate UserInfo Worker
     // (READ_KEY stored as Wrangler secret; forward the pathname so both routes work).
     if (url.pathname === '/userinfo' || url.pathname === '/userinfo/suggest') {
+      // Arena is owner-only. A fork omits the USERINFO_WORKER service binding, so
+      // the route simply doesn't exist there (404) rather than throwing when the
+      // binding is undefined. No effect on the owner's deploy (binding present).
+      if (!env.USERINFO_WORKER) return jsonError(404, 'Not found');
       if (!env.USERINFO_READ_KEY) {
         return new Response(JSON.stringify({ error: 'USERINFO_READ_KEY not configured' }), {
           status: 500,
