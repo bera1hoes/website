@@ -32,9 +32,14 @@ function getSheetRows(name) {
   if (cached) return Promise.resolve(cached);
   if (IS_LOCAL) return Promise.resolve(null);
   return apiCall('getData', { contentType: currentContentType, sheet: name }).then(json => {
-    const rows = typeof json === 'string' ? JSON.parse(json) : json;
+    const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+    const rows = rowsOf(parsed);
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = rows;
+    if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
+    rostersCache[currentContentType][name] = rostersOf(parsed);
+    if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
+    perfCache[currentContentType][name] = perfOf(parsed);
     return rows;
   });
 }
