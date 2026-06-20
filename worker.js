@@ -62,7 +62,17 @@ async function handleApi(url, env) {
   if (action === 'getData') {
     const sheet = params.get('sheet') || '';
     const stored = await env.CHART_DATA.get(dataKey(type, sheet));
-    return jsonResponse(stored || '[]');
+    if (!stored) return jsonResponse('[]');
+    // The client expects a bare rows array. Tolerate a legacy/defensive
+    // { rows: [...] } wrapper too, so a value stored in either shape always
+    // reads back as an array (never `data.map is not a function`).
+    let rows;
+    try {
+      const parsed = JSON.parse(stored);
+      rows = Array.isArray(parsed) ? parsed
+           : (parsed && Array.isArray(parsed.rows) ? parsed.rows : []);
+    } catch { rows = []; }
+    return jsonResponse(JSON.stringify(rows));
   }
 
   if (action === 'getLastUpdated') {
