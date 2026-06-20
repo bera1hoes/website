@@ -1,0 +1,14 @@
+{
+  "name": "shoes-website",
+  "private": true,
+  "description": "Cloudflare Worker + static front-end for the (s)hoes Maplestory charts. Browser Rendering powers the /guild roster proxy.",
+  "scripts": {
+    "deploy:cf": "wrangler deploy"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^1.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

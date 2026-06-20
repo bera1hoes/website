@@ -25,12 +25,12 @@ function prevSheetName() {
 }
 
 // Parsed rows for a sheet, from cache or a remote fetch. Local sheets are all
-// pre-parsed into localFiles up front; in legacy GAS mode we only use what's
-// already cached (no prefetch). Returns a Promise resolving to rows or null.
+// pre-parsed into localFiles up front (no remote prefetch). Returns a Promise
+// resolving to rows or null.
 function getSheetRows(name) {
   const cached = (localFiles[currentContentType] || {})[name];
   if (cached) return Promise.resolve(cached);
-  if (IS_LOCAL || HAS_GAS) return Promise.resolve(null);
+  if (IS_LOCAL) return Promise.resolve(null);
   return apiCall('getData', { contentType: currentContentType, sheet: name }).then(json => {
     const parsed = typeof json === 'string' ? JSON.parse(json) : json;
     const rows = rowsOf(parsed);
