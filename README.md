@@ -5,6 +5,80 @@ regression fit. Supports Guild Wars, Guild Boss Battle, Global GBB, Guild
 Conquest, and Guild Training Ground data stored in Cloudflare Workers KV, plus
 an **Arena** player lookup tool.
 
+## Chart features
+
+The chart app (`/charts`) plots every player as **CP vs Score** on log–log axes and
+fits a **power-law regression** to the cloud. The screenshots below use the bundled
+sample data.
+
+### Overview
+
+![Chart overview](docs/img/charts/01-overview.png)
+
+- **Content toggle** — switch between Guild Wars, Guild Boss Battle, Global GBB,
+  Guild Conquest, and Guild Training Ground.
+- **Sheet (date) picker / Reload / Last updated** — pick a captured week; *Reload*
+  re-reads the latest sheet from KV, and *Last updated* shows when that content
+  type was last ingested.
+- **Stats cards** — the fitted model: **R²** (goodness of fit), **exponent**, and
+  the full **equation** (`Score = a × CP^b`).
+- **Fit line + band** — the dashed power-law fit with a shaded **±1σ band (~68%)**,
+  so over- and under-performers are easy to spot.
+- **Zoom** — scroll to zoom into a region; a *Reset zoom* badge appears once zoomed.
+
+### Color modes & interactive legend
+
+![Color by class](docs/img/charts/02-color-class.png)
+
+Color points **by guild** or **by class**. The legend is interactive — click an
+entry to isolate/highlight that group. (`hoes` is always pink; other guilds get
+palette colors assigned alphabetically.)
+
+### Player info panel
+
+![Pinned player panel](docs/img/charts/03-player-panel.png)
+
+Hover a dot for its details; **click to pin** the panel. It shows rank, class,
+score, CP, guild, **vs Fit** (how far above/below the regression the player sits),
+and GW Points. **Find player** in the controls searches by name and jumps to the
+dot, and **🔗 Copy link** produces a deep link that restores the exact view
+(content type, sheet, color mode, highlights, pinned player).
+
+### Guild pivot table
+
+![Guild pivot table](docs/img/charts/04-pivot.png)
+
+Per-guild rollup — player count plus **total** and **average** GW Points (for
+Guild Wars) or Score (other content types), with an "All guilds" summary row.
+
+### Player data table
+
+![Player data table](docs/img/charts/05-player-table.png)
+
+Every player in a sortable, filterable table. Sort by any column, **filter** by
+name/guild/class, and pick visible columns from the **Columns ▾** menu. Includes
+**vs Fit**, optional **vs History** (this week vs the player's historical norm —
+flags likely sandbaggers), and GW Points.
+
+### Experiments panel
+
+![Experiments panel](docs/img/charts/06-experiments.png)
+
+Slide-out panel (the **Experiments** tab on the right edge) with analysis tools:
+
+- **Custom Fit Equation** — type your own `Score = a × CP^b` to overlay and compare
+  a *vs Custom* delta.
+- **CP Range Filter** — dual slider to restrict the dataset to a CP band, with a
+  *Smooth filtering* toggle for large datasets.
+- **Recalculate regression on filter** — refit the curve to just the filtered
+  range instead of the full cloud.
+- **Class-bias adjust** — correct *vs Fit* for systematic class differences (mages
+  tend to run low, Shadowers high).
+- **Win Prediction** — using guild rosters synced from mapleidle.gg (via
+  SwissKnife), projects absent members' scores from the fit and ranks guilds by
+  projected total, with a *Projected Absentees* breakdown. Needs live data
+  (remote mode).
+
 ## Architecture
 
 ```
