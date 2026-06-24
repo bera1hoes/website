@@ -81,14 +81,7 @@ Slide-out panel (the **Experiments** tab on the right edge) with analysis tools:
 
 ## Architecture
 
-```
-Cloudflare Worker (worker.js)               Workers KV (CHART_DATA)        SwissKnife (mitmproxy)
-  public/index.html  — (s)hoes landing  ─┐                                  captures guild-content
-  public/Charts.html — chart app (/charts)│   /api reads chart data   ◄──   rankings from game traffic
-  public/Arena.html  — arena tool (/arena)├─►  from Workers KV               and POSTs them to /chart
-  public/js/, css/, SampleData/  (assets) │                                  (+ writes a local CSV backup)
-                                          ┘
-```
+![Data architecture](docs/architecture.png)
 
 The front-end is a **fully static site** (`public/`) served by a Cloudflare
 Worker whose `assets` binding publishes the whole `public/` tree. Chart data
