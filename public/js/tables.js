@@ -293,10 +293,11 @@ function projGwText(d) {
 // ── Manual score overrides ("predict the final score") ──────────────────────
 // Some players intentionally submit low scores to hide their true total until
 // the last minute. Overriding a Score in the player table re-ranks the whole
-// dataset and re-points the GW Points table — but never refits the regression
-// baseline (the very tool used to spot the sandbaggers). Overrides are scoped to
-// the current sheet: switching sheets / Reload restores the originals snapshotted
-// on the first edit. See [[win-prediction-mapleidle]] for the related projection.
+// dataset, re-points the GW Points table, and refits the regression so the fit
+// line / stats / "vs Fit" reflect the predicted standings. Overrides are scoped
+// to the current sheet: switching sheets / Reload restores the originals
+// snapshotted on the first edit. See [[win-prediction-mapleidle]] for the related
+// projection.
 
 let scoreOverrides = {};      // nick -> overridden score (number)
 let overridesActive = false;  // true once a snapshot is taken (drives Clear button)
@@ -425,21 +426,20 @@ function clearScoreOverrides() {
   updateOverrideUI();
 }
 
-// Shared post-override refresh: recompute fit deviations against the *frozen*
-// baseline (no refit), refresh sandbag flags, move the dots, and rebuild the
-// pivot + player tables without disturbing the table's sort/filter.
+// Shared post-override refresh: refit the regression on the overridden scores so
+// the fit line, stats cards, and "vs Fit" follow the predicted standings; refresh
+// sandbag flags; move the dots; and rebuild the pivot + player tables without
+// disturbing the table's sort/filter. Clearing overrides runs this on the
+// restored scores, so the fit returns to its original baseline.
 function rerenderAfterOverride() {
-  // renderScatter below clears any active CP filter, so snap the shown fit back
-  // to the frozen baseline (a CP-filter regression experiment may have diverged
-  // activeFit/the stats cards from it).
-  activeFit.A = frozenFit.A; activeFit.B = frozenFit.B;
-  setStats(frozenFit.A, frozenFit.B, frozenFit.r2);
-  computeFitDiffs(currentData, frozenFit.A, frozenFit.B, frozenFit.classBias);
-  if (custom.A !== null) computeCustomFitDiffs(currentData);
+  // computeFit re-derives frozenFit/activeFit, the CP bounds, the class bias, and
+  // every row's fit (and custom-fit) deviation from the now-current scores.
+  const { A, B, r2, sigma } = computeFit(currentData);
+  setStats(A, B, r2);
   annotateSandbag();
   clearPrediction();           // a win-prediction built on the old scores is stale
   closePanel();                // do this while the old dots still exist
-  renderScatter(currentData, frozenFit.A, frozenFit.B, frozenFit.sigma);
+  renderScatter(currentData, A, B, sigma);
   if (selectedGroups.size || searchQuery) applyHighlights();
   buildPivotTable(currentData);
   playerTableData = currentData;
