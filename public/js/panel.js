@@ -10,7 +10,7 @@ function showPanel(cx, cy, d, pin) {
   document.getElementById('p-rank').textContent  = `RANK #${d.rank}`;
   document.getElementById('p-name').textContent  = d.nick;
   document.getElementById('p-cls').textContent   = d.cls;
-  document.getElementById('p-score').textContent = d.scoreShort;
+  document.getElementById('p-score').innerHTML = d.scoreShort + (d.scoreOverride ? '<span class="ovr-badge">✎</span>' : '');
   document.getElementById('p-cp').textContent    = d.cpShort;
   document.getElementById('p-guild').innerHTML   = `<span class="p-swatch" style="background:${GUILD_COLORS[d.guild] || GUILD_COLORS['default']}"></span>${d.guild}`;
   applyFitDiff(document.getElementById('p-fitdiff'), d.fitDiff);

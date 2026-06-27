@@ -250,7 +250,7 @@ function renderPlayerTable() {
       // Score/CP keep their own colour; the % change (when there's history)
       // rides alongside in green/red.
       td('cp', 'text-align:right', d.cpShort + (hasHistory ? fmtPct(d.dCpPct) : '')) +
-      td('score', 'text-align:right', d.scoreShort + (hasHistory ? fmtPct(d.dScorePct) : '')) +
+      scoreCellHtml(d) +
       td('fitDiff', `text-align:right;color:${fitDiffColor(d.fitDiff)}`, fitDiffText(d.fitDiff));
     if (histApplies)
       html += td('histDelta', `text-align:right;color:${histDeltaColor(d)}`, histDeltaText(d));
@@ -262,6 +262,10 @@ function renderPlayerTable() {
       html += td('projGwPoints', 'text-align:right', projGwText(d));
     tr.innerHTML = html;
     tbody.appendChild(tr);
+    // Click the Score cell to set a predicted value (closure over this row's d,
+    // so no nick-escaping into attributes is needed).
+    const scoreTd = tr.querySelector('td[data-col="score"]');
+    if (scoreTd) scoreTd.addEventListener('click', () => beginScoreEdit(scoreTd, d));
   });
 }
 
@@ -284,4 +288,175 @@ function projGwText(d) {
   const delta = d.projGwPoints - (d.gwPoints || 0);
   const tag = delta ? ` <span style="color:${delta > 0 ? '#4ade80' : '#f87171'}">(${delta > 0 ? '+' : ''}${delta.toLocaleString()})</span>` : '';
   return d.projGwPoints.toLocaleString() + tag;
+}
+
+// ── Manual score overrides ("predict the final score") ──────────────────────
+// Some players intentionally submit low scores to hide their true total until
+// the last minute. Overriding a Score in the player table re-ranks the whole
+// dataset and re-points the GW Points table — but never refits the regression
+// baseline (the very tool used to spot the sandbaggers). Overrides are scoped to
+// the current sheet: switching sheets / Reload restores the originals snapshotted
+// on the first edit. See [[win-prediction-mapleidle]] for the related projection.
+
+let scoreOverrides = {};      // nick -> overridden score (number)
+let overridesActive = false;  // true once a snapshot is taken (drives Clear button)
+
+// Build the Score cell — editable, and badged when overridden.
+function scoreCellHtml(d) {
+  const hidden = hiddenCols.has('score') ? 'display:none;' : '';
+  if (d.scoreOverride) {
+    const orig = d.scoreShortOrig != null ? d.scoreShortOrig : '?';
+    return `<td data-col="score" class="score-cell score-overridden" style="${hidden}text-align:right"` +
+           ` title="Manually set — original ${orig}. Click to change.">` +
+           `${d.scoreShort}<span class="ovr-badge">✎</span></td>`;
+  }
+  return `<td data-col="score" class="score-cell" style="${hidden}text-align:right"` +
+         ` title="Click to set a predicted score">` +
+         `${d.scoreShort}${hasHistory ? fmtPct(d.dScorePct) : ''}</td>`;
+}
+
+// Accepts a raw number ("1900000000"), scientific notation ("1.9e15"), or gaming
+// notation ("950B", "1.2T"). Returns NaN on anything unparseable.
+function parseScoreInput(str) {
+  str = String(str).trim().replace(/,/g, '');
+  if (!str) return NaN;
+  const m = str.match(/^([\d.]+(?:e[+-]?\d+)?)\s*(k|m|b|t)?$/i);
+  if (!m) return NaN;
+  const v = parseFloat(m[1]);
+  if (!isFinite(v)) return NaN;
+  const mult = { '': 1, k: 1e3, m: 1e6, b: 1e9, t: 1e12 }[(m[2] || '').toLowerCase()];
+  return v * mult;
+}
+
+// Turn a Score cell into an inline input. Enter / blur commits, Esc cancels.
+function beginScoreEdit(td, d) {
+  if (td.querySelector('input')) return;  // already editing this cell
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'score-input';
+  input.value = String(d.score);
+  input.setAttribute('aria-label', `Predicted score for ${d.nick}`);
+  input.placeholder = 'e.g. 1.9e15 or 950B';
+  td.textContent = '';
+  td.appendChild(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  const commit = () => {
+    if (done) return;
+    done = true;
+    const v = parseScoreInput(input.value);
+    if (isFinite(v) && v > 0) setScoreOverride(d, v);
+    else renderPlayerTable();  // invalid → restore the cell as-is
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')       { e.preventDefault(); commit(); }
+    else if (e.key === 'Escape') { e.preventDefault(); done = true; renderPlayerTable(); }
+  });
+  input.addEventListener('blur', commit);
+}
+
+// Snapshot the pristine score/rank for every row once, so Clear can restore the
+// exact original ranking (ties and all) rather than re-deriving it.
+function ensureOverrideSnapshot() {
+  if (overridesActive) return;
+  overridesActive = true;
+  currentData.forEach(d => {
+    d.scoreOrig = d.score;
+    d.rankOrig = d.rank;
+    d.scoreShortOrig = d.scoreShort;
+  });
+  updateOverrideUI();
+}
+
+// Re-derive rank from score (descending) across the whole dataset. Reuse the
+// original rank values in score order rather than 1..N, so the source's numbering
+// scheme (this data is 0-based — first place is rank 0) is preserved and the
+// rank→GW-points lookup stays aligned (total points awarded is conserved).
+function recomputeRanks(data) {
+  const ranks = data.map(d => (d.rankOrig != null ? d.rankOrig : d.rank)).sort((a, b) => a - b);
+  [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = ranks[i]; });
+}
+
+// Apply the override map onto the pristine snapshot, then re-rank + re-point.
+function applyScoreOverrides() {
+  currentData.forEach(d => {
+    if (scoreOverrides[d.nick] != null) {
+      d.score = scoreOverrides[d.nick];
+      d.scoreShort = toGamingNotation(d.score);
+      d.scoreOverride = true;
+    } else {
+      d.score = d.scoreOrig;
+      d.scoreShort = d.scoreShortOrig;
+      d.scoreOverride = false;
+    }
+  });
+  recomputeRanks(currentData);
+  joinGwPoints(currentData);   // GW Points follow the new ranking (Guild Wars only)
+}
+
+function setScoreOverride(d, value) {
+  ensureOverrideSnapshot();
+  if (value === d.scoreOrig) delete scoreOverrides[d.nick];
+  else                       scoreOverrides[d.nick] = value;
+  if (!Object.keys(scoreOverrides).length) { clearScoreOverrides(); return; }
+  applyScoreOverrides();
+  rerenderAfterOverride();
+}
+
+// Restore the snapshotted originals on `data` and drop the override markers.
+function restoreOriginals(data) {
+  data.forEach(d => {
+    if (d.scoreOrig !== undefined)      { d.score = d.scoreOrig;           delete d.scoreOrig; }
+    if (d.rankOrig !== undefined)       { d.rank = d.rankOrig;             delete d.rankOrig; }
+    if (d.scoreShortOrig !== undefined) { d.scoreShort = d.scoreShortOrig; delete d.scoreShortOrig; }
+    delete d.scoreOverride;
+  });
+}
+
+function clearScoreOverrides() {
+  if (!overridesActive) return;
+  restoreOriginals(currentData);
+  scoreOverrides = {};
+  overridesActive = false;
+  joinGwPoints(currentData);   // ranks restored → GW Points back to originals
+  rerenderAfterOverride();
+  updateOverrideUI();
+}
+
+// Shared post-override refresh: recompute fit deviations against the *frozen*
+// baseline (no refit), refresh sandbag flags, move the dots, and rebuild the
+// pivot + player tables without disturbing the table's sort/filter.
+function rerenderAfterOverride() {
+  // renderScatter below clears any active CP filter, so snap the shown fit back
+  // to the frozen baseline (a CP-filter regression experiment may have diverged
+  // activeFit/the stats cards from it).
+  activeFit.A = frozenFit.A; activeFit.B = frozenFit.B;
+  setStats(frozenFit.A, frozenFit.B, frozenFit.r2);
+  computeFitDiffs(currentData, frozenFit.A, frozenFit.B, frozenFit.classBias);
+  if (custom.A !== null) computeCustomFitDiffs(currentData);
+  annotateSandbag();
+  clearPrediction();           // a win-prediction built on the old scores is stale
+  closePanel();                // do this while the old dots still exist
+  renderScatter(currentData, frozenFit.A, frozenFit.B, frozenFit.sigma);
+  if (selectedGroups.size || searchQuery) applyHighlights();
+  buildPivotTable(currentData);
+  playerTableData = currentData;
+  renderPlayerTable();
+}
+
+// Restore pristine data on the outgoing sheet and clear override state. Called
+// from io.js before a new sheet/content/file is loaded so overrides never bleed
+// across sheets or linger in the cached rows.
+function resetScoreOverrides() {
+  if (currentData && overridesActive) restoreOriginals(currentData);
+  scoreOverrides = {};
+  overridesActive = false;
+  updateOverrideUI();
+}
+
+function updateOverrideUI() {
+  const btn = document.getElementById('clear-overrides-btn');
+  if (btn) btn.hidden = !overridesActive;
 }

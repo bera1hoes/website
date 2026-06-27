@@ -139,6 +139,7 @@
           <button class="file-btn" id="col-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" onclick="toggleColMenu()">Columns ▾</button>
           <div id="col-menu" class="col-menu" role="menu" hidden></div>
         </div>
+        <button class="file-btn" id="clear-overrides-btn" type="button" title="Remove all manual score overrides on this sheet" onclick="clearScoreOverrides()" hidden>↺ Clear overrides</button>
       </div>
       <div class="table-scroll">
       <table class="pivot-table" id="player-table">
@@ -150,7 +151,7 @@
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="cls" style="text-align:left">Class <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="level" style="text-align:right">Level <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="cp" style="text-align:right">CP <span class="sort-icon">↕</span></th>
-            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="score" style="text-align:right">Score <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="score" style="text-align:right" title="Click any score cell to set a predicted value — re-ranks and re-points the table">Score <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="histDelta" id="player-th-vshist" style="text-align:right;display:none" title="This week's performance vs the player's historical norm (⚠ = likely sandbagger)">vs History <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>

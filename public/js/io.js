@@ -226,6 +226,7 @@ function applyLastUpdated(iso) {
 // caller) and re-reads /api. KV is no-store, so the re-read is always fresh —
 // the Worker needs no bust signal.
 function loadSheet(name, bust) {
+  resetScoreOverrides();  // drop manual score overrides from the outgoing sheet
   currentSheet = name;
   updateDeepLink();
   updateReloadButton(name);
@@ -328,6 +329,7 @@ function loadLocalFiles(files) {
         sel.appendChild(opt);
       }
       sel.value = name;
+      resetScoreOverrides();  // drop manual score overrides from the outgoing sheet
       closePanel();
       currentData = data;
       sheetRosters = null;  // local TSV has no roster snapshot

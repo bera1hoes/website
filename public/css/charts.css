@@ -312,6 +312,25 @@ select:focus { border-color: var(--amber); }
 #player-table tbody tr.search-hit { background: rgba(240, 165, 0, 0.13); }
 #player-table tbody tr.search-hit td:first-child { box-shadow: inset 3px 0 0 var(--amber); }
 
+/* Manual score overrides (predict the final score). The cell is click-to-edit;
+   an overridden value reads in amber with a ✎ badge. */
+.score-cell { cursor: pointer; }
+.score-cell:hover { background: rgba(240, 165, 0, 0.08); }
+.score-cell.score-overridden { color: var(--amber); font-weight: 600; }
+.ovr-badge { margin-left: 4px; font-size: 10px; color: var(--amber); }
+.score-input {
+  width: 11ch;
+  background: #0d0f14;
+  color: #e8eaf0;
+  border: 1px solid var(--amber);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+  text-align: right;
+}
+#clear-overrides-btn { color: var(--amber); border-color: rgba(240, 165, 0, 0.4); }
+
 /* Experiments side panel */
 #experiments-panel {
   position: fixed;
