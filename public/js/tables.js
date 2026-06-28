@@ -295,9 +295,10 @@ function projGwText(d) {
 // the last minute. Overriding a Score in the player table re-ranks the whole
 // dataset, re-points the GW Points table, and refits the regression so the fit
 // line / stats / "vs Fit" reflect the predicted standings. Overrides are scoped
-// to the current sheet: switching sheets / Reload restores the originals
-// snapshotted on the first edit. See [[win-prediction-mapleidle]] for the related
-// projection.
+// to the current sheet and persisted in localStorage, so a page refresh keeps
+// them — but an override is retired once that player's real score actually
+// updates (see restoreStoredOverrides). See [[win-prediction-mapleidle]] for the
+// related projection.
 
 let scoreOverrides = {};      // nick -> overridden score (number)
 let overridesActive = false;  // true once a snapshot is taken (drives Clear button)
@@ -404,6 +405,7 @@ function setScoreOverride(d, value) {
   if (!Object.keys(scoreOverrides).length) { clearScoreOverrides(); return; }
   applyScoreOverrides();
   rerenderAfterOverride();
+  saveOverridesToStorage();
 }
 
 // Restore the snapshotted originals on `data` and drop the override markers.
@@ -424,6 +426,7 @@ function clearScoreOverrides() {
   joinGwPoints(currentData);   // ranks restored → GW Points back to originals
   rerenderAfterOverride();
   updateOverrideUI();
+  saveOverridesToStorage();    // empty map → removes the stored entry for this sheet
 }
 
 // Shared post-override refresh: refit the regression on the overridden scores so
@@ -459,4 +462,70 @@ function resetScoreOverrides() {
 function updateOverrideUI() {
   const btn = document.getElementById('clear-overrides-btn');
   if (btn) btn.hidden = !overridesActive;
+}
+
+// ── Override persistence (localStorage, per content-type + sheet) ────────────
+// Overrides survive a page refresh so a prediction isn't lost. Each entry stores
+// the override value alongside the *source* score it was set against; on reload
+// an override is re-applied only if that player's source score is unchanged. If
+// the real score has since moved (the player revealed it / the sheet refreshed),
+// the override is retired and the real value stands.
+
+const OVR_STORAGE_PREFIX = 'shoes:overrides:';
+
+function ovrStorageKey() {
+  return OVR_STORAGE_PREFIX + currentContentType + '|' + currentSheet;
+}
+
+function saveOverridesToStorage() {
+  if (!currentContentType || !currentSheet) return;
+  try {
+    const key = ovrStorageKey();
+    const nicks = Object.keys(scoreOverrides);
+    if (!nicks.length) { localStorage.removeItem(key); return; }
+    const payload = {};
+    currentData.forEach(d => {
+      if (scoreOverrides[d.nick] != null) {
+        payload[d.nick] = { score: scoreOverrides[d.nick], base: d.scoreOrig };
+      }
+    });
+    localStorage.setItem(key, JSON.stringify(payload));
+  } catch (e) { /* storage disabled/full — overrides just won't persist */ }
+}
+
+// Re-apply persisted overrides for the current sheet onto `data` (called from
+// buildChart after joinGwPoints, before the fit/render, so a single pass reflects
+// them). Resets in-memory override state first, then prunes stale entries.
+function restoreStoredOverrides(data) {
+  scoreOverrides = {};
+  overridesActive = false;
+  if (!currentContentType || !currentSheet) { updateOverrideUI(); return; }
+
+  let stored;
+  try {
+    const raw = localStorage.getItem(ovrStorageKey());
+    stored = raw ? JSON.parse(raw) : null;
+  } catch (e) { stored = null; }
+  if (!stored || typeof stored !== 'object') { updateOverrideUI(); return; }
+
+  const byNick = new Map(data.map(d => [d.nick, d]));
+  const valid = {};
+  let pruned = false;
+  Object.keys(stored).forEach(nick => {
+    const e = stored[nick];
+    const d = byNick.get(nick);
+    // Keep only if the player is still present and their source score matches the
+    // value the override was set against (i.e. the real score hasn't updated).
+    if (d && e && typeof e.score === 'number' && d.score === e.base) valid[nick] = e.score;
+    else pruned = true;
+  });
+
+  const nicks = Object.keys(valid);
+  if (nicks.length) {
+    ensureOverrideSnapshot();   // snapshots scoreOrig/rankOrig on currentData (=== data)
+    nicks.forEach(n => { scoreOverrides[n] = valid[n]; });
+    applyScoreOverrides();      // sets scores/marks, re-ranks, re-points
+  }
+  updateOverrideUI();
+  if (pruned) saveOverridesToStorage();  // persist the pruned set so storage self-heals
 }

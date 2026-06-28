@@ -54,6 +54,7 @@ function buildChart(data) {
   selectedGroups.clear();
   assignGuildColors(data);
   joinGwPoints(data);
+  restoreStoredOverrides(data);  // fold in any persisted score overrides for this sheet
 
   const { A, B, r2, sigma } = computeFit(data);
 
