@@ -7,16 +7,21 @@
 // `sheetPerf` is the current sheet's embedded recency-weighted performance profile
 // ({ nick -> factor }, from the `{ …, perfProfile }` payload), used by Win
 // Prediction's "adjust by history" with no extra call; cached in `perfCache`.
+// `sheetGuildHist` is the current sheet's embedded per-guild rollup of prior
+// appearances ({ guild -> [ {sheet,total,members} ] }, newest-first), feeding the
+// pivot table's history columns (guild-history.js); cached in `guildHistCache`.
 
 let currentData = null;
 let sheetRosters = null;
 let sheetPerf = null;
+let sheetGuildHist = null;
 const localFiles = {};
 const rostersCache = {};   // contentType -> { sheetName -> rostersObj|null }
 const perfCache = {};      // contentType -> { sheetName -> perfProfile|null }
+const guildHistCache = {}; // contentType -> { sheetName -> guildHistory|null }
 
-// getData returns `{ rows, rosters, perfProfile? }` now; older entries (and local
-// TSV) are a bare rows array. These read whichever shape arrives.
+// getData returns `{ rows, rosters, perfProfile?, guildHistory? }` now; older
+// entries (and local TSV) are a bare rows array. These read whichever shape arrives.
 function rowsOf(json) {
   return Array.isArray(json) ? json : ((json && json.rows) || []);
 }
@@ -25,6 +30,9 @@ function rostersOf(json) {
 }
 function perfOf(json) {
   return (json && !Array.isArray(json) && json.perfProfile) ? json.perfProfile : null;
+}
+function guildHistOf(json) {
+  return (json && !Array.isArray(json) && json.guildHistory) ? json.guildHistory : null;
 }
 
 // ── Local data helpers ─────────────────────────────────────────────────────

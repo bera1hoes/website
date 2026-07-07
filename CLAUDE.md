@@ -12,8 +12,8 @@ Visualizes Maplestory guild content player data as a CP vs Score scatter plot wi
 
 All browser-served assets live under **`public/`**; `worker.js` and `wrangler.jsonc` are at the repo root.
 
-- **worker.js** — Cloudflare Worker: static-asset host + KV-backed data API + ingestion + router. **`/api?action=...` reads from KV** (binding `CHART_DATA`): `getSheetNames`/`getData`/`getLastUpdated` return the stored value, or an empty result on a miss (no upstream — KV is authoritative). `getData` serves the stored `{ rows, rosters, perfProfile }` object **as-is** (the client's `rowsOf`/`rostersOf`/`perfOf` read whichever shape arrives). Responses are `cache-control: no-store` (KV *is* the store; no `caches.default` layer), so a re-read (the client's Reload) is always fresh. **`POST /chart`** is the ingestion endpoint: `Authorization: Bearer <CHART_WRITE_KEY>`, body `{ type, date: "MM-DD-YYYY", rows: [...] }` — it normalizes rows (drops missing cp/score), **embeds the guilds' roster snapshot** from `ROSTERS` (pulled fresh on first create, carried over — with any `perfProfile` — on update), writes `data:<type>:<date>`, merges `guildweeks:<type>`, and upserts the date into `names:<type>` (sorted newest-first) with a fresh `updated` stamp. Win-Prediction actions `refreshRosters` (re-pull the embedded roster) and `buildPerfProfile` (recency-weighted per-player profile from prior sheets) run **KV-only**. Other routes: `/guild` (POST/GET roster KV, binding `ROSTERS`), `/charts` → `Charts.html`, `/arena` → `Arena.html`, `/userinfo` → a separate UserInfo Worker, everything else → `public/` assets.
-  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (PERF_TYPES only — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
+- **worker.js** — Cloudflare Worker: static-asset host + KV-backed data API + ingestion + router. **`/api?action=...` reads from KV** (binding `CHART_DATA`): `getSheetNames`/`getData`/`getLastUpdated` return the stored value, or an empty result on a miss (no upstream — KV is authoritative). `getData` serves the stored `{ rows, rosters, perfProfile, guildHistory }` object **as-is** (the client's `rowsOf`/`rostersOf`/`perfOf`/`guildHistOf` read whichever shape arrives). Responses are `cache-control: no-store` (KV *is* the store; no `caches.default` layer), so a re-read (the client's Reload) is always fresh. **`POST /chart`** is the ingestion endpoint: `Authorization: Bearer <CHART_WRITE_KEY>`, body `{ type, date: "MM-DD-YYYY", rows: [...] }` — it normalizes rows (drops missing cp/score), **embeds the guilds' roster snapshot** from `ROSTERS` (pulled fresh on first create, carried over — with any `perfProfile`/`guildHistory` — on update), writes `data:<type>:<date>`, merges `guildweeks:<type>`, and upserts the date into `names:<type>` (sorted newest-first) with a fresh `updated` stamp. The actions `refreshRosters` (re-pull the embedded roster) and `buildPerfProfile` run **KV-only**; the latter scans the prior sheets once and embeds **both** the recency-weighted per-player profile (`perfProfile`, PERF_TYPES only) and the per-guild rollup of prior appearances (`guildHistory`, every content type — total Score + participant count per prior sheet, behind the pivot table's history columns). Other routes: `/guild` (POST/GET roster KV, binding `ROSTERS`), `/charts` → `Charts.html`, `/arena` → `Arena.html`, `/userinfo` → a separate UserInfo Worker, everything else → `public/` assets.
+  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor }, guildHistory?: { "<guild>": [{ sheet, total, members }, …] } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (all content types — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
 - **public/Charts.html** — Chart front-end **markup only** (~210 lines). Loads `/css/*.css` and, at the bottom, the ordered `/js/*.js` files (see Architecture). Served at `/charts`.
 - **public/js/** — The chart's JavaScript, split into plain (non-module) `<script src>` files that share one global scope (so the inline `onclick=` handlers keep working). Load order matters; see Architecture.
 - **public/css/** — `shared.css` (theme tokens), `charts.css`, `home.css`, `arena.css`. Charts.html links `shared.css` + `charts.css`.
@@ -59,7 +59,7 @@ ES modules, no build step). `Charts.html` loads them in this order — d3 first,
 `main.js` (boot) **last**; everything in between only *declares* functions/state
 used at runtime, so cross-file references resolve regardless:
 
-`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `main`
+`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
 
 | File | Responsibility |
 |---|---|
@@ -67,13 +67,18 @@ used at runtime, so cross-file references resolve regardless:
 | `colors.js` | `GUILD_PALETTE`/`GUILD_COLORS`/`CLASS_COLORS`, `assignGuildColors`, `getColor` |
 | `gw-points.js` | `GW_POINTS_DATA` (rank→points TSV literal) |
 | `regression.js` | `powerRegression`, `computeClassBias`, `computeFitDiffs` |
-| `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData` |
+| `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData`, embedded-payload readers (`rowsOf`/`rostersOf`/`perfOf`/`guildHistOf`) + caches |
 | `io.js` | env detection (`API_URL`/`IS_LOCAL`/`IS_REMOTE`), `apiCall`, `loadContentType`, `loadSheet`, reload + sheet/content state, `loadLocalFiles` |
 | `legend.js` | `colorMode`, `selectedGroups`, `setColorMode`, `updateColors`, `applyHighlights`, `buildLegend` |
 | `panel.js` | `activeEl`, `isPinned`, `showPanel`, `positionPanel`, `closePanel` |
 | `chart.js` | chart render handles + fit state, `buildChart` and its helpers, `resetZoom` |
-| `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable` |
+| `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable`, manual score overrides |
 | `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers |
+| `deeplink.js` | URL-hash state (`updateDeepLink`, `restoreDeepLink`, `copyShareLink`) |
+| `history.js` | week-over-week **player** deltas vs the previous sheet (`loadHistory`, `fmtPct`) |
+| `guild-history.js` | per-**guild** rollup across prior weeks (`loadGuildHistory`, `applyBuiltEntry`, pivot history cells) |
+| `search.js` | find-player box (`onPlayerSearch`, highlight/dim + pin on Enter) |
+| `prediction.js` | Win Prediction (rosters, projections, adjust modes, `annotateSandbag`) |
 | `main.js` | boot (local SampleData injection or remote auto-load) — runs last |
 
 **Inline `onclick=` handlers in the markup rely on these functions staying

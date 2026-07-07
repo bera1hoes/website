@@ -18,8 +18,10 @@
 // scores.
 //
 // `Refresh rosters` (refreshRosters) re-pulls the roster snapshot from ROSTERS, and
-// `buildPerfProfile` (auto-triggered for History mode) embeds the recency-weighted
-// performance profile into the sheet — both write the chart-data entry on demand.
+// `buildPerfProfile` embeds the recency-weighted performance profile (plus the
+// guild-history rollup) into the sheet — both write the chart-data entry on demand.
+// The build usually already ran via guild-history.js's sheet-load trigger; the
+// History-mode trigger here covers sheets that predate it.
 
 // Content types that support history adjustment (mirror PERF_TYPES in worker.js).
 const PREDICTION_PERF_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Guild Training Ground'];
@@ -174,12 +176,9 @@ function ensureAdjustData() {
     setPredictionStatus('Building history profile…');
     return apiCall('buildPerfProfile', { contentType: currentContentType, sheet: currentSheet }).then(json => {
       const data = typeof json === 'string' ? JSON.parse(json) : json;
-      sheetPerf = perfOf(data);
-      if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
-      perfCache[currentContentType][currentSheet] = sheetPerf;
-      // Now that we have history, flag sandbaggers in the player table.
-      annotateSandbag();
-      if (typeof renderPlayerTable === 'function') renderPlayerTable();
+      // The build embeds the perf profile AND the guild-history rollup — apply
+      // both (sandbag flags, player table, pivot history columns) in one place.
+      applyBuiltEntry(data);
     });
   }
   if (adjustMode === 'lastweek') {

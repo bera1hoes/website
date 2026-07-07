@@ -101,6 +101,9 @@
             <th>Players</th>
             <th id="pivot-th-total">Total GW Points</th>
             <th id="pivot-th-avg">Avg GW Points</th>
+            <th id="pivot-th-seen" style="display:none" title="Prior weeks this guild appeared in this content type (hover a cell for the per-week breakdown)">Weeks Seen</th>
+            <th id="pivot-th-histavg" style="display:none" title="Average total Score across the guild's prior appearances">Hist Avg Score</th>
+            <th id="pivot-th-histdelta" style="display:none" title="This week's total Score vs the guild's historical average">Δ vs Hist</th>
           </tr>
         </thead>
         <tbody id="pivot-body"></tbody>
@@ -314,6 +317,7 @@
 <script src="/js/experiments.js"></script>
 <script src="/js/deeplink.js"></script>
 <script src="/js/history.js"></script>
+<script src="/js/guild-history.js"></script>
 <script src="/js/search.js"></script>
 <script src="/js/prediction.js"></script>
 <script src="/js/main.js"></script>

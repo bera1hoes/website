@@ -40,6 +40,8 @@ function getSheetRows(name) {
     rostersCache[currentContentType][name] = rostersOf(parsed);
     if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
     perfCache[currentContentType][name] = perfOf(parsed);
+    if (!guildHistCache[currentContentType]) guildHistCache[currentContentType] = {};
+    guildHistCache[currentContentType][name] = guildHistOf(parsed);
     return rows;
   });
 }

@@ -237,9 +237,11 @@ function loadSheet(name, bust) {
     currentData = cached;
     sheetRosters = (rostersCache[currentContentType] || {})[name] || null;
     sheetPerf = (perfCache[currentContentType] || {})[name] || null;
+    sheetGuildHist = (guildHistCache[currentContentType] || {})[name] || null;
     document.getElementById('loading').style.display = 'none';
     buildChart(cached);
     loadHistory();
+    loadGuildHistory();
     return;
   }
 
@@ -259,14 +261,18 @@ function loadSheet(name, bust) {
     currentData = rowsOf(parsed);
     sheetRosters = rostersOf(parsed);
     sheetPerf = perfOf(parsed);
+    sheetGuildHist = guildHistOf(parsed);
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
     if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
     rostersCache[currentContentType][name] = sheetRosters;
     if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
     perfCache[currentContentType][name] = sheetPerf;
+    if (!guildHistCache[currentContentType]) guildHistCache[currentContentType] = {};
+    guildHistCache[currentContentType][name] = sheetGuildHist;
     buildChart(currentData);
     loadHistory();
+    loadGuildHistory();
   };
   const onDataErr = function(err) {
     showLoadError('Error: ' + err.message, function() { loadSheet(name); });
@@ -332,8 +338,9 @@ function loadLocalFiles(files) {
       resetScoreOverrides();  // drop manual score overrides from the outgoing sheet
       closePanel();
       currentData = data;
-      sheetRosters = null;  // local TSV has no roster snapshot
-      sheetPerf = null;     // …or performance profile
+      sheetRosters = null;   // local TSV has no roster snapshot
+      sheetPerf = null;      // …or performance profile
+      sheetGuildHist = null; // …or guild-history rollup
       document.getElementById('loading').style.display = 'none';
       clearStats();
       document.getElementById('chart').innerHTML = '';

@@ -91,13 +91,23 @@ function buildPivotTable(data) {
 
   const guilds = {};
   data.forEach(d => {
-    if (!guilds[d.guild]) guilds[d.guild] = { count: 0, total: 0 };
+    if (!guilds[d.guild]) guilds[d.guild] = { count: 0, total: 0, score: 0 };
     guilds[d.guild].count++;
     guilds[d.guild].total += isGW ? (d.gwPoints || 0) : (d.score || 0);
+    guilds[d.guild].score += d.score || 0;  // history columns compare Score even on GW
   });
 
   const rows = Object.entries(guilds).sort((a, b) => b[1].total - a[1].total);
   const grandTotal = rows.reduce((s, [, g]) => s + g.total, 0);
+
+  // Guild-history rollup (guild-history.js): the "seen them before" columns show
+  // only when at least one of this sheet's guilds appeared in a prior sheet.
+  const gh = sheetGuildHist || {};
+  const hasGuildHist = rows.some(([g]) => (gh[g] || []).length);
+  ['pivot-th-seen', 'pivot-th-histavg', 'pivot-th-histdelta'].forEach(id => {
+    const th = document.getElementById(id);
+    if (th) th.style.display = hasGuildHist ? '' : 'none';
+  });
 
   const fmt = isGW
     ? v => Math.round(v).toLocaleString()
@@ -109,7 +119,7 @@ function buildPivotTable(data) {
 
   const tbody = document.getElementById('pivot-body');
   tbody.innerHTML = '';
-  rows.forEach(([guild, { count, total }]) => {
+  rows.forEach(([guild, { count, total, score }]) => {
     const color = GUILD_COLORS[guild] || GUILD_COLORS['default'];
     const avg = total / count;
     const tr = document.createElement('tr');
@@ -117,7 +127,8 @@ function buildPivotTable(data) {
       `<td><span class="p-swatch" style="background:${color}"></span><a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener">${guild}</a></td>` +
       `<td>${count}</td>` +
       `<td>${fmt(total)}</td>` +
-      `<td>${fmt(avg)}</td>`;
+      `<td>${fmt(avg)}</td>` +
+      (hasGuildHist ? guildHistCells(gh[guild], score) : '');
     tbody.appendChild(tr);
   });
 
@@ -127,7 +138,8 @@ function buildPivotTable(data) {
     `<td>All guilds</td>` +
     `<td>${data.length}</td>` +
     `<td>${fmt(grandTotal)}</td>` +
-    `<td>${fmt(grandTotal / data.length)}</td>`;
+    `<td>${fmt(grandTotal / data.length)}</td>` +
+    (hasGuildHist ? '<td></td><td></td><td></td>' : '');
   tbody.appendChild(totalTr);
 
   section.style.display = 'block';
