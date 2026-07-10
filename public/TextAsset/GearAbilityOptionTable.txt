@@ -70020,5 +70020,5401 @@
       "Value": "1000"
     },
     "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1401001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1401012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Str",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Int",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1401112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Str",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Int",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "1",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1401212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1401213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Str",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Int",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1401216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade1",
+    "SlotIndex": "2",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "35"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Str",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Int",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "0",
+    "Prob": "95000",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "35"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402117",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402118",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402119",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402120",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402121",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1402122",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402123",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402124",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402125",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402126",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "22800",
+    "StatData": {
+      "Type": "Str",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402127",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402128",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "22800",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402129",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402130",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "22800",
+    "StatData": {
+      "Type": "Int",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402131",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402132",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "1",
+    "Prob": "22800",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "35"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402217",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402218",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402219",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402220",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402221",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1402222",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402223",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "30"
+    }
+  },
+  {
+    "Index": "1402224",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "45"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402225",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402226",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "Str",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402227",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402228",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402229",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402230",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "Int",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1402231",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1402232",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade2",
+    "SlotIndex": "2",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "10000",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1403002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Str",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Int",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403017",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "2400",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1403102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "35"
+    }
+  },
+  {
+    "Index": "1403105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1403107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1403109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1403111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403117",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403118",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403119",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403120",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403121",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403122",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1403123",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403124",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403125",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403126",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403127",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403128",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403129",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403130",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403131",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403132",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "72200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403133",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "800",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1403202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "35"
+    }
+  },
+  {
+    "Index": "1403205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1403207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1403209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1403211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "80"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403217",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403218",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403219",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403220",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403221",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403222",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1403223",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403224",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "45"
+    }
+  },
+  {
+    "Index": "1403225",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "60"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403226",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403227",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403228",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403229",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403230",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403231",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1403232",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "87400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1403233",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade3",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "10000",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "140"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1404002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "50"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "180"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Str",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Int",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404017",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "80"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1404102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "2400",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "140"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1404103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40"
+    }
+  },
+  {
+    "Index": "1404106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "50"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1404108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "180"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1404110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1404112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404117",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404118",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404119",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404120",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404121",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404122",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404123",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1404124",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404125",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404126",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404127",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Str",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404128",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404129",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404130",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404131",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Int",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404132",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404133",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404134",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "9200",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "80"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1404202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "800",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "140"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1404203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40"
+    }
+  },
+  {
+    "Index": "1404206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "50"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1404208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "180"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1404210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "80"
+    }
+  },
+  {
+    "Index": "1404212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404217",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404218",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404219",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404220",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404221",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404222",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404223",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1404224",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404225",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "60"
+    }
+  },
+  {
+    "Index": "1404226",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "90"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404227",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Str",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404228",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404229",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404230",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404231",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Int",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404232",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1404233",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1404234",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade4",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "400"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "10000",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "210"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1405002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "70"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Str",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Int",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405017",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "140"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1405102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "2400",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "210"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1405103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1405106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "70"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "180"
+    }
+  },
+  {
+    "Index": "1405108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1405110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1405112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405117",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405118",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405119",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405120",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405121",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405122",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405123",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1405124",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405125",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405126",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405127",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Str",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405128",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405129",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405130",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405131",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Int",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405132",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405133",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405134",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "9200",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "140"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1405202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "800",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "210"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1405203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "50"
+    }
+  },
+  {
+    "Index": "1405206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "70"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "180"
+    }
+  },
+  {
+    "Index": "1405208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1405210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "100"
+    }
+  },
+  {
+    "Index": "1405212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405217",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405218",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405219",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405220",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405221",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405222",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405223",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1405224",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "200"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405225",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "90"
+    }
+  },
+  {
+    "Index": "1405226",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "120"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405227",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Str",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405228",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405229",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405230",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405231",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Int",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405232",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1405233",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "400"
+    }
+  },
+  {
+    "Index": "1405234",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade5",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "600"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406001",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "10000",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "300"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1406002",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406003",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "25000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406004",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "350"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406005",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406006",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "40000",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406007",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406008",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406009",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406010",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "45000",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406011",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406012",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406013",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "90000",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406014",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Str",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406015",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406016",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Int",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406017",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "0",
+    "Prob": "92500",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406101",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "7600",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "210"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1406102",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "2400",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "300"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1406103",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406104",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406105",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "19000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "70"
+    }
+  },
+  {
+    "Index": "1406106",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "6000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406107",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "250"
+    }
+  },
+  {
+    "Index": "1406108",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "350"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406109",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1406110",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406111",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "30400",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1406112",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "9600",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406113",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406114",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406115",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406116",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406117",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406118",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406119",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "34200",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406120",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "10800",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406121",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406122",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406123",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1406124",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406125",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "68400",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406126",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "21600",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406127",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Str",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406128",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Str",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406129",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406130",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406131",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Int",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406132",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Int",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406133",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "70300",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406134",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "1",
+    "Prob": "22200",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406201",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "9200",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "210"
+    },
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1406202",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "800",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "Value": "300"
+    },
+    "IsHighlightOption": "True",
+    "ShowOptionInfoUiFrame": "True"
+  },
+  {
+    "Index": "1406203",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406204",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "CriticalChance",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406205",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "23000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "70"
+    }
+  },
+  {
+    "Index": "1406206",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "2000",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "100"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406207",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "250"
+    }
+  },
+  {
+    "Index": "1406208",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "AttackPower",
+      "Value": "350"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406209",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1406210",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MinDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406211",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "36800",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "150"
+    }
+  },
+  {
+    "Index": "1406212",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3200",
+    "StatData": {
+      "Type": "MaxDamageRatio",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406213",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406214",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "StrR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406215",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406216",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "DexR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406217",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406218",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "IntR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406219",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "41400",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406220",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "3600",
+    "StatData": {
+      "Type": "LukR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406221",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406222",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "DefenceR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406223",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "200"
+    }
+  },
+  {
+    "Index": "1406224",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxHpR",
+      "Value": "250"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406225",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "82800",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "120"
+    }
+  },
+  {
+    "Index": "1406226",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7200",
+    "StatData": {
+      "Type": "MaxMpR",
+      "Value": "150"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406227",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Str",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406228",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Str",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406229",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406230",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Dex",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406231",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Int",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406232",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Int",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
+  },
+  {
+    "Index": "1406233",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "85100",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "600"
+    }
+  },
+  {
+    "Index": "1406234",
+    "GearPartType": "Ring2",
+    "GearSlotAbilityGradeType": "Grade6",
+    "SlotIndex": "2",
+    "Prob": "7400",
+    "StatData": {
+      "Type": "Luk",
+      "Value": "1000"
+    },
+    "IsHighlightOption": "True"
   }
 ]

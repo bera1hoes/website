@@ -1,0 +1,8290 @@
+[
+  {
+    "OptionIndex": "111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "43",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "60",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "71",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "89",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "112",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "140",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "175",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "218",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "273",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "341",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "427",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "555",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "721",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "937",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1218",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1386",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1802",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2342",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3045",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4049",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5386",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7163",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9527",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12861",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "17362",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "23439",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "31642",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "2741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "3741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "4741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "5741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "6741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "7741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "8741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "9741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "10741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "11741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12111",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "150",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12121",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "180",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12131",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "210",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12141",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "250",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12211",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "313",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12221",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "391",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12231",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "489",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12241",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "611",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12311",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "764",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12321",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "955",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12331",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1194",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12341",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1493",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12411",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "1941",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12421",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "2523",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12431",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "3280",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12441",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "4264",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12511",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "5543",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12521",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "7206",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12531",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "9368",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12541",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "12178",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12611",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "16197",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12621",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "21542",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12631",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "28651",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12641",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "38106",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12711",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "51443",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12721",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "69448",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12731",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "93755",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "12741",
+    "StatData": {
+      "Type": "AttackR",
+      "Value": "126569",
+      "Factor": "1"
+    }
+  },
+  {
+    "OptionIndex": "1112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12112",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12122",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12132",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12142",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "1",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12212",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12222",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "2",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12232",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12242",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "3",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12312",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "4",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12322",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "5",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12332",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "6",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12342",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "7",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12412",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "9",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12422",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "11",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12432",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "13",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12442",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "15",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12512",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "17",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12522",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "19",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12532",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "21",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12542",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "23",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12612",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "25",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12622",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "27",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12632",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12642",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "33",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12712",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12722",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "45",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12732",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "50",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12742",
+    "StatData": {
+      "Type": "HitChance",
+      "Value": "55",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "1743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "2743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "3743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "4743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "5743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "6743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "7743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "8743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "9743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "10743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "11743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12113",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12123",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12133",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12143",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12213",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12223",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12233",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12243",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "0",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12313",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12323",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12333",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12343",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "20",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12413",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12423",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12433",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12443",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "30",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12513",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12523",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12533",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12543",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "40",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12613",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12623",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12633",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12643",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "60",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12713",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12723",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12733",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  },
+  {
+    "OptionIndex": "12743",
+    "StatData": {
+      "Type": "AttackSpeed",
+      "Value": "80",
+      "Factor": "7"
+    }
+  }
+]

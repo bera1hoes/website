@@ -37,15 +37,20 @@ let _tables = null;
 async function loadTables() {
   if (_tables) return _tables;
   const base = '/TextAsset/';
-  const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, additionalAbilityOption, artifactTable] =
+  const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, artifactTable,
+         weaponOption, skillBuffs, skillLevelFactor] =
     await Promise.all([
       fetch(base + 'GearOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearFactorTable.txt').then(r => r.json()),
       fetch(base + 'StarForceTable.txt').then(r => r.json()),
       fetch(base + 'GearAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearAddAbilityOptionTable.txt').then(r => r.json()),
-      fetch(base + 'GearAdditialAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'ArtifactTable.txt').then(r => r.json()),
+      // Equipped-weapon options (grade/tier stats) + pre-extracted always-on skill self-buffs
+      // (small JSON, not the 1.6 MB raw SkillTable) + skill level-scaling factors.
+      fetch(base + 'WeaponOptionTable.txt').then(r => r.json()),
+      fetch(base + 'SkillBuffTable.json').then(r => r.json()),
+      fetch(base + 'SkillLevelFactorTable.txt').then(r => r.json()),
     ]);
   // Map every artifact equip-skill id → artifact identity. The Artifact buff lists these ids
   // under PassiveSkillLevels, so this resolves a player's worn artifacts (see extractArtifacts).
@@ -55,18 +60,22 @@ async function loadTables() {
     for (const id of (e.EquipSkillIndices || [])) artifactBySkill[String(id)] = info;
   }
   _tables = {
-    gearOption:              Object.fromEntries(gearOption.map(e => [e.OptionIndex, e.StatData])),
-    gearFactor:              Object.fromEntries(gearFactor.map(e => [e.Level, e.Factor.map(Number)])),
-    starForce:               Object.fromEntries(starForce.map(e => [e.StarForce, e])),
-    abilityOption:           Object.fromEntries(abilityOption.map(e => [e.Index, e])),
-    addAbilityOption:        Object.fromEntries(addAbilityOption.map(e => [e.Index, e])),
-    additionalAbilityOption: Object.fromEntries(additionalAbilityOption.map(e => [e.Index, e])),
+    gearOption:       Object.fromEntries(gearOption.map(e => [e.OptionIndex, e.StatData])),
+    gearFactor:       Object.fromEntries(gearFactor.map(e => [e.Level, e.Factor.map(Number)])),
+    starForce:        Object.fromEntries(starForce.map(e => [e.StarForce, e])),
+    // AbilityOptionIndices resolve here; AdditionalAbilityOptionIndices in addAbilityOption.
+    // The GearAdditialAbilityOptionTable is a DIFFERENT, colliding table and is NOT loaded.
+    abilityOption:    Object.fromEntries(abilityOption.map(e => [e.Index, e])),
+    addAbilityOption: Object.fromEntries(addAbilityOption.map(e => [e.Index, e])),
+    weaponOption:     Object.fromEntries(weaponOption.map(e => [e.OptionIndex, e.StatData])),
+    skillBuffs,       // { skillIndex: [[stat, base, factorCol|null], ...] }
+    skillLevelFactor: Object.fromEntries(skillLevelFactor.map(e => [String(e.Level), e.Factor.map(Number)])),
     artifactBySkill,
   };
   return _tables;
 }
 
-// ── Stat calculations — ported from calc_stats.py:78–130 ───────────────────
+// ── Stat calculations — ported from SwissKnife calc_stats.py (keep in sync) ──
 
 function calcCritResist(userInfo) {
   let total = 0;
@@ -92,64 +101,179 @@ function _gearOptionValue(optIdx, gl, sf, step, isMain, tables) {
   return [sd.Type, base + sfBonus];
 }
 
-function _abilityStat(idx, statName, tables) {
-  const s = String(idx);
-  const add = tables.additionalAbilityOption[s];
-  if (add?.StatType === statName) return +add.StatValue;
-  for (const key of ['abilityOption', 'addAbilityOption']) {
-    const e = tables[key][s];
-    if (e?.StatData?.Type === statName) return +(e.StatData.Value || 0);
-  }
-  return 0;
+// AbilityOptionIndices resolve in abilityOption; AdditionalAbilityOptionIndices in addAbilityOption
+// (identical tables). The colliding GearAdditialAbilityOptionTable is never consulted -- reading it
+// invented phantom evasion and dropped real crit/other stats.
+function _abilityStat(idx, statName, tables, tableKey) {
+  const e = tables[tableKey][String(idx)];
+  return (e?.StatData?.Type === statName) ? +(e.StatData.Value || 0) : 0;
 }
 
+// Yield each individual (non-zero) statName contribution from a gear's options -- one per
+// main/sub/ability line, NOT summed. Additive stats sum these (_gearStatTotal); defense
+// penetration folds each as its own diminishing factor. Ported from calc_stats._gear_stat_lines.
+function* _gearStatLines(gear, statName, tables) {
+  const gl = +gear.GearLevel, sf = +gear.StarForce;
+  for (const e of (gear.MainOptionList || [])) {
+    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
+    if (t === statName && v) yield v;
+  }
+  for (const e of (gear.SubOptionList || [])) {
+    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
+    if (t === statName && v) yield v;
+  }
+  for (const i of (gear.AbilityOptionIndices || [])) {
+    const v = _abilityStat(i, statName, tables, 'abilityOption');
+    if (v) yield v;
+  }
+  for (const i of (gear.AdditionalAbilityOptionIndices || [])) {
+    const v = _abilityStat(i, statName, tables, 'addAbilityOption');
+    if (v) yield v;
+  }
+}
+function _gearStatTotal(gear, statName, tables) {
+  let t = 0;
+  for (const v of _gearStatLines(gear, statName, tables)) t += v;
+  return t;
+}
+
+// Equipped-weapon stat: WeaponOptionTable keyed 1[grade][tier][slot] (slot 2 = HitChance, flat --
+// no level/awake scaling). Ported from calc_stats._weapon_stat.
+const _WEAPON_STAT_SLOT = { HitChance: 2 };
+function _weaponStat(weaponsInfo, statName, tables) {
+  const slot = _WEAPON_STAT_SLOT[statName];
+  if (!slot || !weaponsInfo) return 0;
+  const grade = String(weaponsInfo.EquippedWeaponGrade || '').replace(/\D/g, '');
+  const tier = String(weaponsInfo.EquippedWeaponTier || '').replace(/\D/g, '');
+  if (!grade || !tier) return 0;
+  const sd = tables.weaponOption['1' + grade + tier + slot];
+  return (sd && sd.Type === statName) ? +sd.Value : 0;
+}
+
+// Always-on passive/mastery/guild skill self-buffs (pre-extracted SkillBuffTable), scaled by
+// SkillLevelFactorTable[level].Factor[col]/1000. In NO buff _stats block. Ported from
+// calc_stats._skill_stat_lines / _learned_skill_levels.
+const _SKILL_BUFF_TYPES = ['SkillMastery', 'GuildNoblesseSkill', 'GuildMasterySkill', 'GuildMemberSkill'];
+function _learnedSkillLevels(hero) {
+  const levels = {};
+  for (const p of (hero.PassiveSkillLearnedInfos || []))
+    if (p && p.SkillIndex != null) levels[String(p.SkillIndex)] = +(p.SkillLevel || 1);
+  for (const buff of (hero.BuffInput?.HeroBuffInfoContainer?.BuffInfos || []))
+    if (_SKILL_BUFF_TYPES.includes(buff.BuffType))
+      for (const [id, lv] of Object.entries(buff.PassiveSkillLevels || {}))
+        if (!(id in levels)) levels[id] = +(lv || 1);
+  return levels;
+}
+function* _skillStatLines(hero, statName, tables) {
+  const skillBuffs = tables.skillBuffs;
+  if (!skillBuffs) return;
+  const levels = _learnedSkillLevels(hero);
+  for (const [skillId, level] of Object.entries(levels)) {
+    for (const [stat, base, factorCol] of (skillBuffs[skillId] || [])) {
+      if (stat !== statName) continue;
+      let value = base;
+      if (factorCol != null) {
+        const row = tables.skillLevelFactor[String(level)];
+        const factor = (row && factorCol < row.length) ? row[factorCol] : 1000;
+        value = Math.floor(base * factor / 1000 * 10) / 10;
+      }
+      if (value) yield value;
+    }
+  }
+}
+function _skillStat(hero, statName, tables) {
+  let t = 0;
+  for (const v of _skillStatLines(hero, statName, tables)) t += v;
+  return t;
+}
+
+// AvoidChance: a curated subset of buffs + gear options.
 function calcAvoidChance(userInfo, tables) {
   let total = 0;
   for (const hero of (userInfo.HeroInfos || [])) {
     const bi = hero.BuffInput || {};
     for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
-      if (['HeroPowerAbility', 'Artifact'].includes(buff.BuffType))
+      if (['HeroPowerAbility', 'Artifact', 'JourneyStep'].includes(buff.BuffType))
         total += buff.StatContainer?._stats?.AvoidChance || 0;
-    for (const gear of (bi.GearInfos || [])) {
-      const gl = +gear.GearLevel, sf = +gear.StarForce;
-      for (const e of (gear.MainOptionList || [])) {
-        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
-        if (t === 'AvoidChance') total += v;
-      }
-      for (const e of (gear.SubOptionList || [])) {
-        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
-        if (t === 'AvoidChance') total += v;
-      }
-      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityStat(i, 'AvoidChance', tables);
-      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityStat(i, 'AvoidChance', tables);
-    }
+    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'AvoidChance', tables);
   }
   return Math.floor(total);
 }
 
-// HitChance ("Accuracy") is contributed by many buff types, so — unlike AvoidChance, which sums a
-// curated subset — every buff in HeroBuffInfoContainer is summed. Ported from calc_stats.py calc_hit_chance.
+// Accuracy (HitChance): every HeroBuffInfoContainer buff + gear options + the equipped weapon.
 function calcAccuracy(userInfo, tables) {
   let total = 0;
   for (const hero of (userInfo.HeroInfos || [])) {
     const bi = hero.BuffInput || {};
     for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
       total += buff.StatContainer?._stats?.HitChance || 0;
-    for (const gear of (bi.GearInfos || [])) {
-      const gl = +gear.GearLevel, sf = +gear.StarForce;
-      for (const e of (gear.MainOptionList || [])) {
-        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
-        if (t === 'HitChance') total += v;
-      }
-      for (const e of (gear.SubOptionList || [])) {
-        const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
-        if (t === 'HitChance') total += v;
-      }
-      for (const i of (gear.AbilityOptionIndices || [])) total += _abilityStat(i, 'HitChance', tables);
-      for (const i of (gear.AdditionalAbilityOptionIndices || [])) total += _abilityStat(i, 'HitChance', tables);
-    }
+    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'HitChance', tables);
+    total += _weaponStat(bi.WeaponsInfo, 'HitChance', tables);
   }
   return Math.floor(total);
+}
+
+// Crit Rate (CriticalChance): buff + gear + always-on skill crit, /10 (x10 internal percent).
+function calcCritChance(userInfo, tables) {
+  let total = 0;
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const bi = hero.BuffInput || {};
+    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
+      total += buff.StatContainer?._stats?.CriticalChance || 0;
+    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'CriticalChance', tables);
+    total += _skillStat(hero, 'CriticalChance', tables);
+  }
+  return total / 10;
+}
+
+// Total Defense = flatDefence x (1 + DefenceR%/100). DefenceR is x10 internal percent (/10).
+function calcDefense(userInfo, tables) {
+  let flat = 0, ratio = 0;
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const bi = hero.BuffInput || {};
+    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || [])) {
+      const s = buff.StatContainer?._stats || {};
+      flat += s.Defence || 0;
+      ratio += s.DefenceR || 0;
+    }
+    for (const gear of (bi.GearInfos || [])) {
+      flat += _gearStatTotal(gear, 'Defence', tables);
+      ratio += _gearStatTotal(gear, 'DefenceR', tables);
+    }
+  }
+  return flat * (1 + (ratio / 10) / 100);
+}
+
+// Damage Taken Decrease ("Toughness"): buff-only, /10 (x10 internal percent).
+function calcDamageTakenDecrease(userInfo) {
+  let total = 0;
+  const KEYS = ['Toughness', 'DamageTolerance', 'DamageTakenDecrease'];
+  for (const hero of (userInfo.HeroInfos || []))
+    for (const buff of (hero.BuffInput?.HeroBuffInfoContainer?.BuffInfos || [])) {
+      const s = buff.StatContainer?._stats || {};
+      for (const k of KEYS) total += s[k] || 0;
+    }
+  return total / 10;
+}
+
+// Defense Penetration ("PiercePower"): DIMINISHING, 100*(1 - prod(1 - dp_i/100)); each line (buff,
+// gear option, skill) is its own factor. /10 (x10 internal). Ported from calc_defense_penetration.
+function calcDefensePenetration(userInfo, tables) {
+  let total = 0;
+  const fold = raw => { if (raw) { const pct = raw / 10; total = (1 - (1 - total / 100) * (1 - pct / 100)) * 100; } };
+  const PIERCE = ['PiercePower', 'DamagePenetrateRate'];
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const bi = hero.BuffInput || {};
+    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || [])) {
+      const s = buff.StatContainer?._stats || {};
+      for (const k of PIERCE) fold(s[k] || 0);
+    }
+    for (const gear of (bi.GearInfos || []))
+      for (const k of PIERCE)
+        for (const v of _gearStatLines(gear, k, tables)) fold(v);
+    for (const v of _skillStatLines(hero, 'PiercePower', tables)) fold(v);
+  }
+  return total;
 }
 
 // Friendly artifact display names keyed by ArtifactCode (ported from calc_stats.py — the in-game
@@ -337,13 +461,21 @@ async function selectSnapshot(row, evt) {
     const userInfo = JSON.parse(row.raw_json);
     const avoid = calcAvoidChance(userInfo, tables);
     const accuracy = calcAccuracy(userInfo, tables);
-    const crit = calcCritResist(userInfo);
+    const critChance = calcCritChance(userInfo, tables);
+    const critResist = calcCritResist(userInfo);
+    const defense = calcDefense(userInfo, tables);
+    const defPen = calcDefensePenetration(userInfo, tables);
+    const dtd = calcDamageTakenDecrease(userInfo);
     const artifacts = extractArtifacts(userInfo, tables);
     panel.innerHTML = `
       <div class="stat-cards">
         <div class="stat-card"><span class="stat-label">Evasion</span><span class="stat-value">${avoid.toLocaleString()}</span></div>
         <div class="stat-card"><span class="stat-label">Accuracy</span><span class="stat-value">${accuracy.toLocaleString()}</span></div>
-        <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${crit.toFixed(1)}%</span></div>
+        <div class="stat-card"><span class="stat-label">Crit Rate</span><span class="stat-value">${critChance.toFixed(1)}%</span></div>
+        <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${critResist.toFixed(1)}%</span></div>
+        <div class="stat-card"><span class="stat-label">Defense</span><span class="stat-value">${Math.round(defense).toLocaleString()}</span></div>
+        <div class="stat-card"><span class="stat-label">Defense Penetration</span><span class="stat-value">${defPen.toFixed(1)}%</span></div>
+        <div class="stat-card"><span class="stat-label">Damage Taken Decrease</span><span class="stat-value">${dtd.toFixed(1)}%</span></div>
       </div>
       ${renderArtifacts(artifacts)}`;
   } catch (e) {
