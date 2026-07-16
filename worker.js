@@ -462,6 +462,28 @@ async function handleGuild(request, url, env, ctx) {
   });
 }
 
+// ── Arena password gate ──────────────────────────────────────────────────────
+// The /arena page requires HTTP Basic Auth when the ARENA_PASSWORD secret is set
+// (`wrangler secret put ARENA_PASSWORD`). Only the password half of the
+// credentials is checked — any username works. Without the secret the page stays
+// open (forks / wrangler dev without secrets keep working). Returns the 401
+// challenge Response to send, or null when the request is allowed through.
+function arenaAuthDenied(request, env) {
+  if (!env.ARENA_PASSWORD) return null;
+  const auth = request.headers.get('authorization') || '';
+  if (auth.startsWith('Basic ')) {
+    try {
+      const decoded = atob(auth.slice(6)); // "user:pass"
+      const pass = decoded.slice(decoded.indexOf(':') + 1);
+      if (pass === env.ARENA_PASSWORD) return null;
+    } catch { /* malformed base64 → fall through to the challenge */ }
+  }
+  return new Response('Arena requires a password.', {
+    status: 401,
+    headers: { 'www-authenticate': 'Basic realm="Arena", charset="UTF-8"' },
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -517,9 +539,15 @@ export default {
       }
     }
 
-    // /arena -> Arena.html
-    if (url.pathname === '/arena') {
-      return env.ASSETS.fetch(new Request(new URL('/Arena.html', url), request));
+    // /arena -> Arena.html, password-gated. The direct asset paths (/Arena.html,
+    // /Arena, any casing) are folded in here — combined with run_worker_first in
+    // wrangler.jsonc — so the asset layer can't serve the page around the gate.
+    // Fetch the extensionless path: html_handling 307s "/Arena.html" to "/Arena",
+    // and bouncing an authed request through a redirect just re-challenges it.
+    if (['/arena', '/arena.html', '/arena/'].includes(url.pathname.toLowerCase())) {
+      const denied = arenaAuthDenied(request, env);
+      if (denied) return denied;
+      return env.ASSETS.fetch(new Request(new URL('/Arena', url), request));
     }
 
     // Everything else (including /) -> static assets (index.html at root by default).

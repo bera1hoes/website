@@ -4,7 +4,12 @@
   "compatibility_date": "2025-05-30",
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Assets normally serve BEFORE the Worker runs, which would let /Arena and
+    // /Arena.html bypass the worker's ARENA_PASSWORD gate. Force those paths
+    // through the Worker first. (Other casings, e.g. /arena, don't match the
+    // asset manifest and always reach the Worker.)
+    "run_worker_first": ["/Arena", "/Arena.html", "/Arena/"]
   },
   "services": [
     { "binding": "USERINFO_WORKER", "service": "userinfo-worker" }
