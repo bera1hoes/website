@@ -1,6 +1,11 @@
 {
   "name": "website",
   "main": "worker.js",
+  // Pin the project to Bera1hoes@gmail.com's Cloudflare account. Wrangler
+  // otherwise targets whichever account the active `wrangler login` token
+  // belongs to — with this set, a wrong login fails loudly instead of
+  // deploying a stray copy of the Worker to the wrong account.
+  "account_id": "4765286eb9d7748fce8703d383e6ea2f",
   "compatibility_date": "2025-05-30",
   "assets": {
     "directory": "./public",
