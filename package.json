@@ -4,6 +4,7 @@
   "description": "Cloudflare Worker + static front-end for the (s)hoes Maplestory charts. Browser Rendering powers the /guild roster proxy.",
   "scripts": {
     "deploy:cf": "wrangler deploy",
+    "deploy:fork": "wrangler deploy -c wrangler.fork.jsonc",
     "setup": "node scripts/setup.mjs"
   },
   "dependencies": {

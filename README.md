@@ -149,10 +149,19 @@ To host this against your own data you need a Cloudflare Worker and the SwissKni
 capture tool. Nothing in the repo is tied to `hoes.fyi` except the values below.
 
 **1. Configure the Worker.** Rename `name` in `wrangler.jsonc` to your Worker's
-name. Create the KV namespace — `wrangler kv namespace create CHART_DATA` (plus
+name and delete the `account_id` line (it pins this repo to the owner's Cloudflare
+account; without it wrangler uses whichever account you `wrangler login`'d as).
+Create the KV namespace — `wrangler kv namespace create CHART_DATA` (plus
 `--preview` for local dev) — and put the returned IDs under `kv_namespaces` in
 `wrangler.jsonc`. Deploy with `npm run deploy:cf`, then set the ingestion secret:
 `wrangler secret put CHART_WRITE_KEY`.
+
+*Or let the wizard do it:* `npm run setup` (add `--dry-run` to preview) walks
+through the same steps against your own account — it creates your KV namespaces,
+generates the write keys, and renders a git-ignored `wrangler.fork.jsonc` instead
+of editing the committed `wrangler.jsonc`. Forks set up that way redeploy with
+**`npm run deploy:fork`**, not `deploy:cf` — the latter always reads the
+committed `wrangler.jsonc`.
 
 **2. Add/remove a content type** — follow the checklist in `CLAUDE.md` →
 *Adding a New Content Type*: an entry in `CONTENT_TYPES` (`worker.js`), the

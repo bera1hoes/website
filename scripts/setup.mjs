@@ -253,6 +253,10 @@ async function main() {
 
   log(C.ok('\n✓ Done.') + ` Open ${siteUrl}/charts (it stays empty until SwissKnife captures + pushes data).`);
   log(C.dim('  Capture setup (mitmproxy install, cert trust, routing the game) is manual — see README.'));
+  // Bare `wrangler deploy` (npm run deploy:cf) reads the committed wrangler.jsonc —
+  // the owner's worker name, account_id and KV ids — so forks must keep using -c.
+  log(`  Redeploy later with ${C.b('npm run deploy:fork')}` + C.dim(` (wrangler deploy -c ${FORK_WRANGLER_REL}).`));
+  log(C.dim("  Don't use npm run deploy:cf — that one deploys the owner's committed wrangler.jsonc, not yours."));
 }
 
 main()
