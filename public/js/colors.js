@@ -29,6 +29,8 @@ const CLASS_COLORS = {
   'Paladin':     '#60a5fa',
   'Buccaneer':   '#60a5fa',
   'Corsair':     '#60a5fa',
+  'Night Walker': '#818cf8',
+  'Wind Breaker': '#a3e635',
   'default':     '#94a3b8'
 };
 
