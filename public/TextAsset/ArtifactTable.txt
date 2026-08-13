@@ -584,5 +584,59 @@
     ],
     "NameLocalKey": "ARTIFACT_NAME_5_20",
     "IconPath": "Artifact:ARTIFACT_5_20"
+  },
+  {
+    "Index": "521",
+    "ArtifactCode": "ARTIFACT_5_21",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "52101"
+    ],
+    "EquipSkillIndices": [
+      "9052100",
+      "9052110",
+      "9052120",
+      "9052130",
+      "9052140",
+      "9052150"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_21",
+    "IconPath": "Artifact:ARTIFACT_5_21"
+  },
+  {
+    "Index": "522",
+    "ArtifactCode": "ARTIFACT_5_22",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "52201"
+    ],
+    "EquipSkillIndices": [
+      "9052200",
+      "9052210",
+      "9052220",
+      "9052230",
+      "9052240",
+      "9052250"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_22",
+    "IconPath": "Artifact:ARTIFACT_5_22"
+  },
+  {
+    "Index": "523",
+    "ArtifactCode": "ARTIFACT_5_23",
+    "GradeType": "Grade5",
+    "CollectionOptionIndices": [
+      "52301"
+    ],
+    "EquipSkillIndices": [
+      "9052300",
+      "9052310",
+      "9052320",
+      "9052330",
+      "9052340",
+      "9052350"
+    ],
+    "NameLocalKey": "ARTIFACT_NAME_5_23",
+    "IconPath": "Artifact:ARTIFACT_5_23"
   }
 ]

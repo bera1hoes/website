@@ -1203,8 +1203,8 @@
     "OptionIndex": "60104",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "11",
-      "MaxValue": "13",
+      "MinValue": "12",
+      "MaxValue": "14",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1213,8 +1213,8 @@
     "OptionIndex": "60204",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "11",
-      "MaxValue": "13",
+      "MinValue": "12",
+      "MaxValue": "14",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1223,8 +1223,8 @@
     "OptionIndex": "60304",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "11",
-      "MaxValue": "13",
+      "MinValue": "12",
+      "MaxValue": "14",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1233,8 +1233,8 @@
     "OptionIndex": "60404",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "11",
-      "MaxValue": "13",
+      "MinValue": "12",
+      "MaxValue": "14",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1243,8 +1243,8 @@
     "OptionIndex": "61104",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "12",
-      "MaxValue": "14",
+      "MinValue": "14",
+      "MaxValue": "16",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1253,8 +1253,8 @@
     "OptionIndex": "61204",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "12",
-      "MaxValue": "14",
+      "MinValue": "14",
+      "MaxValue": "16",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1263,8 +1263,8 @@
     "OptionIndex": "61304",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "12",
-      "MaxValue": "14",
+      "MinValue": "14",
+      "MaxValue": "16",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -1273,8 +1273,8 @@
     "OptionIndex": "61404",
     "StatData": {
       "Type": "HitChance",
-      "MinValue": "12",
-      "MaxValue": "14",
+      "MinValue": "14",
+      "MaxValue": "16",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -11060,6 +11060,16 @@
     }
   },
   {
+    "OptionIndex": "50511001",
+    "StatData": {
+      "Type": "Attack",
+      "MinValue": "1603",
+      "MaxValue": "1887",
+      "OptionStep": "10",
+      "Factor": "12"
+    }
+  },
+  {
     "OptionIndex": "50502002",
     "StatData": {
       "Type": "MaxHp",
@@ -11085,6 +11095,16 @@
       "Type": "MaxHp",
       "MinValue": "15180",
       "MaxValue": "15500",
+      "OptionStep": "10",
+      "Factor": "12"
+    }
+  },
+  {
+    "OptionIndex": "50511002",
+    "StatData": {
+      "Type": "MaxHp",
+      "MinValue": "16030",
+      "MaxValue": "18870",
       "OptionStep": "10",
       "Factor": "12"
     }
@@ -11120,6 +11140,16 @@
     }
   },
   {
+    "OptionIndex": "50511003",
+    "StatData": {
+      "Type": "Defence",
+      "MinValue": "258",
+      "MaxValue": "323",
+      "OptionStep": "10",
+      "Factor": "12"
+    }
+  },
+  {
     "OptionIndex": "50502004",
     "StatData": {
       "Type": "MaxMpR",
@@ -11145,6 +11175,16 @@
       "Type": "MaxMpR",
       "MinValue": "57",
       "MaxValue": "72",
+      "OptionStep": "10",
+      "Factor": "12"
+    }
+  },
+  {
+    "OptionIndex": "50511004",
+    "StatData": {
+      "Type": "MaxMpR",
+      "MinValue": "60",
+      "MaxValue": "75",
       "OptionStep": "10",
       "Factor": "12"
     }
@@ -11180,6 +11220,16 @@
     }
   },
   {
+    "OptionIndex": "50511005",
+    "StatData": {
+      "Type": "AvoidChance",
+      "MinValue": "16",
+      "MaxValue": "18",
+      "OptionStep": "2",
+      "Factor": "8"
+    }
+  },
+  {
     "OptionIndex": "50502006",
     "StatData": {
       "Type": "HitChance",
@@ -11205,6 +11255,16 @@
       "Type": "HitChance",
       "MinValue": "11",
       "MaxValue": "13",
+      "OptionStep": "2",
+      "Factor": "8"
+    }
+  },
+  {
+    "OptionIndex": "50511006",
+    "StatData": {
+      "Type": "HitChance",
+      "MinValue": "13",
+      "MaxValue": "15",
       "OptionStep": "2",
       "Factor": "8"
     }
@@ -11240,6 +11300,16 @@
     }
   },
   {
+    "OptionIndex": "50511007",
+    "StatData": {
+      "Type": "CriticalChance",
+      "MinValue": "52",
+      "MaxValue": "60",
+      "OptionStep": "8",
+      "Factor": "11"
+    }
+  },
+  {
     "OptionIndex": "50502008",
     "StatData": {
       "Type": "CriticalPower",
@@ -11265,6 +11335,16 @@
       "Type": "CriticalPower",
       "MinValue": "50",
       "MaxValue": "58",
+      "OptionStep": "8",
+      "Factor": "11"
+    }
+  },
+  {
+    "OptionIndex": "50511008",
+    "StatData": {
+      "Type": "CriticalPower",
+      "MinValue": "52",
+      "MaxValue": "60",
       "OptionStep": "8",
       "Factor": "11"
     }
@@ -11300,6 +11380,16 @@
     }
   },
   {
+    "OptionIndex": "50511009",
+    "StatData": {
+      "Type": "AttackPowerToBoss",
+      "MinValue": "52",
+      "MaxValue": "60",
+      "OptionStep": "8",
+      "Factor": "11"
+    }
+  },
+  {
     "OptionIndex": "50502010",
     "StatData": {
       "Type": "AttackPowerExcludeBoss",
@@ -11325,6 +11415,16 @@
       "Type": "AttackPowerExcludeBoss",
       "MinValue": "50",
       "MaxValue": "58",
+      "OptionStep": "8",
+      "Factor": "11"
+    }
+  },
+  {
+    "OptionIndex": "50511010",
+    "StatData": {
+      "Type": "AttackPowerExcludeBoss",
+      "MinValue": "52",
+      "MaxValue": "60",
       "OptionStep": "8",
       "Factor": "11"
     }
@@ -11360,6 +11460,16 @@
     }
   },
   {
+    "OptionIndex": "50511011",
+    "StatData": {
+      "Type": "JobStep1SkillLevel",
+      "MinValue": "6",
+      "MaxValue": "12",
+      "OptionStep": "6",
+      "Factor": "8"
+    }
+  },
+  {
     "OptionIndex": "50502012",
     "StatData": {
       "Type": "JobStep2SkillLevel",
@@ -11385,6 +11495,16 @@
       "Type": "JobStep2SkillLevel",
       "MinValue": "5",
       "MaxValue": "11",
+      "OptionStep": "6",
+      "Factor": "8"
+    }
+  },
+  {
+    "OptionIndex": "50511012",
+    "StatData": {
+      "Type": "JobStep2SkillLevel",
+      "MinValue": "6",
+      "MaxValue": "12",
       "OptionStep": "6",
       "Factor": "8"
     }
@@ -11420,6 +11540,16 @@
     }
   },
   {
+    "OptionIndex": "50511013",
+    "StatData": {
+      "Type": "JobStep3SkillLevel",
+      "MinValue": "6",
+      "MaxValue": "12",
+      "OptionStep": "6",
+      "Factor": "8"
+    }
+  },
+  {
     "OptionIndex": "50502014",
     "StatData": {
       "Type": "JobStep4SkillLevel",
@@ -11450,6 +11580,16 @@
     }
   },
   {
+    "OptionIndex": "50511014",
+    "StatData": {
+      "Type": "JobStep4SkillLevel",
+      "MinValue": "5",
+      "MaxValue": "11",
+      "OptionStep": "6",
+      "Factor": "8"
+    }
+  },
+  {
     "OptionIndex": "50502019",
     "StatData": {
       "Type": "BaseAttackPower",
@@ -11475,6 +11615,16 @@
       "Type": "BaseAttackPower",
       "MinValue": "50",
       "MaxValue": "58",
+      "OptionStep": "8",
+      "Factor": "11"
+    }
+  },
+  {
+    "OptionIndex": "50511019",
+    "StatData": {
+      "Type": "BaseAttackPower",
+      "MinValue": "52",
+      "MaxValue": "60",
       "OptionStep": "8",
       "Factor": "11"
     }
