@@ -215,7 +215,32 @@
   <div id="experiments-content">
     <div class="eyebrow" style="margin-bottom:16px">Experiments</div>
 
-    <!-- Feature 1: Custom Fit Equation -->
+    <!-- Feature 1: CP → expected score -->
+    <div class="exp-section">
+      <div class="exp-label">CP → Expected Score</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="player-filter" id="estimate-input" type="text" inputmode="text"
+          aria-label="Enter a CP to see the score the fit predicts"
+          placeholder="e.g. 1.9e15 or 1AB 900T"
+          oninput="onEstimateInput(this.value)"
+          onkeydown="if(event.key==='Escape'){clearEstimate();}">
+        <button id="estimate-clear" class="filter-clear" type="button" aria-label="Clear CP" onclick="clearEstimate()" hidden>×</button>
+      </div>
+      <div id="estimate-error" class="est-error"></div>
+      <div id="estimate-out" hidden>
+        <div class="est-score accent2" id="est-score">—</div>
+        <div class="est-exact" id="est-exact"></div>
+        <div class="p-row" title="±1σ of the fit — the band drawn around the fit line"><span class="p-key">TYPICAL RANGE</span><span id="est-range"></span></div>
+        <div class="p-row" id="est-rank-row"><span class="p-key">WOULD RANK</span><span id="est-rank"></span></div>
+        <div class="p-row" id="est-gw-row" hidden><span class="p-key">GW PTS</span><span id="est-gw"></span></div>
+        <div class="p-row" id="est-custom-row" hidden><span class="p-key">VS CUSTOM</span><span id="est-custom"></span></div>
+        <div class="est-note" id="est-note"></div>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
+
+    <!-- Feature 2: Custom Fit Equation -->
     <div class="exp-section">
       <div class="exp-label">Custom Fit Equation</div>
       <input id="custom-eq-input" type="text"
@@ -230,7 +255,7 @@
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
 
-    <!-- Feature 2: CP Range Filter -->
+    <!-- Feature 3: CP Range Filter -->
     <div class="exp-section">
       <div class="exp-label">CP Range Filter</div>
       <div class="dual-slider" id="cp-slider-wrap">
@@ -250,7 +275,7 @@
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
 
-    <!-- Feature 3: Regression checkbox -->
+    <!-- Feature 4: Regression checkbox -->
     <div class="exp-section" style="display:flex;align-items:flex-start;gap:10px">
       <input type="checkbox" id="regress-on-filter" style="margin-top:2px;accent-color:#f0a500"
         onchange="onRegressCheckbox(this.checked)">
@@ -261,7 +286,7 @@
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
 
-    <!-- Feature 4: Class-adjusted vs Fit -->
+    <!-- Feature 5: Class-adjusted vs Fit -->
     <div class="exp-section" style="display:flex;align-items:flex-start;gap:10px">
       <input type="checkbox" id="class-adjust" style="margin-top:2px;accent-color:#f0a500"
         onchange="onClassAdjust(this.checked)">
@@ -272,7 +297,7 @@
 
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:4px 0 16px">
 
-    <!-- Feature 5: Win Prediction -->
+    <!-- Feature 6: Win Prediction -->
     <div class="exp-section">
       <div class="exp-label">Win Prediction</div>
       <div style="font-size:11px;color:#8b919e;line-height:1.5;margin-bottom:8px">
@@ -315,6 +340,7 @@
 <script src="/js/chart.js"></script>
 <script src="/js/tables.js"></script>
 <script src="/js/experiments.js"></script>
+<script src="/js/estimate.js"></script>
 <script src="/js/deeplink.js"></script>
 <script src="/js/history.js"></script>
 <script src="/js/guild-history.js"></script>

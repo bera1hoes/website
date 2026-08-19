@@ -377,6 +377,20 @@ select:focus { border-color: var(--amber); }
   overflow-y: auto;
 }
 .custom-fit-line { fill: none; stroke: rgba(255,255,255,0.28); stroke-width: 1.5; stroke-dasharray: 4 3; }
+
+/* CP → expected score readout */
+.est-error { font-size: 11px; color: #f87171; font-family: 'Space Mono', monospace; margin-top: 6px; min-height: 14px; }
+#estimate-out[hidden] { display: none; }
+.est-score { font-size: 24px; font-weight: 500; margin-top: 2px; }
+.est-exact { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-bottom: 8px; }
+#estimate-out .p-row[hidden] { display: none; }
+#estimate-out .p-row span:last-child { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--text-dim); }
+.est-note { font-size: 11px; color: var(--amber); line-height: 1.5; margin-top: 8px; }
+.est-note:empty { display: none; }
+/* Marker on the chart at the estimated (CP, score) point. */
+.estimate-marker { pointer-events: none; }
+.estimate-marker circle { fill: rgba(240,165,0,0.25); stroke: var(--amber); stroke-width: 2; }
+.estimate-marker text { fill: var(--amber); font-size: 10px; font-family: 'Space Mono', monospace; }
 .exp-section { margin-bottom: 20px; }
 .exp-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
 .dual-slider { position: relative; height: 20px; margin: 8px 0; }

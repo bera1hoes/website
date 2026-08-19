@@ -59,11 +59,11 @@ ES modules, no build step). `Charts.html` loads them in this order — d3 first,
 `main.js` (boot) **last**; everything in between only *declares* functions/state
 used at runtime, so cross-file references resolve regardless:
 
-`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
+`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
 
 | File | Responsibility |
 |---|---|
-| `util.js` | `$id`, `setStats`/`clearStats` (R²/exp/eq cards), `applyFitDiff`/`fitDiffColor`/`fitDiffText`, `toGamingNotation` |
+| `util.js` | `$id`, `setStats`/`clearStats` (R²/exp/eq cards), `applyFitDiff`/`fitDiffColor`/`fitDiffText`, `toGamingNotation`/`parseGamingNotation` |
 | `colors.js` | `GUILD_PALETTE`/`GUILD_COLORS`/`CLASS_COLORS`, `assignGuildColors`, `getColor` |
 | `gw-points.js` | `GW_POINTS_DATA` (rank→points TSV literal) |
 | `regression.js` | `powerRegression`, `computeClassBias`, `computeFitDiffs` |
@@ -74,6 +74,7 @@ used at runtime, so cross-file references resolve regardless:
 | `chart.js` | chart render handles + fit state, `buildChart` and its helpers, `resetZoom` |
 | `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable`, manual score overrides |
 | `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers |
+| `estimate.js` | CP → expected score (runs `activeFit` forward): readout + chart marker (`renderEstimate`, `positionEstimateMarker`) |
 | `deeplink.js` | URL-hash state (`updateDeepLink`, `restoreDeepLink`, `copyShareLink`) |
 | `history.js` | week-over-week **player** deltas vs the previous sheet (`loadHistory`, `fmtPct`) |
 | `guild-history.js` | per-**guild** rollup across prior weeks (`loadGuildHistory`, `applyBuiltEntry`, pivot history cells) |

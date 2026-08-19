@@ -145,6 +145,7 @@ function applyFilters() {
   buildPivotTable(filtered);
   playerTableData = filtered;
   renderPlayerTable();
+  renderEstimate();  // activeFit may have just moved under it
 }
 
 // ── Experiments: custom fit equation ──────────────────────────────────────
@@ -180,6 +181,7 @@ function applyCustomFit() {
     computeCustomFitDiffs(currentData);
     renderCustomFitLine(xScale, yScale, plot);
     renderPlayerTable();
+    renderEstimate();
   }
 }
 
@@ -200,6 +202,7 @@ function clearCustomFit() {
   if (currentData) {
     currentData.forEach(d => { delete d.customFitDiff; });
     renderPlayerTable();
+    renderEstimate();
   }
 }
 

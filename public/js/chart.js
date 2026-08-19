@@ -198,6 +198,10 @@ function renderScatter(data, A, B, sigma) {
 
   renderDots(data);
 
+  // Appended after the dots so the CP→score marker reads on top of them.
+  estimateMarker = null;  // the old handle died with the cleared SVG
+  renderEstimate();
+
   plot.insert('rect', ':first-child')
     .attr('width', W).attr('height', H)
     .attr('fill', 'none').attr('pointer-events', 'all')
@@ -230,6 +234,7 @@ function renderScatter(data, A, B, sigma) {
       drawFit(fitPath, fitPts, zx, zy);
       if (bandPath && bandPts) drawBand(bandPath, bandPts, zx, zy);
       if (custom.path && custom.pts) drawFit(custom.path, custom.pts, zx, zy);
+      positionEstimateMarker(zx, zy);
 
       const isZoomed = t.k !== 1 || t.x !== 0 || t.y !== 0;
       $id('zoom-indicator').style.display = isZoomed ? 'flex' : 'none';
