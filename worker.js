@@ -9,6 +9,21 @@ const CONTENT_TYPES = [
   'Guild Training Ground',
 ];
 
+// mapleidle.gg's score-analysis content keys → our content types. Their page
+// fits one power-law "baseline" per content per job cohort; the userscript
+// (tools/mapleidle-baseline.user.js) scrapes the coefficients and POSTs them to
+// /baseline. Keys absent here (their `worldBoss`) are dropped; our Global GBB has
+// no counterpart on their side, so it simply never gets a baseline.
+const MAPLEIDLE_CONTENT = {
+  guildWar: 'Guild Wars',
+  guildBossBattle: 'Guild Boss Battle',
+  conquest: 'Guild Conquest',
+  trainingGround: 'Guild Training Ground',
+};
+
+// Their two job cohorts. Guild content is Lv 100+, so the chart reads `fourth`.
+const MAPLEIDLE_COHORTS = ['fourth', 'sub'];
+
 // Content types that get a week-over-week per-player performance profile (Win
 // Prediction's "adjust by history/last week"). Global GBB / Guild Conquest are
 // excluded — they have no comparable week-over-week per-player performance.
@@ -276,6 +291,15 @@ async function handleApi(url, env) {
     return jsonResponse(JSON.stringify(res));
   }
 
+  // mapleidle's per-content baseline fits (one small KV key, all content types
+  // and both cohorts at once — the client picks the one it needs and caches it
+  // for a week). A miss returns null rather than an error: no baseline has been
+  // pushed yet, and the card just stays hidden.
+  if (action === 'getBaselines') {
+    const stored = await env.CHART_DATA.get(BASELINE_KEY);
+    return jsonResponse(stored || 'null');
+  }
+
   // Last-updated timestamp, served from the names record.
   if (action === 'getLastUpdated') {
     const stored = await env.CHART_DATA.get(namesKey(type));
@@ -373,6 +397,86 @@ async function handleChartUpload(request, env) {
   }), {
     status: 200,
     headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
+}
+
+// ── mapleidle baselines (/baseline) ──────────────────────────────────────────
+// mapleidle.gg/tools/score-analysis fits a power-law "baseline" (Score = e^fitA
+// · CP^fitB) per content type per job cohort. That page can't be read by anything
+// but a real browser sitting on it — a Worker fetch is 429'd (datacenter IP), a
+// scripted fetch is 429'd even from a residential IP (automation fingerprint),
+// and a visitor's cross-origin fetch is CORS-blocked (the route sends no
+// Access-Control-Allow-Origin; `mode:'no-cors'` yields an unreadable opaque
+// response). So the capture runs *inside* the page as a Tampermonkey userscript
+// (tools/mapleidle-baseline.user.js), which reads the coefficients out of Next's
+// flight payload and POSTs them here. This Worker only stores + serves; like
+// /guild, it never talks to mapleidle itself.
+
+const BASELINE_KEY = 'baselines';
+
+// The userscript is cross-origin (mapleidle.gg → here). GM_xmlhttpRequest is
+// exempt from CORS, but a plain fetch() fallback isn't, so the route answers
+// preflights and echoes the CORS headers. Safe here: auth is a bearer token, not
+// a cookie, so a browser-driven request can't borrow anyone's credentials.
+const BASELINE_CORS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'POST, OPTIONS',
+  'access-control-allow-headers': 'authorization, content-type',
+  'access-control-max-age': '86400',
+};
+
+// Pull { fitA, fitB, snapshotDate } out of one uploaded cohort block, mapping
+// mapleidle's content keys to ours and dropping anything malformed or unmapped.
+function cleanBaselineCohort(block) {
+  const out = {};
+  if (!block || typeof block !== 'object') return out;
+  for (const [miKey, ours] of Object.entries(MAPLEIDLE_CONTENT)) {
+    const e = block[miKey];
+    if (!e || typeof e !== 'object') continue;
+    const fitA = Number(e.fitA);
+    const fitB = Number(e.fitB);
+    if (!isFinite(fitA) || !isFinite(fitB)) continue;
+    const entry = { fitA, fitB };
+    if (typeof e.snapshotDate === 'string' && e.snapshotDate) entry.snapshotDate = e.snapshotDate;
+    out[ours] = entry;
+  }
+  return out;
+}
+
+async function handleBaselineUpload(request, env) {
+  if (!env.CHART_DATA) return jsonError(503, 'Chart store (KV) not configured');
+  const auth = request.headers.get('authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!env.CHART_WRITE_KEY || token !== env.CHART_WRITE_KEY) return jsonError(401, 'Unauthorized');
+
+  let body;
+  try { body = await request.json(); } catch { return jsonError(400, 'Invalid JSON body'); }
+
+  const analysis = body && body.analysis;
+  if (!analysis || typeof analysis !== 'object') return jsonError(400, 'Missing `analysis` object');
+
+  const cohorts = {};
+  let total = 0;
+  for (const c of MAPLEIDLE_COHORTS) {
+    const cleaned = cleanBaselineCohort(analysis[c]);
+    const n = Object.keys(cleaned).length;
+    if (n) { cohorts[c] = cleaned; total += n; }
+  }
+  if (!total) return jsonError(400, 'No usable fits (each needs numeric fitA and fitB)');
+
+  const value = { fetchedAt: new Date().toISOString(), source: 'mapleidle.gg/tools/score-analysis', cohorts };
+  await env.CHART_DATA.put(BASELINE_KEY, JSON.stringify(value));
+
+  return new Response(JSON.stringify({
+    ok: true,
+    fetchedAt: value.fetchedAt,
+    fits: total,
+    // Surfaced so a mapleidle rename shows up as "skipped" instead of silently
+    // shrinking the set the next time someone pushes.
+    skipped: Object.keys(analysis.fourth || {}).filter(k => !MAPLEIDLE_CONTENT[k]),
+  }), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8', ...BASELINE_CORS },
   });
 }
 
@@ -494,6 +598,12 @@ export default {
 
     if (url.pathname === '/chart') {
       if (request.method === 'POST') return handleChartUpload(request, env);
+      return jsonError(405, 'Method not allowed');
+    }
+
+    if (url.pathname === '/baseline') {
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: BASELINE_CORS });
+      if (request.method === 'POST') return handleBaselineUpload(request, env);
       return jsonError(405, 'Method not allowed');
     }
 

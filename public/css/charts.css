@@ -64,6 +64,8 @@ select:focus { border-color: var(--amber); }
 .card { background: var(--surface); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 18px; flex: 1; min-width: 130px; }
 .card-label { font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace; letter-spacing: .08em; margin-bottom: 4px; }
 .card-val { font-size: 17px; font-weight: 500; }
+.card-sub { font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-top: 4px; }
+.card-sub:empty { display: none; }
 .accent { color: var(--amber); }
 .accent2 { color: var(--teal); }
 

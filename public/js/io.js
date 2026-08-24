@@ -121,6 +121,7 @@ function loadContentType(type) {
   document.getElementById('pivot-section').style.display = 'none';
   document.getElementById('player-table-section').style.display = 'none';
   document.getElementById('zoom-indicator').style.display = 'none';
+  loadBaselines();  // mapleidle's baseline card follows the content type
 
   if (IS_LOCAL) {
     populateLocalSheets(type);
@@ -289,6 +290,11 @@ function updateReloadButton(name) {
 function reloadSheet() {
   if (reloadCooldownRemaining > 0) return;
   delete lastUpdatedCache[currentContentType];
+  // Reload means "get me the current state" — that includes a baseline the
+  // userscript may have pushed since this browser last read one.
+  bustBaselineCache();
+  miBaselines = null;
+  loadBaselines();
   // Names-first: refresh the sheet list, then load whatever is now the latest
   // sheet. A newly-published date is shown (not just added to the dropdown),
   // and when there's no new date this falls through to refetching the current

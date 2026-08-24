@@ -13,7 +13,8 @@ Visualizes Maplestory guild content player data as a CP vs Score scatter plot wi
 All browser-served assets live under **`public/`**; `worker.js` and `wrangler.jsonc` are at the repo root.
 
 - **worker.js** — Cloudflare Worker: static-asset host + KV-backed data API + ingestion + router. **`/api?action=...` reads from KV** (binding `CHART_DATA`): `getSheetNames`/`getData`/`getLastUpdated` return the stored value, or an empty result on a miss (no upstream — KV is authoritative). `getData` serves the stored `{ rows, rosters, perfProfile, guildHistory }` object **as-is** (the client's `rowsOf`/`rostersOf`/`perfOf`/`guildHistOf` read whichever shape arrives). Responses are `cache-control: no-store` (KV *is* the store; no `caches.default` layer), so a re-read (the client's Reload) is always fresh. **`POST /chart`** is the ingestion endpoint: `Authorization: Bearer <CHART_WRITE_KEY>`, body `{ type, date: "MM-DD-YYYY", rows: [...] }` — it normalizes rows (drops missing cp/score), **embeds the guilds' roster snapshot** from `ROSTERS` (pulled fresh on first create, carried over — with any `perfProfile`/`guildHistory` — on update), writes `data:<type>:<date>`, merges `guildweeks:<type>`, and upserts the date into `names:<type>` (sorted newest-first) with a fresh `updated` stamp. The actions `refreshRosters` (re-pull the embedded roster) and `buildPerfProfile` run **KV-only**; the latter scans the prior sheets once and embeds **both** the recency-weighted per-player profile (`perfProfile`, PERF_TYPES only) and the per-guild rollup of prior appearances (`guildHistory`, every content type — total Score + participant count per prior sheet, behind the pivot table's history columns). Other routes: `/guild` (POST/GET roster KV, binding `ROSTERS`), `/charts` → `Charts.html`, `/arena` → `Arena.html` (**Basic-Auth gated** when the `ARENA_PASSWORD` secret is set — any username, password checked; the direct `/Arena.html`/`/Arena` asset paths are folded into the same route so the catch-all can't bypass the gate; no secret → open), `/userinfo` → a separate UserInfo Worker, everything else → `public/` assets.
-  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor }, guildHistory?: { "<guild>": [{ sheet, total, members }, …] } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (all content types — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
+  - **`POST /baseline`** stores mapleidle.gg's per-content power-law "baseline" fits: `Authorization: Bearer <CHART_WRITE_KEY>` (same key as `/chart`), body `{ analysis: { fourth|sub: { <mapleidle mode>: { fitA, fitB, snapshotDate } } } }`. It maps their mode keys to our content types via `MAPLEIDLE_CONTENT` (their `worldBoss` has no counterpart and is dropped — reported back as `skipped`; our Global GBB has none on their side) and writes the single KV key `baselines`. Read back with `/api?action=getBaselines` (returns `null` on a miss). The route answers CORS preflights because its only client is cross-origin — see **mapleidle baselines** below.
+  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor }, guildHistory?: { "<guild>": [{ sheet, total, members }, …] } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (all content types — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets); `baselines` → `{ fetchedAt: <ISO>, source, cohorts: { fourth|sub: { "<content type>": { fitA, fitB, snapshotDate } } } }` (one key for every content type and both job cohorts). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
 - **public/Charts.html** — Chart front-end **markup only** (~210 lines). Loads `/css/*.css` and, at the bottom, the ordered `/js/*.js` files (see Architecture). Served at `/charts`.
 - **public/js/** — The chart's JavaScript, split into plain (non-module) `<script src>` files that share one global scope (so the inline `onclick=` handlers keep working). Load order matters; see Architecture.
 - **public/css/** — `shared.css` (theme tokens), `charts.css`, `home.css`, `arena.css`. Charts.html links `shared.css` + `charts.css`.
@@ -22,6 +23,42 @@ All browser-served assets live under **`public/`**; `worker.js` and `wrangler.js
 - **public/SampleData/GWLocalData.js** — Local debug data for Guild Wars. Defines `GW_LOCAL_DATA` (`{ 'MM_DD_YYYY': '<tsv string>' }`).
 - **public/SampleData/GBBLocalData.js** / **GlobalGBBLocalData.js** / **GuildConquestLocalData.js** / **GTTLocalData.js** — same format for Guild Boss Battle (`GBB_LOCAL_DATA`), Global GBB (`GGBB_LOCAL_DATA`), Guild Conquest (`GC_LOCAL_DATA`), and Guild Training Ground (`GTT_LOCAL_DATA`).
 - **public/SampleData/** — Raw `.tsv` exports and the local-data JS files.
+- **tools/mapleidle-baseline.user.js** — Tampermonkey userscript that scrapes mapleidle's per-content baseline fits and pushes them to `POST /baseline`. Not served by the site; install it into Tampermonkey. See **mapleidle Baselines**.
+
+## mapleidle Baselines
+
+The chart shows a **MAPLEIDLE BASELINE** stats card: the power-law fit
+mapleidle.gg/tools/score-analysis computes for the same content type over *every
+ranked character in the game* (median, all classes pooled), next to our own fit
+over one guild sheet. Their form is `Score = e^fitA · CP^fitB`; the card converts
+to our `A × CP^B` so the two EQUATION cards compare directly.
+
+**Why the capture is a userscript.** That page cannot be read by us from anywhere:
+a Worker `fetch` is 429'd (datacenter IP), a scripted fetch is 429'd even from a
+residential IP (automation fingerprint), and a visitor's cross-origin `fetch` is
+CORS-blocked — the route sends no `Access-Control-Allow-Origin`, and `mode:
+'no-cors'` yields an opaque, empty response. (Verified: `/news?_rsc=` *does* send
+CORS headers and reads fine from a browser, so the block is route-specific, not a
+mistake on our end.) There is no JSON API behind the page — the coefficients are
+server-rendered into Next's RSC flight payload. So the capture runs **inside the
+page**: `tools/mapleidle-baseline.user.js` is a Tampermonkey script matching
+`/tools/score-analysis`, which rebuilds the flight text, brace-slices the
+`analysis` object out of it, `JSON.parse`s it, drops everything but
+`fitA`/`fitB`/`snapshotDate`, and POSTs to `/baseline` via `GM_xmlhttpRequest`
+(exempt from CORS; `@connect hoes.fyi`). The `CHART_WRITE_KEY` lives in
+Tampermonkey's `GM_setValue` storage, not in the file — so the script is safe to
+share and prompts on first use ("set key / site" re-prompts).
+
+**Weekly refresh** is enforced at both ends: the userscript reads the stored
+`fetchedAt` first and asks for confirmation if it's under 7 days old, and the
+front-end caches the `/api` response in `localStorage` (`mi_baselines`, 7-day TTL)
+so the read happens about once a week per browser. The chart's **Reload** button
+calls `bustBaselineCache()`, so a fresh push is visible without waiting out the
+week.
+
+A sibling userscript, `tools/mapleidle-performance-vs.user.js` (not part of the
+site either), annotates mapleidle's own character pages from the same payload;
+the two share the flight-parsing approach.
 
 ## Adding a New Content Type
 
@@ -59,7 +96,7 @@ ES modules, no build step). `Charts.html` loads them in this order — d3 first,
 `main.js` (boot) **last**; everything in between only *declares* functions/state
 used at runtime, so cross-file references resolve regardless:
 
-`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
+`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `baselines` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
 
 | File | Responsibility |
 |---|---|
@@ -75,6 +112,7 @@ used at runtime, so cross-file references resolve regardless:
 | `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable`, manual score overrides |
 | `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers |
 | `estimate.js` | CP → expected score (runs `activeFit` forward): readout + chart marker (`renderEstimate`, `positionEstimateMarker`) |
+| `baselines.js` | mapleidle's game-wide baseline fit for the current content type: weekly-cached read of `getBaselines` + the MAPLEIDLE BASELINE stats card (`loadBaselines`, `renderBaselineCard`, `bustBaselineCache`) |
 | `deeplink.js` | URL-hash state (`updateDeepLink`, `restoreDeepLink`, `copyShareLink`) |
 | `history.js` | week-over-week **player** deltas vs the previous sheet (`loadHistory`, `fmtPct`) |
 | `guild-history.js` | per-**guild** rollup across prior weeks (`loadGuildHistory`, `applyBuiltEntry`, pivot history cells) |
