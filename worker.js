@@ -39,14 +39,19 @@ const PERF_DECAY = 0.6;
 // rankings and POSTs them to /chart, which writes these key shapes:
 //   names:<type>        -> { updated: <ISO>, sheets: ["MM-DD-YYYY", …] }
 //   data:<type>:<sheet> -> { rows: [ {rank, nick, score, …}, … ],
-//                            rosters:      { "<guild>": [ {nick,cp,cls,level}, … ] },
+//                            rosters:      { "<guild>": [ {nick,cp,cls,level,joined?,joined_weeks?}, … ] },
+//                            rosterChanges:{ "<guild>": [ {nick,action,date,guild,weeks}, … ] }, (optional)
 //                            perfProfile:  { "<nick>": <factor> },            (optional)
 //                            guildHistory: { "<guild>": [ {sheet,total,members}, … ] } }  (optional)
 //   guildweeks:<type>   -> { "<guild>": ["MM-DD-YYYY", …] }   (all content types)
 // `rosters` is a frozen snapshot of the sheet's guilds' rosters (from the ROSTERS
 // namespace), embedded on /chart ingest and carried over on updates so Win
 // Prediction reads it with no extra KV call. Legacy bare-array entries are still
-// served (rows with no rosters) until refreshed. `perfProfile` is a
+// served (rows with no rosters) until refreshed. `rosterChanges` rides along with
+// it — mapleidle's 30-day join/leave log per guild, each entry pre-labeled with
+// the week bucket it falls in for every content type, so prediction can tell a
+// member who wasn't in the guild yet from one who simply skipped the run.
+// `perfProfile` is a
 // recency-weighted per-player over/under-performance factor built from the PRIOR
 // sheets where the current guilds appeared (buildPerfProfile), embedded here and
 // carried over on update. `guildHistory` (same build, every content type) is the
@@ -87,16 +92,22 @@ function guildsOf(rows) {
   return [...new Set((rows || []).map((r) => r && r.guild).filter(Boolean))];
 }
 
-// Snapshot of the given guilds' rosters from the ROSTERS namespace (per-guild keys).
-// Skips guilds with no stored/empty roster. Returns { "<guild>": members[] }.
+// Snapshot of the given guilds' rosters + join/leave logs from the ROSTERS
+// namespace (per-guild keys). Skips guilds with no stored/empty roster; a guild
+// with a roster but no recorded changes is simply absent from `changes`.
+// Returns { rosters: { "<guild>": members[] }, changes: { "<guild>": entries[] } }.
 async function pullRosters(env, world, guilds) {
-  if (!env.ROSTERS) return {};
-  const out = {};
+  if (!env.ROSTERS) return { rosters: {}, changes: {} };
+  const rosters = {}, changes = {};
   await Promise.all([...new Set(guilds)].map(async (g) => {
-    const r = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
-    if (Array.isArray(r) && r.length) out[g] = r;
+    const [r, c] = await Promise.all([
+      env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' }),
+      env.ROSTERS.get(changesKvKey(world, g), { type: 'json' }),
+    ]);
+    if (Array.isArray(r) && r.length) rosters[g] = r;
+    if (Array.isArray(c) && c.length) changes[g] = c;
   }));
-  return out;
+  return { rosters, changes };
 }
 
 // Add a sheet to each of its guilds' lists in guildweeks:<type>.
@@ -225,6 +236,7 @@ async function buildPerfProfile(env, type, sheet) {
   if (gwChanged) await env.CHART_DATA.put(guildWeeksKey(type), JSON.stringify(gw));
 
   const value = { rows: cur.rows, rosters: cur.rosters || {}, guildHistory };
+  if (cur.rosterChanges) value.rosterChanges = cur.rosterChanges;
   if (wantPerf) {
     const perfProfile = {};
     for (const nick of Object.keys(sum)) {
@@ -269,8 +281,9 @@ async function handleApi(url, env) {
     if (!stored) return jsonError(404, 'No data for that sheet yet — load it first');
     const entry = JSON.parse(stored);
     const rows = Array.isArray(entry) ? entry : (entry.rows || []);
-    const rosters = await pullRosters(env, 'bera', guildsOf(rows));
+    const { rosters, changes } = await pullRosters(env, 'bera', guildsOf(rows));
     const value = { rows, rosters };
+    if (Object.keys(changes).length) value.rosterChanges = changes;
     // Preserve any embedded perfProfile/guildHistory — refreshing rosters must not drop them.
     if (!Array.isArray(entry) && entry.perfProfile) value.perfProfile = entry.perfProfile;
     if (!Array.isArray(entry) && entry.guildHistory) value.guildHistory = entry.guildHistory;
@@ -366,18 +379,22 @@ async function handleChartUpload(request, env) {
   // guildHistory — both summarize PRIOR sheets, which an update to this one can't
   // change), else pull fresh from ROSTERS for the rows' guilds — same as syncData did.
   const prevRaw = await env.CHART_DATA.get(dataKey(type, date));
-  let rosters, perfProfile, guildHistory;
+  let rosters, rosterChanges, perfProfile, guildHistory;
   if (prevRaw) {
     const prev = JSON.parse(prevRaw);
     const obj = (prev && !Array.isArray(prev)) ? prev : {};
     rosters = obj.rosters || {};
+    rosterChanges = obj.rosterChanges;
     perfProfile = obj.perfProfile;
     guildHistory = obj.guildHistory;
   } else {
-    rosters = await pullRosters(env, 'bera', guildsOf(rows));
+    const pulled = await pullRosters(env, 'bera', guildsOf(rows));
+    rosters = pulled.rosters;
+    if (Object.keys(pulled.changes).length) rosterChanges = pulled.changes;
   }
 
   const value = { rows, rosters };
+  if (rosterChanges) value.rosterChanges = rosterChanges;
   if (perfProfile) value.perfProfile = perfProfile;
   if (guildHistory) value.guildHistory = guildHistory;
   await env.CHART_DATA.put(dataKey(type, date), JSON.stringify(value));
@@ -414,11 +431,11 @@ async function handleChartUpload(request, env) {
 
 const BASELINE_KEY = 'baselines';
 
-// The userscript is cross-origin (mapleidle.gg → here). GM_xmlhttpRequest is
-// exempt from CORS, but a plain fetch() fallback isn't, so the route answers
-// preflights and echoes the CORS headers. Safe here: auth is a bearer token, not
+// The userscripts are cross-origin (mapleidle.gg → here). GM_xmlhttpRequest is
+// exempt from CORS, but a plain fetch() fallback isn't, so these routes answer
+// preflights and echo the CORS headers. Safe here: auth is a bearer token, not
 // a cookie, so a browser-driven request can't borrow anyone's credentials.
-const BASELINE_CORS = {
+const USERSCRIPT_CORS = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'POST, OPTIONS',
   'access-control-allow-headers': 'authorization, content-type',
@@ -476,7 +493,115 @@ async function handleBaselineUpload(request, env) {
     skipped: Object.keys(analysis.fourth || {}).filter(k => !MAPLEIDLE_CONTENT[k]),
   }), {
     status: 200,
-    headers: { 'content-type': 'application/json; charset=utf-8', ...BASELINE_CORS },
+    headers: { 'content-type': 'application/json; charset=utf-8', ...USERSCRIPT_CORS },
+  });
+}
+
+// ── mapleidle player scores (/playerscores) ──────────────────────────────────
+// Win Prediction projects an absent member from the fit at their CP, tuned by a
+// per-player factor built from OUR prior sheets. A player who has never appeared
+// in one gets no factor at all — the projection falls back to raw/class, which is
+// exactly the roster slot we know least about.
+//
+// mapleidle already has those players: it records each character's best score per
+// content mode paired with the CP they set it at. That pairing is the whole point
+// — a score judged against the CP it was actually achieved at is comparable to
+// our fit directly, so it drops into the same score/(A·cp^B) ratio the other
+// adjust modes use (see miFactor in prediction.js).
+//
+// tools/mapleidle-player-scores.user.js does the fetching (same reason as the
+// baseline script: only a real browser on the site can read those routes) and
+// POSTs here. We store the block on the ROSTER MEMBER rather than in a table of
+// its own, so prediction reads it from the roster snapshot it already holds —
+// no second lookup. carryMi keeps it alive across roster re-captures.
+
+// Their per-mode keys we keep. worldBoss is dropped: we have no such content, and
+// every stored byte rides along in each embedded roster snapshot.
+const MI_MODES = Object.keys(MAPLEIDLE_CONTENT);
+
+// Normalize one uploaded player block to { fetchedAt, job?, level?, modes: {…} }.
+// Returns null when no mode survived — a player with nothing usable shouldn't get
+// an `mi` key at all, so the fetcher keeps seeing them as "not yet fetched".
+function cleanMiEntry(entry, fetchedAt) {
+  if (!entry || typeof entry !== 'object') return null;
+  const modes = {};
+  let any = false;
+  for (const key of MI_MODES) {
+    const m = entry.modes && entry.modes[key];
+    if (!m || typeof m !== 'object') continue;
+    const score = Number(m.score);
+    const cp = Number(m.cp);
+    if (!(score > 0) || !(cp > 0)) continue;
+    const rec = { score, cp };
+    if (typeof m.snapshotDate === 'string' && ISO_DATE_RE.test(m.snapshotDate)) rec.snapshotDate = m.snapshotDate;
+    modes[key] = rec;
+    any = true;
+  }
+  if (!any) return null;
+
+  const out = { fetchedAt, modes };
+  const job = String(entry.job || '').trim();
+  const level = Number(entry.level) || 0;
+  if (job) out.job = job;
+  if (level > 0) out.level = level;
+  return out;
+}
+
+// POST /playerscores  (Authorization: Bearer <CHART_WRITE_KEY>)
+// Body: { world?, guilds: { "<guild>": { "<nick>": { job?, level?, modes: {…} } } } }
+// Merges each player's block onto the matching roster member. Idempotent: a
+// re-post of the same players just overwrites their block, so the fetcher can be
+// re-run or resumed without creating duplicates.
+async function handlePlayerScoresUpload(request, env) {
+  if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
+  const auth = request.headers.get('authorization') || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+  if (!env.CHART_WRITE_KEY || token !== env.CHART_WRITE_KEY) return jsonError(401, 'Unauthorized');
+
+  let body;
+  try { body = await request.json(); } catch { return jsonError(400, 'Invalid JSON body'); }
+
+  const guilds = body && body.guilds;
+  if (!guilds || typeof guilds !== 'object') return jsonError(400, 'Missing `guilds` object');
+
+  const world = String((body && body.world) || 'bera').toLowerCase();
+  const fetchedAt = new Date().toISOString();
+  const stored = [];
+
+  for (const [guild, players] of Object.entries(guilds)) {
+    const g = String(guild || '').trim();
+    if (!g || !players || typeof players !== 'object') continue;
+
+    const roster = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
+    if (!Array.isArray(roster) || !roster.length) {
+      stored.push({ guild: g, error: 'no roster captured yet' });
+      continue;
+    }
+
+    const idx = byNick(roster);
+    let matched = 0;
+    const unmatched = [];
+    for (const [nick, entry] of Object.entries(players)) {
+      const member = idx.get(String(nick).toLowerCase());
+      if (!member) { unmatched.push(nick); continue; }
+      const mi = cleanMiEntry(entry, fetchedAt);
+      if (!mi) continue;
+      member.mi = mi;
+      matched++;
+    }
+
+    if (matched) await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
+    const rec = { guild: g, matched, members: roster.length };
+    // Surfaced rather than swallowed: a nick that never matches is usually a
+    // rename or a guild the roster is stale for, and it would otherwise look
+    // like the fetch simply did nothing.
+    if (unmatched.length) rec.unmatched = unmatched;
+    stored.push(rec);
+  }
+
+  return new Response(JSON.stringify({ ok: true, fetchedAt, stored }), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8', ...USERSCRIPT_CORS },
   });
 }
 
@@ -487,28 +612,122 @@ async function handleBaselineUpload(request, env) {
 // here into KV (binding ROSTERS). The chart's Win Prediction reads them back. This
 // Worker only stores + serves; it never talks to mapleidle.
 
+// The upload modes SwissKnife labels each change's week bucket with (guild_wars.py
+// _MODE_SCHEDULE), keyed by our content-type names. `weeks`/`joined_weeks` carry one
+// label per mode, so a roster serves every content type from one stored copy.
+const CONTENT_MODE = {
+  'Guild Wars': 'GW',
+  'Guild Boss Battle': 'GBB',
+  'Global GBB': 'GGBB',
+  'Guild Conquest': 'GC',
+  'Guild Training Ground': 'GTG',
+};
+
+const WEEK_RE = /^\d{2}-\d{2}-\d{4}$/;
+
 // KV key for a guild roster. World + guild are lowercased so the chart's
 // exact-case names and the captured-from-URL names map to one entry.
 function rosterKvKey(world, name) {
   return 'roster:' + String(world).toLowerCase() + ':' + String(name).toLowerCase();
 }
 
-// Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0).
+// Its join/leave log, kept in a sibling key rather than inside the roster value so
+// the stored roster stays a plain member array — everything that reads it (GET
+// /guild, the embedded snapshots, the chart client) keeps working untouched.
+function changesKvKey(world, name) {
+  return 'changes:' + String(world).toLowerCase() + ':' + String(name).toLowerCase();
+}
+
+// A { GW: "MM-DD-YYYY", … } week-bucket map, keeping only the modes we know and
+// only well-formed labels. Returns null when there's nothing usable, so callers
+// can leave the field off entirely.
+function cleanWeeks(weeks) {
+  if (!weeks || typeof weeks !== 'object') return null;
+  const out = {};
+  let any = false;
+  for (const mode of Object.values(CONTENT_MODE)) {
+    const v = weeks[mode];
+    if (typeof v === 'string' && WEEK_RE.test(v)) { out[mode] = v; any = true; }
+  }
+  return any ? out : null;
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Normalize mapleidle's join/leave log to [{nick, action, date, guild, weeks}].
+// Entries missing a nick, a valid ISO date, or a usable week map are dropped —
+// a change we can't place in a week is no use to prediction. Newest first.
+function cleanChanges(changes) {
+  if (!Array.isArray(changes)) return [];
+  return changes
+    .map(c => {
+      const weeks = cleanWeeks(c && c.weeks);
+      const date = String((c && c.date) || '');
+      if (!weeks || !ISO_DATE_RE.test(date)) return null;
+      return {
+        nick:   String((c && c.nick) || '').trim(),
+        action: c && c.action === 'join' ? 'join' : 'leave',
+        date,
+        guild:  String((c && c.guild) || ''),
+        weeks,
+      };
+    })
+    .filter(c => c && c.nick)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+// Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0),
+// plus the optional `joined` / `joined_weeks` pair when the uploader saw the
+// member's join in mapleidle's 30-day change log.
 function cleanRoster(members) {
   if (!Array.isArray(members)) return [];
   return members
-    .map(m => ({
-      nick:  String((m && m.nick) || '').trim(),
-      cp:    Number(m && m.cp) || 0,
-      cls:   String((m && m.cls) || ''),
-      level: Number(m && m.level) || 0,
-    }))
+    .map(m => {
+      const out = {
+        nick:  String((m && m.nick) || '').trim(),
+        cp:    Number(m && m.cp) || 0,
+        cls:   String((m && m.cls) || ''),
+        level: Number(m && m.level) || 0,
+      };
+      const weeks = cleanWeeks(m && m.joined_weeks);
+      const joined = String((m && m.joined) || '');
+      if (weeks && ISO_DATE_RE.test(joined)) { out.joined = joined; out.joined_weeks = weeks; }
+      return out;
+    })
     .filter(m => m.nick && m.cp > 0);
 }
 
+// Index a stored roster by lowercased nick. Used to carry per-member data across
+// a re-upload and to match uploaded score entries onto members.
+function byNick(roster) {
+  const idx = new Map();
+  if (Array.isArray(roster)) {
+    for (const m of roster) {
+      if (m && m.nick) idx.set(String(m.nick).toLowerCase(), m);
+    }
+  }
+  return idx;
+}
+
+// Carry each member's `mi` block (see /playerscores) across a roster re-upload.
+// cleanRoster builds fresh objects from the uploaded fields, so without this a
+// SwissKnife roster capture would silently wipe every score we've fetched.
+function carryMi(roster, prevRoster) {
+  const prev = byNick(prevRoster);
+  if (!prev.size) return roster;
+  for (const m of roster) {
+    const was = prev.get(m.nick.toLowerCase());
+    if (was && was.mi) m.mi = was.mi;
+  }
+  return roster;
+}
+
 // POST /guild  (Authorization: Bearer <ROSTER_WRITE_KEY>) — SwissKnife uploads
-// captured rosters here. Body: { world, guild, members:[…] } or a batch
-// { world, rosters: { "<guild>": [members] } }. Stores each guild in KV.
+// captured rosters here. Body: { world, guild, members:[…], changes:[…] } or a
+// batch { world, rosters: { "<guild>": [members] }, changes: { "<guild>": [entries] } }.
+// Stores each guild's roster in KV, and its join/leave log beside it. An upload
+// that carries no `changes` for a guild leaves that guild's stored log untouched
+// (an older uploader shouldn't wipe data a newer one wrote).
 async function handleRosterUpload(request, env) {
   if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
   const auth = request.headers.get('authorization') || '';
@@ -520,18 +739,32 @@ async function handleRosterUpload(request, env) {
 
   const world = String(body.world || 'bera').toLowerCase();
   const stored = [];
-  const put = async (guild, members) => {
+  const put = async (guild, members, changes) => {
     const g = String(guild || '').trim();
     if (!g) return;
-    const roster = cleanRoster(members);
+    // Read-then-merge so fetched mapleidle scores survive the capture that
+    // overwrites the roster (see carryMi).
+    const prev = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
+    const roster = carryMi(cleanRoster(members), prev);
     await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
-    stored.push({ guild: g, count: roster.length });
+    const entry = { guild: g, count: roster.length };
+    if (changes !== undefined) {
+      const log = cleanChanges(changes);
+      await env.ROSTERS.put(changesKvKey(world, g), JSON.stringify(log));
+      entry.changes = log.length;
+    }
+    stored.push(entry);
   };
 
   if (body.rosters && typeof body.rosters === 'object') {
-    for (const [g, members] of Object.entries(body.rosters)) await put(g, members);
+    // Batch: `changes` is the same guild-keyed map as `rosters`.
+    const byGuild = (body.changes && typeof body.changes === 'object' && !Array.isArray(body.changes))
+      ? body.changes : null;
+    for (const [g, members] of Object.entries(body.rosters)) {
+      await put(g, members, byGuild ? (byGuild[g] || []) : undefined);
+    }
   } else {
-    await put(body.guild, body.members);
+    await put(body.guild, body.members, body.changes);
   }
 
   return new Response(JSON.stringify({ ok: true, stored }), {
@@ -602,8 +835,14 @@ export default {
     }
 
     if (url.pathname === '/baseline') {
-      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: BASELINE_CORS });
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: USERSCRIPT_CORS });
       if (request.method === 'POST') return handleBaselineUpload(request, env);
+      return jsonError(405, 'Method not allowed');
+    }
+
+    if (url.pathname === '/playerscores') {
+      if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: USERSCRIPT_CORS });
+      if (request.method === 'POST') return handlePlayerScoresUpload(request, env);
       return jsonError(405, 'Method not allowed');
     }
 

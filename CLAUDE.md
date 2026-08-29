@@ -14,7 +14,8 @@ All browser-served assets live under **`public/`**; `worker.js` and `wrangler.js
 
 - **worker.js** — Cloudflare Worker: static-asset host + KV-backed data API + ingestion + router. **`/api?action=...` reads from KV** (binding `CHART_DATA`): `getSheetNames`/`getData`/`getLastUpdated` return the stored value, or an empty result on a miss (no upstream — KV is authoritative). `getData` serves the stored `{ rows, rosters, perfProfile, guildHistory }` object **as-is** (the client's `rowsOf`/`rostersOf`/`perfOf`/`guildHistOf` read whichever shape arrives). Responses are `cache-control: no-store` (KV *is* the store; no `caches.default` layer), so a re-read (the client's Reload) is always fresh. **`POST /chart`** is the ingestion endpoint: `Authorization: Bearer <CHART_WRITE_KEY>`, body `{ type, date: "MM-DD-YYYY", rows: [...] }` — it normalizes rows (drops missing cp/score), **embeds the guilds' roster snapshot** from `ROSTERS` (pulled fresh on first create, carried over — with any `perfProfile`/`guildHistory` — on update), writes `data:<type>:<date>`, merges `guildweeks:<type>`, and upserts the date into `names:<type>` (sorted newest-first) with a fresh `updated` stamp. The actions `refreshRosters` (re-pull the embedded roster) and `buildPerfProfile` run **KV-only**; the latter scans the prior sheets once and embeds **both** the recency-weighted per-player profile (`perfProfile`, PERF_TYPES only) and the per-guild rollup of prior appearances (`guildHistory`, every content type — total Score + participant count per prior sheet, behind the pivot table's history columns). Other routes: `/guild` (POST/GET roster KV, binding `ROSTERS`), `/charts` → `Charts.html`, `/arena` → `Arena.html` (**Basic-Auth gated** when the `ARENA_PASSWORD` secret is set — any username, password checked; the direct `/Arena.html`/`/Arena` asset paths are folded into the same route so the catch-all can't bypass the gate; no secret → open), `/userinfo` → a separate UserInfo Worker, everything else → `public/` assets.
   - **`POST /baseline`** stores mapleidle.gg's per-content power-law "baseline" fits: `Authorization: Bearer <CHART_WRITE_KEY>` (same key as `/chart`), body `{ analysis: { fourth|sub: { <mapleidle mode>: { fitA, fitB, snapshotDate } } } }`. It maps their mode keys to our content types via `MAPLEIDLE_CONTENT` (their `worldBoss` has no counterpart and is dropped — reported back as `skipped`; our Global GBB has none on their side) and writes the single KV key `baselines`. Read back with `/api?action=getBaselines` (returns `null` on a miss). The route answers CORS preflights because its only client is cross-origin — see **mapleidle baselines** below.
-  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor }, guildHistory?: { "<guild>": [{ sheet, total, members }, …] } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (all content types — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets); `baselines` → `{ fetchedAt: <ISO>, source, cohorts: { fourth|sub: { "<content type>": { fitA, fitB, snapshotDate } } } }` (one key for every content type and both job cohorts). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
+  - **`POST /playerscores`** stores mapleidle's per-player best scores onto the roster members that Win Prediction already reads: `Authorization: Bearer <CHART_WRITE_KEY>` (same key as `/chart`/`/baseline`), body `{ world?, guilds: { "<guild>": { "<nick>": { job?, level?, modes: { <mapleidle mode>: { score, cp, snapshotDate? } } } } } }`. It reads each guild's `roster:<world>:<guild>` from `ROSTERS`, matches players by lowercased nick, and writes an `mi` block onto the member. Idempotent — a re-post overwrites the same block. Unmatched nicks come back in `stored[].unmatched` (usually a rename or a stale roster) rather than being swallowed. Only the modes in `MI_MODES` (= `MAPLEIDLE_CONTENT` keys) are kept; `worldBoss` is dropped. Also CORS-preflighted — see **mapleidle Player Scores** below.
+  - **KV key shapes:** `names:<type>` → `{ updated: <ISO>, sheets: [...] }` (`updated` is stamped at write time and rides the `getSheetNames` response as `x-last-updated`); `data:<type>:<sheet>` → `{ rows: [...], rosters: { "<guild>": [...] }, perfProfile?: { "<nick>": factor }, guildHistory?: { "<guild>": [{ sheet, total, members }, …] } }` (legacy bare-array entries are still served — the client tolerates both); `guildweeks:<type>` → `{ "<guild>": ["MM-DD-YYYY", …] }` (all content types — the lookup that lets `buildPerfProfile` skip irrelevant prior sheets); `baselines` → `{ fetchedAt: <ISO>, source, cohorts: { fourth|sub: { "<content type>": { fitA, fitB, snapshotDate } } } }` (one key for every content type and both job cohorts). A roster member in `ROSTERS` is `{ nick, cp, cls, level, joined?, joined_weeks?, mi? }`, where `mi` is `{ fetchedAt, job?, level?, modes: { <mapleidle mode>: { score, cp, snapshotDate? } } }` (written by `/playerscores`). `CONTENT_TYPES` in `worker.js` is the ingestion allowlist and must mirror SwissKnife's mode → content-type map in `guild_wars.py`.
 - **public/Charts.html** — Chart front-end **markup only** (~210 lines). Loads `/css/*.css` and, at the bottom, the ordered `/js/*.js` files (see Architecture). Served at `/charts`.
 - **public/js/** — The chart's JavaScript, split into plain (non-module) `<script src>` files that share one global scope (so the inline `onclick=` handlers keep working). Load order matters; see Architecture.
 - **public/css/** — `shared.css` (theme tokens), `charts.css`, `home.css`, `arena.css`. Charts.html links `shared.css` + `charts.css`.
@@ -24,6 +25,7 @@ All browser-served assets live under **`public/`**; `worker.js` and `wrangler.js
 - **public/SampleData/GBBLocalData.js** / **GlobalGBBLocalData.js** / **GuildConquestLocalData.js** / **GTTLocalData.js** — same format for Guild Boss Battle (`GBB_LOCAL_DATA`), Global GBB (`GGBB_LOCAL_DATA`), Guild Conquest (`GC_LOCAL_DATA`), and Guild Training Ground (`GTT_LOCAL_DATA`).
 - **public/SampleData/** — Raw `.tsv` exports and the local-data JS files.
 - **tools/mapleidle-baseline.user.js** — Tampermonkey userscript that scrapes mapleidle's per-content baseline fits and pushes them to `POST /baseline`. Not served by the site; install it into Tampermonkey. See **mapleidle Baselines**.
+- **tools/mapleidle-player-scores.user.js** — Tampermonkey userscript that fetches per-player best scores off mapleidle and pushes them to `POST /playerscores`, so Win Prediction can project roster members we have no history for. Not served by the site. See **mapleidle Player Scores**.
 
 ## mapleidle Baselines
 
@@ -59,6 +61,52 @@ week.
 A sibling userscript, `tools/mapleidle-performance-vs.user.js` (not part of the
 site either), annotates mapleidle's own character pages from the same payload;
 the two share the flight-parsing approach.
+
+## mapleidle Player Scores
+
+Win Prediction projects an absent roster member from the fit at their CP, tuned by
+a per-player factor built from **our own** prior sheets. A player who has never
+appeared in one gets no factor at all — so the roster slot we know least about is
+also the one projected most crudely (raw fit, or class bias at best).
+
+mapleidle has those players. It records each character's **best score per content
+mode paired with the CP they held when they set it**, and that pairing is what makes
+it usable: a score judged against its own CP runs straight through the same
+`score / (A·cp^B)` ratio the other adjust modes produce, with no rescaling. That is
+`miFactor` in `prediction.js`, and it slots in **below** real history — only filling
+rows that would otherwise be raw.
+
+**Caveat, deliberately visible in the UI:** it's a *best* score, not a typical week,
+so it reads optimistic next to a history factor averaged over every week. Rows using
+it are labelled `mapleidle` in the absentees table's adjustment column, and the
+status line counts them ("N from mapleidle (no history)").
+
+**Fetching** is `tools/mapleidle-player-scores.user.js`, for the same reason as the
+baseline script — those routes 429 a datacenter IP, 429 a scripted fetch from a
+residential one, and CORS-block a cross-origin read; only a real browser sitting on
+the site gets an answer. Two passes, cheapest first:
+
+1. **`/api/score-analysis/guild?region=&name=`** returns *every* member's per-mode
+   best in one request — one call covers a whole roster.
+2. anyone pass 1 missed (renamed, left, not scraped yet) falls back to
+   **`/api/search?q=`** to resolve their `worldId`, then
+   **`/api/score-analysis/character?region=&world=&name=`**. Two requests each, so
+   this pass is kept as small as possible. (The character route 404s without a
+   `world`, which is why the search hop exists.)
+
+Every mapleidle request is staggered (`DELAY_MS` 3s + up to 2s jitter) and
+sequential. The script first reads `GET /guild` from our site — that one call tells
+it both who's on the roster and who already has scores, so **players we already hold
+are skipped** (`needsFetch`: no `mi`, or older than `STALE_DAYS` = 14). Each guild is
+POSTed as it finishes, so a stopped or failed run keeps what it already fetched and
+the next run picks up where it left off.
+
+**Storage reuses the roster.** The `mi` block hangs off the roster member rather than
+living in a table of its own, so prediction reads it out of the roster snapshot it
+already holds — no second lookup. `carryMi` in `worker.js` preserves it across
+SwissKnife roster re-captures (`cleanRoster` rebuilds member objects from the
+uploaded fields, so without that merge every capture would silently wipe the lot).
+Getting it into a sheet is the existing **Refresh rosters** button.
 
 ## Adding a New Content Type
 
@@ -104,7 +152,7 @@ used at runtime, so cross-file references resolve regardless:
 | `colors.js` | `GUILD_PALETTE`/`GUILD_COLORS`/`CLASS_COLORS`, `assignGuildColors`, `getColor` |
 | `gw-points.js` | `GW_POINTS_DATA` (rank→points TSV literal) |
 | `regression.js` | `powerRegression`, `computeClassBias`, `computeFitDiffs` |
-| `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData`, embedded-payload readers (`rowsOf`/`rostersOf`/`perfOf`/`guildHistOf`) + caches |
+| `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData`, embedded-payload readers (`rowsOf`/`rostersOf`/`rosterChangesOf`/`perfOf`/`guildHistOf`) + caches |
 | `io.js` | env detection (`API_URL`/`IS_LOCAL`/`IS_REMOTE`), `apiCall`, `loadContentType`, `loadSheet`, reload + sheet/content state, `loadLocalFiles` |
 | `legend.js` | `colorMode`, `selectedGroups`, `setColorMode`, `updateColors`, `applyHighlights`, `buildLegend` |
 | `panel.js` | `activeEl`, `isPinned`, `showPanel`, `positionPanel`, `closePanel` |
@@ -117,7 +165,7 @@ used at runtime, so cross-file references resolve regardless:
 | `history.js` | week-over-week **player** deltas vs the previous sheet (`loadHistory`, `fmtPct`) |
 | `guild-history.js` | per-**guild** rollup across prior weeks (`loadGuildHistory`, `applyBuiltEntry`, pivot history cells) |
 | `search.js` | find-player box (`onPlayerSearch`, highlight/dim + pin on Enter) |
-| `prediction.js` | Win Prediction (rosters, projections, adjust modes, `annotateSandbag`) |
+| `prediction.js` | Win Prediction (rosters, projections, adjust modes, `annotateSandbag`, roster-membership dating via `weekKeyFor`, mapleidle fallback via `miFactor`) |
 | `main.js` | boot (local SampleData injection or remote auto-load) — runs last |
 
 **Inline `onclick=` handlers in the markup rely on these functions staying

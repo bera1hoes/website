@@ -10,23 +10,32 @@
 // `sheetGuildHist` is the current sheet's embedded per-guild rollup of prior
 // appearances ({ guild -> [ {sheet,total,members} ] }, newest-first), feeding the
 // pivot table's history columns (guild-history.js); cached in `guildHistCache`.
+// `sheetChanges` is mapleidle's 30-day join/leave log per guild ({ guild ->
+// [ {nick,action,date,weeks} ] }), riding along with the roster snapshot; Win
+// Prediction uses it to date roster membership. Cached in `changesCache`.
 
 let currentData = null;
 let sheetRosters = null;
+let sheetChanges = null;
 let sheetPerf = null;
 let sheetGuildHist = null;
 const localFiles = {};
 const rostersCache = {};   // contentType -> { sheetName -> rostersObj|null }
+const changesCache = {};   // contentType -> { sheetName -> rosterChanges|null }
 const perfCache = {};      // contentType -> { sheetName -> perfProfile|null }
 const guildHistCache = {}; // contentType -> { sheetName -> guildHistory|null }
 
-// getData returns `{ rows, rosters, perfProfile?, guildHistory? }` now; older
-// entries (and local TSV) are a bare rows array. These read whichever shape arrives.
+// getData returns `{ rows, rosters, rosterChanges?, perfProfile?, guildHistory? }`
+// now; older entries (and local TSV) are a bare rows array. These read whichever
+// shape arrives.
 function rowsOf(json) {
   return Array.isArray(json) ? json : ((json && json.rows) || []);
 }
 function rostersOf(json) {
   return (json && !Array.isArray(json) && json.rosters) ? json.rosters : null;
+}
+function rosterChangesOf(json) {
+  return (json && !Array.isArray(json) && json.rosterChanges) ? json.rosterChanges : null;
 }
 function perfOf(json) {
   return (json && !Array.isArray(json) && json.perfProfile) ? json.perfProfile : null;

@@ -38,6 +38,8 @@ function getSheetRows(name) {
     localFiles[currentContentType][name] = rows;
     if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
     rostersCache[currentContentType][name] = rostersOf(parsed);
+    if (!changesCache[currentContentType]) changesCache[currentContentType] = {};
+    changesCache[currentContentType][name] = rosterChangesOf(parsed);
     if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
     perfCache[currentContentType][name] = perfOf(parsed);
     if (!guildHistCache[currentContentType]) guildHistCache[currentContentType] = {};

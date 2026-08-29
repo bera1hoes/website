@@ -237,6 +237,7 @@ function loadSheet(name, bust) {
     closePanel();
     currentData = cached;
     sheetRosters = (rostersCache[currentContentType] || {})[name] || null;
+    sheetChanges = (changesCache[currentContentType] || {})[name] || null;
     sheetPerf = (perfCache[currentContentType] || {})[name] || null;
     sheetGuildHist = (guildHistCache[currentContentType] || {})[name] || null;
     document.getElementById('loading').style.display = 'none';
@@ -261,12 +262,15 @@ function loadSheet(name, bust) {
     const parsed = typeof json === 'string' ? JSON.parse(json) : json;
     currentData = rowsOf(parsed);
     sheetRosters = rostersOf(parsed);
+    sheetChanges = rosterChangesOf(parsed);
     sheetPerf = perfOf(parsed);
     sheetGuildHist = guildHistOf(parsed);
     if (!localFiles[currentContentType]) localFiles[currentContentType] = {};
     localFiles[currentContentType][name] = currentData;
     if (!rostersCache[currentContentType]) rostersCache[currentContentType] = {};
     rostersCache[currentContentType][name] = sheetRosters;
+    if (!changesCache[currentContentType]) changesCache[currentContentType] = {};
+    changesCache[currentContentType][name] = sheetChanges;
     if (!perfCache[currentContentType]) perfCache[currentContentType] = {};
     perfCache[currentContentType][name] = sheetPerf;
     if (!guildHistCache[currentContentType]) guildHistCache[currentContentType] = {};
@@ -345,6 +349,7 @@ function loadLocalFiles(files) {
       closePanel();
       currentData = data;
       sheetRosters = null;   // local TSV has no roster snapshot
+      sheetChanges = null;   // …or join/leave log
       sheetPerf = null;      // …or performance profile
       sheetGuildHist = null; // …or guild-history rollup
       document.getElementById('loading').style.display = 'none';
