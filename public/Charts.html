@@ -118,7 +118,7 @@
 
   <!-- Win prediction (projected per-guild totals incl. missing members) -->
   <div id="prediction-section" style="display:none">
-    <div class="eyebrow" style="margin: 24px 0 12px">Win Prediction — if everyone showed up</div>
+    <div class="eyebrow" style="margin: 24px 0 12px">Win Prediction — if everyone showed up<span id="prediction-fit-note" style="color:#6b7280"></span></div>
     <div class="pivot-wrap">
       <table class="pivot-table">
         <thead>
@@ -184,7 +184,7 @@
             <th class="sortable" tabindex="0" aria-sort="none" data-col="guild" style="text-align:left" onclick="sortMissingBy('guild')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('guild');}">Guild <span class="sort-icon">↕</span></th>
             <th class="sortable" tabindex="0" aria-sort="none" data-col="nick" style="text-align:left" onclick="sortMissingBy('nick')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('nick');}">Nick <span class="sort-icon">↕</span></th>
             <th class="sortable" tabindex="0" aria-sort="none" data-col="cp" style="text-align:right" onclick="sortMissingBy('cp')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('cp');}">CP <span class="sort-icon">↕</span></th>
-            <th class="sortable" tabindex="0" aria-sort="none" data-col="base" style="text-align:right" onclick="sortMissingBy('base')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('base');}">Fit base <span class="sort-icon">↕</span></th>
+            <th class="sortable" tabindex="0" aria-sort="none" data-col="base" style="text-align:right" onclick="sortMissingBy('base')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('base');}"><span id="missing-base-label">Fit base</span> <span class="sort-icon">↕</span></th>
             <th class="sortable" tabindex="0" aria-sort="none" data-col="factor" style="text-align:right" onclick="sortMissingBy('factor')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('factor');}">Adjustment <span class="sort-icon">↕</span></th>
             <th class="sortable" tabindex="0" aria-sort="none" data-col="overridePct" style="text-align:center" title="Manual % over/under the projection — saved in this browser" onclick="sortMissingBy('overridePct')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('overridePct');}">Override % <span class="sort-icon">↕</span></th>
             <th class="sortable" tabindex="0" aria-sort="none" data-col="projGw" id="missing-th-gwpoints" style="text-align:right;display:none" onclick="sortMissingBy('projGw')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();sortMissingBy('projGw');}">Proj GW Pts <span class="sort-icon">↕</span></th>
@@ -323,6 +323,14 @@
           <option value="history">History (weighted)</option>
         </select>
       </div>
+      <label id="predict-fit-base-row" style="display:flex;align-items:flex-start;gap:8px;margin-top:8px;font-size:11px;color:#8b919e;cursor:pointer;opacity:0.55"
+             title="Set a Custom Fit Equation above to use it as the projection base">
+        <input type="checkbox" id="predict-custom-fit" disabled style="margin:2px 0 0;accent-color:#f0a500"
+               onchange="onPredictFitBase(this.checked)">
+        <span>Project from the custom fit equation
+          <span id="predict-fit-note" style="display:block;color:#6b7280;font-family:'Space Mono',monospace"></span>
+        </span>
+      </label>
       <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:#8b919e;cursor:pointer">
         <input type="checkbox" id="show-tables" checked style="margin:0;accent-color:#f0a500"
                onchange="onShowTablesToggle(this.checked)">
@@ -352,6 +360,7 @@
 <script src="/js/guild-history.js"></script>
 <script src="/js/search.js"></script>
 <script src="/js/prediction.js"></script>
+<script src="/js/bridge.js"></script>
 <script src="/js/main.js"></script>
 </body>
 </html>

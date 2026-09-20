@@ -25,7 +25,8 @@ All browser-served assets live under **`public/`**; `worker.js` and `wrangler.js
 - **public/SampleData/GBBLocalData.js** / **GlobalGBBLocalData.js** / **GuildConquestLocalData.js** / **GTTLocalData.js** — same format for Guild Boss Battle (`GBB_LOCAL_DATA`), Global GBB (`GGBB_LOCAL_DATA`), Guild Conquest (`GC_LOCAL_DATA`), and Guild Training Ground (`GTT_LOCAL_DATA`).
 - **public/SampleData/** — Raw `.tsv` exports and the local-data JS files.
 - **tools/mapleidle-baseline.user.js** — Tampermonkey userscript that scrapes mapleidle's per-content baseline fits and pushes them to `POST /baseline`. Not served by the site; install it into Tampermonkey. See **mapleidle Baselines**.
-- **tools/mapleidle-player-scores.user.js** — Tampermonkey userscript that fetches per-player best scores off mapleidle and pushes them to `POST /playerscores`, so Win Prediction can project roster members we have no history for. Not served by the site. See **mapleidle Player Scores**.
+- **tools/shoes-player-scores.user.js** — Tampermonkey userscript that runs on **our charts page**, works out which absentees Win Prediction has no history for, fetches their best scores off mapleidle (via `GM_xmlhttpRequest`, the one CORS-exempt path), pushes them to `POST /playerscores`, and re-runs the projection. Not served by the site. See **mapleidle Player Scores**.
+- **public/js/bridge.js** — `window.shoesChart`, the read-only surface the userscript above reads the chart's state through (see **mapleidle Player Scores** for why it's needed). Served, but nothing in the page itself uses it.
 
 ## mapleidle Baselines
 
@@ -81,10 +82,33 @@ so it reads optimistic next to a history factor averaged over every week. Rows u
 it are labelled `mapleidle` in the absentees table's adjustment column, and the
 status line counts them ("N from mapleidle (no history)").
 
-**Fetching** is `tools/mapleidle-player-scores.user.js`, for the same reason as the
-baseline script — those routes 429 a datacenter IP, 429 a scripted fetch from a
-residential one, and CORS-block a cross-origin read; only a real browser sitting on
-the site gets an answer. Two passes, cheapest first:
+**Fetching** is `tools/shoes-player-scores.user.js`, and it runs on **our** charts
+page (`@match https://hoes.fyi/charts*`), not on mapleidle. That's the important
+design choice: the page already knows who needs fetching. It has the sheet's roster
+snapshot, who actually posted a score, and both per-player history maps — so the
+target set is *computed* (absentees, in this sheet's guilds, that prediction would
+otherwise project raw) rather than configured. That is usually a handful of players
+instead of a whole roster, and on a well-covered sheet it is correctly zero. After
+storing, the script calls the page's `refreshRosters()` and `runPrediction()`, so a
+fetch closes its own loop.
+
+It reaches the page's state through `public/js/bridge.js` (`window.shoesChart`).
+That bridge exists because the chart's state lives in top-level `let`/`const` of
+classic scripts, which land in the shared script scope but **never on `window`** —
+so a sandboxed userscript sees `undefined` for `sheetRosters` while `refreshRosters`
+(a plain `function`) resolves fine. Reaching in with `unsafeWindow.eval` would work
+but breaks silently on a rename, so the page exposes a small read-only surface
+instead.
+
+**Why it's still a userscript.** mapleidle's API sends no `Access-Control-Allow-Origin`,
+so a plain fetch from hoes.fyi is CORS-blocked. The *server* answers fine — verified
+by re-running the same request with CORS enforcement off: 200 with the full member
+list. It is purely a missing response header, and `GM_xmlhttpRequest` (`@connect
+mapleidle.gg`) is exempt from CORS. That exemption is the one capability an ordinary
+page cannot have, which is the whole reason this can't just be a button on the site.
+Our own `/playerscores` is same-origin from there, so it uses a plain fetch.
+
+Two passes, cheapest first:
 
 1. **`/api/score-analysis/guild?region=&name=`** returns *every* member's per-mode
    best in one request — one call covers a whole roster.
@@ -95,11 +119,10 @@ the site gets an answer. Two passes, cheapest first:
    `world`, which is why the search hop exists.)
 
 Every mapleidle request is staggered (`DELAY_MS` 3s + up to 2s jitter) and
-sequential. The script first reads `GET /guild` from our site — that one call tells
-it both who's on the roster and who already has scores, so **players we already hold
-are skipped** (`needsFetch`: no `mi`, or older than `STALE_DAYS` = 14). Each guild is
-POSTed as it finishes, so a stopped or failed run keeps what it already fetched and
-the next run picks up where it left off.
+sequential, and a 429 halts the run rather than letting the per-player pass hammer
+the same limiter. A member is skipped when we already hold a block newer than
+`STALE_DAYS` (14). Each guild is POSTed as it finishes, so a stopped or failed run
+keeps what it already fetched and the next run picks up where it left off.
 
 **Storage reuses the roster.** The `mi` block hangs off the roster member rather than
 living in a table of its own, so prediction reads it out of the roster snapshot it
@@ -107,6 +130,24 @@ already holds — no second lookup. `carryMi` in `worker.js` preserves it across
 SwissKnife roster re-captures (`cleanRoster` rebuilds member objects from the
 uploaded fields, so without that merge every capture would silently wipe the lot).
 Getting it into a sheet is the existing **Refresh rosters** button.
+
+## Win Prediction Fit Base
+
+Absentee projections run through `predictionFit()` (`prediction.js`): the chart's own
+fit (`activeFit`) by default, or the **Experiments custom equation** when "Project from
+the custom fit equation" is ticked in the Win Prediction block. That makes the same
+equation usable three ways — the custom line on the chart, the "vs Custom" column, and
+the projection base — so a what-if curve (a hand-written one, mapleidle's game-wide
+baseline, an older week's fit) can drive the guild totals without disturbing the
+chart's regression.
+
+The checkbox is inert until a custom equation exists; `applyCustomFit`/`clearCustomFit`
+call `onCustomFitChanged` to enable/disable it and re-run the prediction, and clearing
+the equation always drops the base back to `activeFit`. `miFactor` divides by the same
+fit the projection multiplies back, so a swapped base cancels out of that ratio instead
+of doubling into it. Where the base is custom is stated in three places: the Win
+Prediction heading (` · custom fit`), the absentees table's `Fit base (custom)` header,
+and the status line (`· custom-fit base`).
 
 ## Adding a New Content Type
 
@@ -144,13 +185,13 @@ ES modules, no build step). `Charts.html` loads them in this order — d3 first,
 `main.js` (boot) **last**; everything in between only *declares* functions/state
 used at runtime, so cross-file references resolve regardless:
 
-`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `baselines` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `main`
+`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `baselines` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `bridge` → `main`
 
 | File | Responsibility |
 |---|---|
 | `util.js` | `$id`, `setStats`/`clearStats` (R²/exp/eq cards), `applyFitDiff`/`fitDiffColor`/`fitDiffText`, `toGamingNotation`/`parseGamingNotation` |
 | `colors.js` | `GUILD_PALETTE`/`GUILD_COLORS`/`CLASS_COLORS`, `assignGuildColors`, `getColor` |
-| `gw-points.js` | `GW_POINTS_DATA` (rank→points TSV literal) |
+| `gw-points.js` | rank→points TSV literals + the sheet-dated picker: `GW_POINTS_DATA` (pre-09-03-2026), `GW_POINTS_DATA_V2` (09-03-2026 onwards — raised 1st–29th, splices the unchanged 30th+ tail off the old table), `gwPointsDataFor`/`gwPointsMap(sheet)` |
 | `regression.js` | `powerRegression`, `computeClassBias`, `computeFitDiffs` |
 | `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData`, embedded-payload readers (`rowsOf`/`rostersOf`/`rosterChangesOf`/`perfOf`/`guildHistOf`) + caches |
 | `io.js` | env detection (`API_URL`/`IS_LOCAL`/`IS_REMOTE`), `apiCall`, `loadContentType`, `loadSheet`, reload + sheet/content state, `loadLocalFiles` |
@@ -158,14 +199,15 @@ used at runtime, so cross-file references resolve regardless:
 | `panel.js` | `activeEl`, `isPinned`, `showPanel`, `positionPanel`, `closePanel` |
 | `chart.js` | chart render handles + fit state, `buildChart` and its helpers, `resetZoom` |
 | `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable`, manual score overrides |
-| `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers |
+| `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers; the custom fit notifies Win Prediction (`onCustomFitChanged`) since it can serve as its projection base |
 | `estimate.js` | CP → expected score (runs `activeFit` forward): readout + chart marker (`renderEstimate`, `positionEstimateMarker`) |
 | `baselines.js` | mapleidle's game-wide baseline fit for the current content type: weekly-cached read of `getBaselines` + the MAPLEIDLE BASELINE stats card (`loadBaselines`, `renderBaselineCard`, `bustBaselineCache`) |
 | `deeplink.js` | URL-hash state (`updateDeepLink`, `restoreDeepLink`, `copyShareLink`) |
 | `history.js` | week-over-week **player** deltas vs the previous sheet (`loadHistory`, `fmtPct`) |
 | `guild-history.js` | per-**guild** rollup across prior weeks (`loadGuildHistory`, `applyBuiltEntry`, pivot history cells) |
 | `search.js` | find-player box (`onPlayerSearch`, highlight/dim + pin on Enter) |
-| `prediction.js` | Win Prediction (rosters, projections, adjust modes, `annotateSandbag`, roster-membership dating via `weekKeyFor`, mapleidle fallback via `miFactor`) |
+| `prediction.js` | Win Prediction (rosters, projections, adjust modes, `annotateSandbag`, roster-membership dating via `weekKeyFor`, mapleidle fallback via `miFactor`, fit base via `predictionFit`) |
+| `bridge.js` | `window.shoesChart` — read-only view of chart state for the player-scores userscript (script-scope `let`s never reach `window`); no in-page consumer |
 | `main.js` | boot (local SampleData injection or remote auto-load) — runs last |
 
 **Inline `onclick=` handlers in the markup rely on these functions staying
@@ -189,7 +231,7 @@ global** — keep them as plain `function name(){}` declarations (no IIFE, no
 - `cpFilter = { dataMin, dataMax, low, high }` — dataset bounds + active slider bounds.
 
 **GW-specific features** (hidden when `currentContentType !== 'Guild Wars'`):
-- GW Points join in `joinGwPoints` (chart.js)
+- GW Points join in `joinGwPoints` (chart.js) — points come from `gwPointsMap(currentSheet)`, since the rank→points schedule changed on 09-03-2026; ranks are 0-indexed (rank 0 = 1st place) everywhere that touches it
 - Guild War Points pivot table (`#pivot-section`)
 - GW Points column in the player table (`#player-th-gwpoints`)
 - GW Points row in the info panel (`#p-gwpts-row`) — already gated on `d.gwPoints > 0`

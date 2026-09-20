@@ -12,9 +12,6 @@ let estimateScore = null;
 // D3 <g> drawn on the plot at (estimateCP, estimateScore).
 let estimateMarker = null;
 
-// Lazily-parsed rank → GW points map (Guild Wars only).
-let _estGwPts = null;
-
 function onEstimateInput(raw) {
   const txt = String(raw).trim();
   $id('estimate-clear').hidden = !txt;
@@ -75,6 +72,8 @@ function renderEstimate() {
     const beat = currentData.filter(d => d.score > estimateScore).length;
     $id('est-rank').textContent = `#${beat + 1} of ${currentData.length + 1}`;
     rankRow.hidden = false;
+    // Beating `beat` players puts you in 1-based place `beat + 1` — the same
+    // number shown above, and now the same one the points lookup takes.
     const pts = gwPointsForRank(beat + 1);
     $id('est-gw').textContent = pts != null ? pts.toLocaleString() : '';
     $id('est-gw-row').hidden = pts == null;
@@ -103,10 +102,11 @@ function renderEstimate() {
   drawEstimateMarker();
 }
 
+// `rank` is 1-based (rank 1 = 1st place), like the Rank column on screen.
+// gwPointsAt handles the conversion to the 0-indexed points table.
 function gwPointsForRank(rank) {
   if (currentContentType !== 'Guild Wars') return null;
-  if (!_estGwPts) _estGwPts = parseGWPoints(GW_POINTS_DATA);
-  const pts = _estGwPts.get(String(rank));
+  const pts = gwPointsAt(currentSheet, rank);
   return pts === undefined ? null : pts;
 }
 

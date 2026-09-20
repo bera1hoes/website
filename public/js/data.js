@@ -60,7 +60,9 @@ function getLocalData(type) {
 function parseTSV(text) {
   const lines = text.trim().split('\n');
   const headers = lines[0].split('\t');
-  const rankIdx       = headers.indexOf('Rank');
+  // A `Rank` column may be present but is deliberately NOT read: rank is derived
+  // from score order by assignRanks (chart.js), because sources disagree about
+  // whether it is 0- or 1-based.
   const nickIdx       = headers.indexOf('Nick');
   const scoreIdx      = headers.indexOf('Score');
   const clsIdx        = headers.indexOf('Class');
@@ -75,7 +77,6 @@ function parseTSV(text) {
     const row = lines[i].replace(/\r$/, '').split('\t');
     if (!row[cpIdx] || !row[scoreIdx]) continue;
     data.push({
-      rank:       Number(row[rankIdx]),
       nick:       row[nickIdx],
       score:      Number(row[scoreIdx]),
       cls:        row[clsIdx],

@@ -24,6 +24,35 @@ function prevSheetName() {
   return (i >= 0 && i + 1 < names.length) ? names[i + 1] : null;
 }
 
+// ── Sheet cadence ────────────────────────────────────────────────────────────
+// Only Guild Wars actually runs every week. Guild Training Ground is roughly
+// biweekly and has had a 56-day break; Guild Boss Battle and Global GBB have a
+// 70-day one; Guild Conquest a 35-day one. So "the previous sheet" is NOT a
+// synonym for "last week" — on GTG it has been eight weeks back — and anything
+// that treats it as one is quietly comparing against a different era of the
+// guild. `prevSheetIsLastWeek` is the guard for that.
+
+// Whole days between two "MM-DD-YYYY" labels (a - b), or null if either is unusable.
+function sheetGapDays(a, b) {
+  const parse = (s) => (typeof s === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(s))
+    ? new Date(+s.slice(6), +s.slice(0, 2) - 1, +s.slice(3, 5)) : null;
+  const da = parse(a), db = parse(b);
+  if (!da || !db) return null;
+  return Math.round((da - db) / 86400000);
+}
+
+// Slop over the 7-day cadence: a capture can land a day or two off without the
+// run being a different week. Anything beyond this is a break, not a week.
+const CONSECUTIVE_WEEK_MAX_DAYS = 10;
+
+// True only when the previous sheet really is the immediately preceding week.
+function prevSheetIsLastWeek() {
+  const prev = prevSheetName();
+  if (!prev || !currentSheet) return false;
+  const gap = sheetGapDays(currentSheet, prev);
+  return gap != null && gap > 0 && gap <= CONSECUTIVE_WEEK_MAX_DAYS;
+}
+
 // Parsed rows for a sheet, from cache or a remote fetch. Local sheets are all
 // pre-parsed into localFiles up front (no remote prefetch). Returns a Promise
 // resolving to rows or null.

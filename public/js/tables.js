@@ -384,13 +384,12 @@ function ensureOverrideSnapshot() {
   updateOverrideUI();
 }
 
-// Re-derive rank from score (descending) across the whole dataset. Reuse the
-// original rank values in score order rather than 1..N, so the source's numbering
-// scheme (this data is 0-based — first place is rank 0) is preserved and the
-// rank→GW-points lookup stays aligned (total points awarded is conserved).
+// Re-derive rank from score (descending) after a score override. Ranks are
+// client-assigned 1..N (see assignRanks in chart.js), so an override simply
+// renumbers the population in its new order — the set of places is unchanged,
+// which keeps the rank→GW-points lookup aligned and conserves total points.
 function recomputeRanks(data) {
-  const ranks = data.map(d => (d.rankOrig != null ? d.rankOrig : d.rank)).sort((a, b) => a - b);
-  [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = ranks[i]; });
+  [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = i + 1; });
 }
 
 // Apply the override map onto the pristine snapshot, then re-rank + re-point.

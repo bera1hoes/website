@@ -183,6 +183,9 @@ function applyCustomFit() {
     renderPlayerTable();
     renderEstimate();
   }
+  // Win Prediction can project off this equation — let it enable its control and
+  // re-project if it's already using the custom base (prediction.js).
+  onCustomFitChanged();
 }
 
 // Annotate each row with its % deviation from the custom fit.
@@ -204,6 +207,7 @@ function clearCustomFit() {
     renderPlayerTable();
     renderEstimate();
   }
+  onCustomFitChanged();   // drops Win Prediction back to the chart's fit
 }
 
 function renderCustomFitLine(xs, ys, plotG) {

@@ -53,6 +53,7 @@ function buildChart(data) {
   clearPrediction();  // stale win-prediction must not carry across sheets/content
   selectedGroups.clear();
   assignGuildColors(data);
+  assignRanks(data);   // must precede joinGwPoints — points are keyed off rank
   joinGwPoints(data);
   restoreStoredOverrides(data);  // fold in any persisted score overrides for this sheet
 
@@ -87,11 +88,22 @@ function buildChart(data) {
   updateDeepLink();
 }
 
-// Join GW points by rank — Guild Wars only; other content types get 0.
+// Rank is derived CLIENT-SIDE from score order, 1..N — whatever `rank` the
+// source carried is discarded. Sources disagree: the game's own ranking is
+// 0-indexed (so 1st place arrived as 0 and the table literally showed "0"),
+// while a bracket export is 1-indexed. A sheet is a complete, score-sorted
+// population either way, so numbering it here is the one place it can be right
+// for every source at once. Ties keep the sort's order, matching the source.
+function assignRanks(data) {
+  [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = i + 1; });
+}
+
+// Join GW points by rank — Guild Wars only; other content types get 0. The
+// points table depends on the sheet's date (see gw-points.js), and `gwPointsAt`
+// owns the 1-based-rank → 0-indexed-table conversion.
 function joinGwPoints(data) {
   if (currentContentType === 'Guild Wars') {
-    const gwMap = parseGWPoints(GW_POINTS_DATA);
-    data.forEach(d => { d.gwPoints = gwMap.get(String(d.rank)) || 0; });
+    data.forEach(d => { d.gwPoints = gwPointsAt(currentSheet, d.rank) || 0; });
   } else {
     data.forEach(d => { d.gwPoints = 0; });
   }

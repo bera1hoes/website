@@ -1,4 +1,10 @@
-// ── Guild War Points data (rank → points, same every week) ────────────────
+// ── Guild War Points data (rank → points) ─────────────────────────────────
+// Two schedules: the 09-03-2026 patch raised 1st–29th place and left 30th and
+// beyond alone. Ranks in THESE TABLES are 0-indexed (rank 0 = 1st place), which
+// is how the game numbers places. The rest of the app is 1-based — read points
+// through `gwPointsAt(sheet, rank)` at the bottom of this file, which does the
+// conversion; never index a table directly, or old sheets get scored under
+// today's rules and every place lands one off.
 
 const GW_POINTS_DATA = `Rank	Guild War Points
 0	1,000,000
@@ -152,3 +158,73 @@ const GW_POINTS_DATA = `Rank	Guild War Points
 148	26,000
 149	25,300
 150	24,600`;
+
+// The 09-03-2026 table. Only 1st–29th (ranks 0–28) moved, so the tail is spliced
+// off the old table rather than restating 120 identical rows — the two can't
+// drift apart. Line 0 of GW_POINTS_DATA is the header and lines 1–29 are ranks
+// 0–28, so the shared tail starts at line 30 (rank 29 = 30th place).
+const GW_POINTS_DATA_V2 = `Rank	Guild War Points
+0	1,500,000
+1	1,200,000
+2	950,000
+3	850,000
+4	780,000
+5	720,000
+6	670,000
+7	630,000
+8	590,000
+9	560,000
+10	530,000
+11	500,000
+12	470,000
+13	440,000
+14	410,000
+15	380,000
+16	350,000
+17	320,000
+18	290,000
+19	260,000
+20	250,000
+21	240,000
+22	230,000
+23	220,000
+24	210,000
+25	200,000
+26	190,000
+27	180,000
+28	170,000
+` + GW_POINTS_DATA.split('\n').slice(30).join('\n');
+
+// First Guild War scored under the new table, as a sortable YYYY-MM-DD key.
+const GW_POINTS_V2_FROM = '2026-09-03';
+
+// Which table a sheet is scored under. Sheet labels are "MM-DD-YYYY" remotely
+// and "MM_DD_YYYY" in the local sample data; both flip to a lexically
+// comparable "YYYY-MM-DD" (same trick as weekKey in prediction.js). Anything
+// unrecognized falls through to the current table.
+function gwPointsDataFor(sheet) {
+  const m = /^(\d{2})[-_](\d{2})[-_](\d{4})$/.exec(String(sheet || ''));
+  if (!m) return GW_POINTS_DATA_V2;
+  const key = m[3] + '-' + m[1] + '-' + m[2];
+  return key >= GW_POINTS_V2_FROM ? GW_POINTS_DATA_V2 : GW_POINTS_DATA;
+}
+
+// Parsed rank → points map for a sheet's schedule, memoized per table (there
+// are only two, so keying the cache by the text itself is enough).
+const _gwPointsMaps = new Map();
+function gwPointsMap(sheet) {
+  const text = gwPointsDataFor(sheet);
+  if (!_gwPointsMaps.has(text)) _gwPointsMaps.set(text, parseGWPoints(text));
+  return _gwPointsMaps.get(text);
+}
+
+// ── The one place the 0-indexed tables meet 1-based app ranks ───────────────
+// Everything the app shows or reasons about is 1-based (rank 1 = 1st place, as
+// assigned by `assignRanks` in chart.js). The tables above stay 0-indexed
+// because that is how the game numbers places and how they were transcribed —
+// re-keying 300 rows would be a silent, diff-heavy way to introduce an
+// off-by-one. So ALL lookups come through here and subtract exactly once.
+// Returns undefined past the end of the table (only ~151 places score points).
+function gwPointsAt(sheet, rank) {
+  return gwPointsMap(sheet).get(String(rank - 1));
+}

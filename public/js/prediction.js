@@ -13,6 +13,9 @@
 //   • a class-bias factor (the global class-adjust checkbox), as a fallback
 //   • a manual % override (persisted in localStorage), which stacks on top.
 //
+// The curve those projections run off is `predictionFit()` — normally the chart's
+// own fit, optionally the Experiments custom equation (see "Fit base" below).
+//
 // Metric per content type (mirrors buildPivotTable): GW Points for Guild Wars
 // (rank-based via GW_POINTS_DATA), total Score for everything else. The per-player
 // "Projected absentees" table (#missing-players-section) always shows raw projected
@@ -130,13 +133,48 @@ function loadShowTables() {
   catch { return true; }
 }
 
+// ── Fit base ─────────────────────────────────────────────────────────────────
+// Projections run off the chart's own fit (activeFit) by default. The Experiments
+// custom equation can take over as the base instead, so a what-if curve — a
+// hand-written one, mapleidle's game-wide baseline, an older week's fit — projects
+// the absentees without disturbing the chart's regression. The two stay separate
+// on purpose: the custom fit line, the "vs Custom" column and this base are the
+// same equation used three ways.
+let useCustomFitBase = false;
+
+// The { A, B } every projection runs through. Falls back to activeFit whenever the
+// custom fit is off or unset, so clearing the equation can never strand the tables
+// on a curve that's no longer on screen.
+function predictionFit() {
+  if (useCustomFitBase && custom.A != null && isFinite(custom.B)) {
+    return { A: custom.A, B: custom.B, isCustom: true };
+  }
+  return { A: activeFit.A, B: activeFit.B, isCustom: false };
+}
+
 // ── Projection ───────────────────────────────────────────────────────────────
 
-// The per-player performance factor for the active adjust mode, or null when the
-// mode is off / the player has no history (→ caller falls back to class/raw).
+// The per-player performance factor for the active adjust mode, as
+// { factor, source }, or null when the mode is off / we know nothing about them
+// (→ caller falls back to mapleidle, then class, then raw).
+//
+// Last-week mode falls back to the multi-week profile when the player is missing
+// from last week's sheet. Someone who sat last week out has no last-week signal,
+// but that is no reason to discard the history we do have: the alternative is a
+// mapleidle best-score proxy or a raw projection, and real history beats both.
+// Rotating opponents make this common — a guild that skipped one week has every
+// member fall through at once. The row is labelled with whichever profile was
+// used, so the substitution stays visible rather than silently changing meaning.
 function perfFactor(nick) {
-  if (adjustMode === 'history')  return (sheetPerf   && typeof sheetPerf[nick]   === 'number') ? sheetPerf[nick]   : null;
-  if (adjustMode === 'lastweek') return (lastWeekPerf && typeof lastWeekPerf[nick] === 'number') ? lastWeekPerf[nick] : null;
+  const hist = (sheetPerf && typeof sheetPerf[nick] === 'number') ? sheetPerf[nick] : null;
+  if (adjustMode === 'history') {
+    return hist == null ? null : { factor: hist, source: 'History' };
+  }
+  if (adjustMode === 'lastweek') {
+    const wk = (lastWeekPerf && typeof lastWeekPerf[nick] === 'number') ? lastWeekPerf[nick] : null;
+    if (wk != null) return { factor: wk, source: 'Last wk' };
+    return hist == null ? null : { factor: hist, source: 'History' };
+  }
   return null;
 }
 
@@ -145,6 +183,9 @@ function perfFactor(nick) {
 // with the CP it was SET at, which is what makes the ratio comparable: running it
 // through our current fit asks "what would our fit have predicted for them at that
 // CP?", exactly as lastWeekPerf does with the previous sheet.
+//
+// It divides by whichever fit the projection multiplies back (predictionFit), so a
+// swapped base cancels out of the ratio instead of doubling into it.
 //
 // Caveat worth knowing when reading the table: this is their BEST recorded score,
 // not a typical week, so it reads optimistic against a history factor averaged
@@ -155,22 +196,25 @@ function miFactor(member) {
   if (adjustMode === 'none') return null;   // the user asked for no adjustment
   const key = PREDICTION_MI_MODE[currentContentType];
   const rec = key && member.mi && member.mi.modes && member.mi.modes[key];
-  if (!rec || !(rec.cp > 0) || !(rec.score > 0) || activeFit.A == null) return null;
-  const pred = activeFit.A * Math.pow(rec.cp, activeFit.B);
+  const fit = predictionFit();
+  if (!rec || !(rec.cp > 0) || !(rec.score > 0) || fit.A == null) return null;
+  const pred = fit.A * Math.pow(rec.cp, fit.B);
   return pred > 0 ? rec.score / pred : null;
 }
 
 // Project a missing member, returning the breakdown the table shows. base is the raw
-// fit at the member's CP; factor is the chosen multiplier (history > mapleidle >
-// class > 1); the manual % override stacks on top.
+// fit at the member's CP (predictionFit — the chart's fit or the custom equation);
+// factor is the chosen multiplier (history > mapleidle > class > 1); the manual %
+// override stacks on top.
 function projectMember(member) {
-  const base = activeFit.A * Math.pow(member.cp, activeFit.B);
+  const fit = predictionFit();
+  const base = fit.A * Math.pow(member.cp, fit.B);
   let factor = 1, source = '—';
   const pf = perfFactor(member.nick);
   const mf = pf == null ? miFactor(member) : null;
   if (pf != null) {
-    factor = pf;
-    source = adjustMode === 'history' ? 'History' : 'Last wk';
+    factor = pf.factor;
+    source = pf.source;
   } else if (mf != null) {
     factor = mf;
     source = 'mapleidle';
@@ -207,9 +251,27 @@ function syncAdjustControls() {
   if (!sel) return;
   const allowed = adjustAllowed();
   Array.from(sel.options).forEach(o => { if (o.value !== 'none') o.disabled = !allowed; });
+
+  // Last-week only means something when the previous sheet IS last week. These
+  // content types run with breaks (GTG has had a 56-day one), and on such a sheet
+  // "last week" would silently be a two-month-old run, so the option is disabled
+  // and History — which weights every prior appearance by recency — takes over.
+  const weekly = allowed && prevSheetIsLastWeek();
+  const wkOpt = Array.from(sel.options).find(o => o.value === 'lastweek');
+  const gap = (allowed && prevSheetName()) ? sheetGapDays(currentSheet, prevSheetName()) : null;
+  if (wkOpt) {
+    wkOpt.disabled = !weekly;
+    wkOpt.title = weekly ? ''
+      : (gap != null ? `Previous ${currentContentType} run was ${gap} days ago — not last week`
+                     : 'No previous run to compare against');
+  }
+
   // Allowed content types use the remembered preference (default "last week");
-  // skipped types (Global GBB / Guild Conquest) force None.
+  // skipped types (Global GBB / Guild Conquest) force None. A remembered
+  // "last week" degrades to History on a sheet where it doesn't apply, without
+  // overwriting the preference — switch to a weekly sheet and it comes back.
   adjustMode = allowed ? preferredAdjustMode : 'none';
+  if (adjustMode === 'lastweek' && !weekly) adjustMode = 'history';
   sel.value = adjustMode;
   sel.title = allowed ? '' : 'History adjustment isn’t available for this content type';
 }
@@ -220,13 +282,69 @@ function onAdjustModeChange(val) {
   if (lastPrediction) runPrediction();   // re-run with the new mode
 }
 
+// ── Fit-base control ─────────────────────────────────────────────────────────
+
+// Checkbox handler. Re-runs rather than just re-rendering (like onAdjustModeChange)
+// so the status line's base note is rewritten too; the adjust data is already
+// cached, so the re-run costs no fetch.
+function onPredictFitBase(checked) {
+  useCustomFitBase = checked;
+  syncFitBaseControl();
+  if (lastPrediction) runPrediction();
+}
+
+// Keep the checkbox live only while a custom equation exists, and show which one.
+// Called at init, on every sheet switch (clearPrediction) and whenever the custom
+// fit changes.
+function syncFitBaseControl() {
+  const cb = document.getElementById('predict-custom-fit');
+  if (!cb) return;
+  const has = custom.A != null && isFinite(custom.B);
+  if (!has) useCustomFitBase = false;   // nothing to project from → back to activeFit
+  cb.disabled = !has;
+  cb.checked = useCustomFitBase;
+  const row = document.getElementById('predict-fit-base-row');
+  if (row) {
+    row.style.opacity = has ? '' : '0.55';
+    row.title = has
+      ? 'Project absentees from the custom equation instead of this sheet’s fit'
+      : 'Set a Custom Fit Equation above to use it as the projection base';
+  }
+  const note = document.getElementById('predict-fit-note');
+  if (note) {
+    // The equation lives five sections up the panel, so echo it here — otherwise
+    // "custom fit" is a base you can't see while you're reading the tables.
+    note.textContent = (has && useCustomFitBase)
+      ? `Score = ${custom.A.toExponential(3)} × CP^${custom.B.toFixed(3)}` : '';
+  }
+}
+
+// Called from experiments.js when the custom equation is applied or cleared. A
+// change to the base re-projects the cached diff; a clear falls back to activeFit
+// (syncFitBaseControl has already flipped useCustomFitBase off by then, hence the
+// `was` check).
+function onCustomFitChanged() {
+  const was = useCustomFitBase;
+  syncFitBaseControl();
+  if ((was || useCustomFitBase) && lastPrediction) runPrediction();
+}
+
 // Build the Last-week { nick -> factor } map from the previous sheet (which
 // history.js already fetches), caching it per sheet. Resolves to the map or null.
+//
+// Returns null when the previous sheet isn't actually the preceding week. The
+// control already degrades to History for those sheets, but this is the guard
+// that matters: a deep link, a stale `preferredAdjustMode`, or the bridge calling
+// in can all reach here with mode still 'lastweek', and building the map anyway
+// would label a two-month-old run "Last wk".
 function buildLastWeekPerf() {
   const key = currentContentType + ' ' + currentSheet;
   if (lastWeekFor === key && lastWeekPerf) return Promise.resolve(lastWeekPerf);
   const prev = (typeof prevSheetName === 'function') ? prevSheetName() : null;
   if (!prev) { lastWeekPerf = null; lastWeekFor = key; return Promise.resolve(null); }
+  if (typeof prevSheetIsLastWeek === 'function' && !prevSheetIsLastWeek()) {
+    lastWeekPerf = null; lastWeekFor = key; return Promise.resolve(null);
+  }
   return getSheetRows(prev).then(rows => {
     let map = null;
     if (rows && rows.length) {
@@ -272,7 +390,7 @@ function ensureAdjustData() {
 // sheet's chart data (no fetch) → zero extra KV reads, except a one-time
 // buildPerfProfile when History mode has no embedded profile yet.
 function runPrediction() {
-  if (!currentData || activeFit.A == null) {
+  if (!currentData || predictionFit().A == null) {
     setPredictionStatus('Load a chart first.', '#f87171');
     return;
   }
@@ -316,7 +434,7 @@ function computeAndRender() {
         nick: m.nick, cp: m.cp, cls: m.cls, guild,
         joined: m.joined || null,
         // mapleidle's per-mode best scores, fetched onto the roster member by
-        // tools/mapleidle-player-scores.user.js. Rides along in the snapshot, so
+        // tools/shoes-player-scores.user.js. Rides along in the snapshot, so
         // this costs no extra call — see miFactor.
         mi: m.mi || null,
         // Joined during this very week: they were mid-run at best, so they don't
@@ -351,6 +469,12 @@ function computeAndRender() {
   const joinNote = joinedLater ? '  ·  skipped ' + joinedLater + ' who joined after this week' : '';
   const midNote = midWeek ? '  ·  ' + midWeek + ' joined mid-week (struck through, not counted)' : '';
   const leftNote = departed ? '  ·  ' + departed + ' left since (no CP to project)' : '';
+  // Say so when Last-week wasn't an option: this content type had a break, so the
+  // "previous" sheet is a different era of the guild and History took over.
+  const prevGap = prevSheetName() ? sheetGapDays(currentSheet, prevSheetName()) : null;
+  const gapNote = (adjustAllowed() && prevGap != null && !prevSheetIsLastWeek())
+    ? '  ·  no run last week (previous was ' + prevGap + 'd ago) — using history' : '';
+
   let modeNote = '';
   if (adjustMode !== 'none') {
     const data = adjustMode === 'history' ? sheetPerf : lastWeekPerf;
@@ -362,8 +486,9 @@ function computeAndRender() {
   // have projected raw. Counted off missingFlat, which renderAll just rebuilt.
   const miUsed = missingFlat.filter(r => r.source === 'mapleidle').length;
   const miNote = miUsed ? '  ·  ' + miUsed + ' from mapleidle (no history)' : '';
+  const baseNote = predictionFit().isCustom ? '  ·  custom-fit base' : '';
   setPredictionStatus('Projected ' + totalMissing + ' missing members across ' + withRoster +
-    ' guild(s)' + modeNote + miNote + joinNote + midNote + leftNote + rosterNote,
+    ' guild(s)' + baseNote + modeNote + gapNote + miNote + joinNote + midNote + leftNote + rosterNote,
     without ? '#facc15' : '#4ade80');
 }
 
@@ -457,13 +582,13 @@ function aggregateScore(guilds, missingByGuild) {
 }
 
 // Re-rank the combined population (participants with real scores + missing members
-// with projected scores), assign ranks 1..N, map rank→points via GW_POINTS_DATA, and
+// with projected scores), assign ranks 1..N, map rank→points via the sheet's points
+// table (gw-points.js — the schedule changed on 09-03-2026), and
 // return per-guild totals plus per-player points (split into participants vs absentees).
 // Approximation: real GW ranking spans the whole league including guilds we have no
 // roster for — this re-ranks only the guilds present in the sheet.
 function computeGwProjection(guilds, missingByGuild) {
-  const gwMap = parseGWPoints(GW_POINTS_DATA);
-  const pointsFor = rank => gwMap.get(String(rank)) || 0;
+  const pointsFor = rank => gwPointsAt(currentSheet, rank) || 0;
 
   const pop = [];
   currentData.forEach(d => pop.push({ nick: d.nick, guild: d.guild, score: d.score || 0, absent: false }));
@@ -473,12 +598,11 @@ function computeGwProjection(guilds, missingByGuild) {
     m => pop.push({ nick: m.nick, guild, score: projectMemberScore(m), absent: true })));
   pop.sort((a, b) => b.score - a.score);
 
-  // GW_POINTS_DATA + joinGwPoints are 0-indexed (rank 0 = 1st place = 1,000,000),
-  // so award the top scorer pointsFor(0), not pointsFor(1) — otherwise everyone is
-  // shifted down a place and nobody gets the rank-0 value.
+  // `pop` is sorted by score, so index i is 1-based place i + 1 — the same
+  // numbering joinGwPoints uses, so a projected #1 gets the real 1st-place value.
   const guildPoints = {}, partByNick = {}, absentByNick = {};
   pop.forEach((p, i) => {
-    const pts = pointsFor(i);
+    const pts = pointsFor(i + 1);
     guildPoints[p.guild] = (guildPoints[p.guild] || 0) + pts;
     if (p.absent) absentByNick[p.nick] = pts; else partByNick[p.nick] = pts;
   });
@@ -544,6 +668,9 @@ function renderPredictionTable(rows, isGW) {
   if (!section) return;
 
   document.getElementById('prediction-th-metric').textContent = isGW ? 'GW Points' : 'Score';
+  // Say so in the heading when the totals aren't coming off the chart's own fit.
+  const fitNote = document.getElementById('prediction-fit-note');
+  if (fitNote) fitNote.textContent = predictionFit().isCustom ? ' · custom fit' : '';
   const fmt = isGW ? v => Math.round(v).toLocaleString() : fmtScore;
   const fmtSigned = v => (v >= 0 ? '+' : '') + fmt(v);
   const dRankText = d => d > 0 ? '↑' + d : d < 0 ? '↓' + (-d) : '—';
@@ -614,6 +741,10 @@ function renderMissingRows() {
   // GW-points column shows only for Guild Wars.
   const gwTh = document.getElementById('missing-th-gwpoints');
   if (gwTh) gwTh.style.display = isGW ? '' : 'none';
+
+  // Which curve the Fit base column came from.
+  const baseLbl = document.getElementById('missing-base-label');
+  if (baseLbl) baseLbl.textContent = predictionFit().isCustom ? 'Fit base (custom)' : 'Fit base';
 
   // Sort-icon + aria state on the headers.
   document.querySelectorAll('#missing-table thead th.sortable').forEach(th => {
@@ -711,6 +842,9 @@ function clearPrediction() {
   const mbody = document.getElementById('missing-body');
   if (mbody) mbody.innerHTML = '';
   syncAdjustControls();
+  // The custom fit survives a sheet switch (chart.js re-draws it), so the base
+  // choice does too — just re-sync the control against it.
+  syncFitBaseControl();
   // Keep the gate note visible in non-remote modes (buildChart calls this on
   // every sheet switch, which would otherwise blank the explanation).
   setPredictionStatus(IS_REMOTE ? '' : 'Needs live data (remote mode).');
@@ -723,6 +857,7 @@ function clearPrediction() {
   if (tablesCb) tablesCb.checked = showPredictionTables;
   const sel = document.getElementById('adjust-mode');
   if (sel) sel.value = adjustMode;
+  syncFitBaseControl();   // starts disabled — no custom equation at boot
 
   // Refresh rosters hits the roster store via the Worker — disable it off-remote.
   // (Predict stays enabled; it reports "needs live data" when there's no embedded

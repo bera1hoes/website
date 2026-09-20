@@ -375,20 +375,33 @@ async function handleChartUpload(request, env) {
   const rows = cleanChartRows(body.rows);
   if (!rows.length) return jsonError(400, 'No valid rows (each needs nonzero cp and score)');
 
-  // Embed rosters: carry over from an existing entry (and keep its perfProfile +
-  // guildHistory — both summarize PRIOR sheets, which an update to this one can't
-  // change), else pull fresh from ROSTERS for the rows' guilds — same as syncData did.
+  // Embed rosters, and carry the derived summaries over — but ONLY while the guild
+  // set is unchanged. `perfProfile` and `guildHistory` summarize the prior sheets
+  // *filtered to this sheet's guilds*, so a guild arriving or leaving invalidates
+  // both; the roster snapshot is likewise missing the newcomers. That matters
+  // because a week can land in pieces (one guild's rows, then the rest): the first
+  // upload triggers a build over only the guilds present, and carrying that
+  // forward pins the sheet to them forever — the client never rebuilds, since a
+  // non-null value already looks built. Same guilds → carry everything (an update
+  // that only changes rows can't change what the prior sheets said about those
+  // guilds); different guilds → re-pull and drop the summaries so they rebuild.
+  const guilds = guildsOf(rows);
   const prevRaw = await env.CHART_DATA.get(dataKey(type, date));
+  const prev = prevRaw ? JSON.parse(prevRaw) : null;
+  const obj = (prev && !Array.isArray(prev)) ? prev : {};
+  const prevGuilds = prev ? guildsOf(Array.isArray(prev) ? prev : obj.rows) : null;
+  const sameGuilds = prevGuilds !== null
+    && prevGuilds.length === guilds.length
+    && new Set([...prevGuilds, ...guilds]).size === guilds.length;
+
   let rosters, rosterChanges, perfProfile, guildHistory;
-  if (prevRaw) {
-    const prev = JSON.parse(prevRaw);
-    const obj = (prev && !Array.isArray(prev)) ? prev : {};
+  if (sameGuilds) {
     rosters = obj.rosters || {};
     rosterChanges = obj.rosterChanges;
     perfProfile = obj.perfProfile;
     guildHistory = obj.guildHistory;
   } else {
-    const pulled = await pullRosters(env, 'bera', guildsOf(rows));
+    const pulled = await pullRosters(env, 'bera', guilds);
     rosters = pulled.rosters;
     if (Object.keys(pulled.changes).length) rosterChanges = pulled.changes;
   }
@@ -509,15 +522,27 @@ async function handleBaselineUpload(request, env) {
 // our fit directly, so it drops into the same score/(A·cp^B) ratio the other
 // adjust modes use (see miFactor in prediction.js).
 //
-// tools/mapleidle-player-scores.user.js does the fetching (same reason as the
-// baseline script: only a real browser on the site can read those routes) and
-// POSTs here. We store the block on the ROSTER MEMBER rather than in a table of
+// tools/shoes-player-scores.user.js does the fetching — it runs on our own charts
+// page, works out which absentees have no history, and reaches mapleidle through
+// GM_xmlhttpRequest (their API sends no CORS headers, so a page fetch can't) —
+// then POSTs here. We store the block on the ROSTER MEMBER rather than in a table of
 // its own, so prediction reads it from the roster snapshot it already holds —
 // no second lookup. carryMi keeps it alive across roster re-captures.
 
 // Their per-mode keys we keep. worldBoss is dropped: we have no such content, and
 // every stored byte rides along in each embedded roster snapshot.
 const MI_MODES = Object.keys(MAPLEIDLE_CONTENT);
+
+// mapleidle's job names → the `cls` tokens our data uses (CLASS_COLORS in
+// colors.js). Most match outright; these three don't, and getting them wrong would
+// break class colouring and the class-bias adjustment, which both key off `cls`.
+// Wind Archer is their 3rd-job name for what our sheets call Wind Breaker.
+const MAPLEIDLE_JOB_CLS = {
+  'Ice/Lightning Mage': 'ILM',
+  'Fire/Poison Mage': 'FPM',
+  'Wind Archer': 'Wind Breaker',
+};
+const clsForJob = (job) => MAPLEIDLE_JOB_CLS[job] || String(job || '');
 
 // Normalize one uploaded player block to { fetchedAt, job?, level?, modes: {…} }.
 // Returns null when no mode survived — a player with nothing usable shouldn't get
@@ -548,10 +573,15 @@ function cleanMiEntry(entry, fetchedAt) {
 }
 
 // POST /playerscores  (Authorization: Bearer <CHART_WRITE_KEY>)
-// Body: { world?, guilds: { "<guild>": { "<nick>": { job?, level?, modes: {…} } } } }
+// Body: { world?, guilds: { "<guild>": { "<nick>": { cp?, job?, level?, modes? } } } }
 // Merges each player's block onto the matching roster member. Idempotent: a
 // re-post of the same players just overwrites their block, so the fetcher can be
 // re-run or resumed without creating duplicates.
+//
+// `cp`/`level` refresh the roster member itself; `modes` writes the `mi` block. An
+// entry may carry either or both — a member whose scores we already hold still gets
+// their CP brought up to date, which is why the fetcher sends CP for everyone the
+// guild response covers and scores only for those who need them.
 async function handlePlayerScoresUpload(request, env) {
   if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
   const auth = request.headers.get('authorization') || '';
@@ -568,30 +598,76 @@ async function handlePlayerScoresUpload(request, env) {
   const fetchedAt = new Date().toISOString();
   const stored = [];
 
+  // Guilds whose payload is mapleidle's FULL member list, so it's safe to build a
+  // roster from it when SwissKnife has never captured one. Opt-in per guild: a
+  // per-player fallback fetch covers only a handful of nicks, and creating a
+  // roster from that would invent a two-member guild.
+  const complete = new Set(Array.isArray(body.complete) ? body.complete.map(String) : []);
+
   for (const [guild, players] of Object.entries(guilds)) {
     const g = String(guild || '').trim();
     if (!g || !players || typeof players !== 'object') continue;
 
-    const roster = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
+    let roster = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
+    let created = false;
     if (!Array.isArray(roster) || !roster.length) {
-      stored.push({ guild: g, error: 'no roster captured yet' });
-      continue;
+      // Win Prediction can only project a guild it has a roster for, so a guild
+      // SwissKnife never captured contributes no absentees at all — its projected
+      // total is just whoever showed up. mapleidle's guild response is a complete
+      // member list, so it can stand in.
+      //
+      // Caveat: it carries no join/leave log, so `joined_weeks` is absent and the
+      // "joined after this week" dating can't run for these guilds — everyone on
+      // the roster counts as an absentee. That over-projects a guild that recently
+      // recruited, which is still better than projecting nothing at all.
+      if (!complete.has(g)) {
+        stored.push({ guild: g, error: 'no roster captured yet' });
+        continue;
+      }
+      roster = [];
+      for (const [nick, entry] of Object.entries(players)) {
+        const n = String(nick).trim();
+        const cp = Number(entry && entry.cp);
+        if (!n || !(cp > 0)) continue;
+        roster.push({ nick: n, cp, cls: clsForJob(entry.job), level: Number(entry.level) || 0 });
+      }
+      if (!roster.length) {
+        stored.push({ guild: g, error: 'nothing usable to build a roster from' });
+        continue;
+      }
+      created = true;
     }
 
     const idx = byNick(roster);
-    let matched = 0;
+    let matched = 0, refreshed = 0;
     const unmatched = [];
     for (const [nick, entry] of Object.entries(players)) {
       const member = idx.get(String(nick).toLowerCase());
       if (!member) { unmatched.push(nick); continue; }
+      let touched = false;
+
+      // Current CP, straight from the same guild response the scores come from.
+      // Roster CP otherwise only moves when SwissKnife re-captures a guild, and a
+      // guild nobody has captured lately goes badly stale — CheersNBeer sat at CP
+      // values 5-8x below reality, which under-projects every one of its absentees
+      // (base = A·cp^B). This is the same source SwissKnife scrapes, just fresher,
+      // and it rides along for free on a request we already make.
+      const cp = Number(entry.cp);
+      if (cp > 0 && cp !== member.cp) { member.cp = cp; refreshed++; touched = true; }
+      const level = Number(entry.level);
+      if (level > 0 && level !== member.level) { member.level = level; touched = true; }
+
       const mi = cleanMiEntry(entry, fetchedAt);
-      if (!mi) continue;
-      member.mi = mi;
-      matched++;
+      if (mi) { member.mi = mi; matched++; touched = true; }
+      if (touched) member._t = 1;
     }
 
-    if (matched) await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
-    const rec = { guild: g, matched, members: roster.length };
+    const changed = created || roster.some((m) => m._t);
+    for (const m of roster) delete m._t;
+    if (changed) await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
+
+    const rec = { guild: g, matched, refreshed, members: roster.length };
+    if (created) rec.created = true;
     // Surfaced rather than swallowed: a nick that never matches is usually a
     // rename or a guild the roster is stale for, and it would otherwise look
     // like the fetch simply did nothing.
