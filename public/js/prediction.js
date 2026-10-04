@@ -31,22 +31,36 @@
 const PREDICTION_PERF_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Guild Training Ground'];
 
 // ── Dating roster membership ─────────────────────────────────────────────────
-// A roster snapshot is "today's members", but a sheet is a past week — so someone
-// who joined after that week is in the snapshot yet was never in the guild for the
-// run, and projecting them inflates the guild's total. mapleidle's Member Changes
-// log (captured alongside the roster, `sheetChanges`) dates every join/leave, and
-// SwissKnife pre-labels each date with the week bucket it falls in per content type
+// A roster snapshot is "today's members", but a sheet is a past week, and people
+// move in both directions in between:
+//   • someone who joined after the week is on today's roster but was never in the
+//     guild for the run — projecting them inflates the guild's total;
+//   • someone who left after the week is off today's roster but WAS a member who sat
+//     the run out — dropping them deflates it.
+// mapleidle's Member Changes log (captured alongside the roster, `sheetChanges`, and
+// merged across captures by the Worker) dates every join/leave, and the uploader
+// pre-labels each date with the week bucket it falls in per content type
 // (guild_wars.py's _MODE_SCHEDULE — the same rule that picks which week a capture
-// uploads to). So we can compare a join's week against the sheet's week directly.
+// uploads to). So a change's week compares against the sheet's week directly.
 //
-// Two cases, both kept out of every projected total:
-//   • joined in a STRICTLY LATER week — never in the guild for this run, so they're
-//     dropped from the absentee list entirely (just counted in the status line).
-//   • joined during the sheet's OWN week — mid-run at best. These stay in the table
-//     struck through, so it's visible why the guild's total is what it is.
-// mapleidle re-crawls a guild about once a day, so these dates are day-accurate, not
-// minute-accurate; the mid-week case is exactly the one that resolution can't settle,
-// which is why it's shown rather than silently dropped.
+// Membership during the sheet's week is read off the log (membershipAt): the first
+// change AFTER that week says what the player was during it — a leave means they
+// were in, a join means they weren't — and no change since means they were then what
+// they are now. That also gets a leave-and-rejoin right, which a single "joined"
+// date can't. Where the log is silent, the member's own stamps stand in:
+// `joined_weeks` (the uploader's reading of the same log) and `gone_weeks` (the
+// scores userscript saw them missing from mapleidle's member list — an upper bound
+// on when they left).
+//
+// Ex-members come from the log too. The Worker copies a leaver's last roster CP onto
+// their leave entry, so one who left after the week is projected like any other
+// absentee (labelled "left"); a leave with no CP (gone before we ever had them on a
+// roster) can only be counted.
+//
+// A change DURING the sheet's week is mid-run at best. mapleidle re-crawls a guild
+// about once a day, so these dates are day-accurate, not minute-accurate, and the
+// mid-week case is exactly the one that resolution can't settle — so those rows stay
+// in the table struck through and out of every total, rather than silently dropped.
 
 // Content type -> the upload mode its week labels are keyed by (mirrors
 // CONTENT_MODE in worker.js).
@@ -68,6 +82,10 @@ const PREDICTION_MI_MODE = {
   'Guild Training Ground': 'trainingGround',
 };
 
+// Content types the Worker keeps no roster snapshot for (mirrors NO_ROSTER_TYPES in
+// worker.js), so there are no absentees to project and nothing to refresh.
+const PREDICTION_NO_ROSTERS = ['Guild Conquest'];
+
 // "MM-DD-YYYY" -> "YYYY-MM-DD" so week labels compare lexically (same trick as
 // sortSheetsDesc in worker.js). '' for anything that isn't a week label.
 function weekKey(label) {
@@ -81,6 +99,136 @@ function weekKey(label) {
 function weekKeyFor(weeks) {
   const mode = PREDICTION_CONTENT_MODE[currentContentType];
   return (weeks && mode) ? weekKey(weeks[mode]) : '';
+}
+
+// Nicks compare case-insensitively everywhere membership is decided: roster nicks
+// come from mapleidle, participant nicks from the game, and change-log nicks from
+// link text — three sources that needn't agree on case.
+const nickKey = (nick) => String(nick || '').toLowerCase();
+
+// One guild's change log grouped by nickKey: [{ action, wk, date, c }], wk being the
+// comparable week key for the current content type. Entries with no label for this
+// content type can't be placed, so they're dropped.
+function changesByNick(guild) {
+  const out = new Map();
+  ((sheetChanges && sheetChanges[guild]) || []).forEach(c => {
+    const wk = (c && c.nick) ? weekKeyFor(c.weeks) : '';
+    if (!wk) return;
+    const k = nickKey(c.nick);
+    if (!out.has(k)) out.set(k, []);
+    out.get(k).push({ action: c.action, wk, date: String(c.date || ''), c });
+  });
+  return out;
+}
+
+// Was this player in the guild for the sheet's run? `events` are their changes
+// (changesByNick), `member` their roster entry — null for an ex-member known only
+// from the log. Returns { at: 'in' | 'mid' | 'out', action?, date? }, where a 'mid'
+// carries the change that made it so.
+function membershipAt(events, sheetKey, member) {
+  const onRoster = !!member;
+  if (!sheetKey) return { at: onRoster ? 'in' : 'out' };
+
+  const during = events.find(e => e.wk === sheetKey);
+  if (during) return { at: 'mid', action: during.action, date: during.date };
+
+  // The first change after the week decides. A same-day join+leave pair can't be
+  // ordered by date, so it's ordered to leave the player as they are now — for a
+  // current member that's a leave-and-rejoin, for an ex-member a join-and-leave.
+  const rank = e => ((e.action === 'leave') === onRoster ? 0 : 1);
+  const after = events.filter(e => e.wk > sheetKey)
+    .sort((a, b) => a.date.localeCompare(b.date) || rank(a) - rank(b));
+  if (after.length) return { at: after[0].action === 'leave' ? 'in' : 'out' };
+
+  // The log says nothing since the week — fall back to the member's own stamps.
+  if (member) {
+    const jk = weekKeyFor(member.joined_weeks);
+    if (jk === sheetKey) return { at: 'mid', action: 'join', date: member.joined };
+    if (jk > sheetKey) return { at: 'out' };
+    const gk = weekKeyFor(member.gone_weeks);
+    if (gk === sheetKey) return { at: 'mid', action: 'gone', date: member.gone };
+    if (gk && gk < sheetKey) return { at: 'out' };
+  }
+  return { at: onRoster ? 'in' : 'out' };
+}
+
+// The table fields for a membership verdict: `excluded` keeps a mid-week row out of
+// every total, `tag` is its pill, `why` its hover text.
+function membershipFields(s) {
+  if (s.at !== 'mid') return { excluded: false, tag: '', why: '' };
+  const verb = s.action === 'join' ? 'Joined ' : s.action === 'gone' ? 'Gone from the guild by ' : 'Left ';
+  return {
+    excluded: true,
+    tag: s.action === 'join' ? 'new' : 'left',
+    why: verb + (s.date || '?') + ' — mid-week, so not counted toward the projection',
+  };
+}
+
+// Everyone prediction has to account for in `guild` on this sheet: roster members
+// who sat the run out, plus ex-members who were still in the guild that week (see
+// "Dating roster membership" above). null when the sheet holds no roster for the
+// guild. `tally`, when given, counts what was left out, for the status line:
+// notMember (on the roster, but not in the guild that week), departed (ex-members
+// projected from their carried CP), departedNoCp (ex-members we can only count).
+function absenteesFor(guild, participantsLc, sheetKey, tally) {
+  const roster = sheetRosters && sheetRosters[guild];
+  if (!Array.isArray(roster)) return null;
+  const bump = k => { if (tally) tally[k] = (tally[k] || 0) + 1; };
+  const events = changesByNick(guild);
+  const onRoster = new Set();
+  const out = [];
+  const row = (m, fields) => ({
+    nick: m.nick, cp: m.cp, cls: m.cls || '', guild,
+    // mapleidle's per-mode best scores, fetched onto the roster member by
+    // tools/shoes-player-scores.user.js (and carried onto a leaver's leave entry).
+    // Rides along in the snapshot, so this costs no extra call — see miFactor.
+    mi: m.mi || null,
+    departed: false,
+    ...fields,
+  });
+
+  roster.forEach(m => {
+    if (!m || !m.nick) return;
+    const k = nickKey(m.nick);
+    onRoster.add(k);
+    if (participantsLc.has(k)) return;
+    const s = membershipAt(events.get(k) || [], sheetKey, m);
+    if (s.at === 'out') { bump('notMember'); return; }
+    out.push(row(m, membershipFields(s)));
+  });
+
+  events.forEach((evs, k) => {
+    if (onRoster.has(k) || participantsLc.has(k)) return;
+    const s = membershipAt(evs, sheetKey, null);
+    if (s.at === 'out') return;
+    const leaves = evs.filter(e => e.action === 'leave').sort((a, b) => b.date.localeCompare(a.date));
+    const carried = leaves.find(e => Number(e.c.cp) > 0);
+    if (!carried) { if (s.at === 'in') bump('departedNoCp'); return; }
+    if (s.at === 'mid') { out.push(row(carried.c, membershipFields(s))); return; }
+    bump('departed');
+    out.push(row(carried.c, {
+      departed: true, excluded: false, tag: 'left',
+      why: 'Left ' + leaves[0].date + ' — after this week, so projected from their last roster CP',
+    }));
+  });
+  return out;
+}
+
+// The roster members prediction projects on this sheet, as { "<guild>": [nick, …] }
+// — read by the scores userscript through the bridge so its targets can't drift
+// from what prediction counts. Mid-week rows are left out (they don't count), and so
+// are ex-members (scores are stored onto roster members, so theirs have nowhere to
+// go). null until a sheet with rosters is loaded.
+function predictionAbsentees() {
+  if (!currentData || !sheetRosters) return null;
+  const participantsLc = new Set(currentData.map(d => nickKey(d.nick)));
+  const sheetKey = weekKey(currentSheet);
+  const out = {};
+  Object.keys(sheetRosters).forEach(guild => {
+    const list = absenteesFor(guild, participantsLc, sheetKey);
+    if (list) out[guild] = list.filter(m => !m.excluded && !m.departed).map(m => m.nick);
+  });
+  return out;
 }
 
 // 'none' | 'lastweek' | 'history' — how missing members' projections are tuned.
@@ -394,6 +542,10 @@ function runPrediction() {
     setPredictionStatus('Load a chart first.', '#f87171');
     return;
   }
+  if (PREDICTION_NO_ROSTERS.includes(currentContentType)) {
+    setPredictionStatus('Rosters are off for ' + currentContentType + ' — nothing to predict from.', '#facc15');
+    return;
+  }
   if (!sheetRosters || !Object.keys(sheetRosters).length) {
     setPredictionStatus(IS_REMOTE
       ? 'No rosters in this sheet yet — click “Refresh rosters”.'
@@ -413,49 +565,19 @@ function runPrediction() {
 function computeAndRender() {
   const isGW = currentContentType === 'Guild Wars';
   const guilds = [...new Set(currentData.map(d => d.guild))];
-  const participants = new Set(currentData.map(d => d.nick));
+  const participantsLc = new Set(currentData.map(d => nickKey(d.nick)));
 
-  // Collect missing members per guild from the embedded roster snapshot, skipping
-  // anyone the change log says joined after this sheet's week (see the dating notes
-  // at the top — they were never in the guild for this run).
+  // Collect everyone each guild has to account for — absent roster members and
+  // ex-members still in the guild that week — dated against this sheet's week (see
+  // "Dating roster membership" at the top).
   const sheetKey = weekKey(currentSheet);
   const missingByGuild = {};
-  let withRoster = 0, joinedLater = 0, departed = 0;
+  const tally = {};
+  let withRoster = 0;
   guilds.forEach(guild => {
-    missingByGuild[guild] = [];
-    const roster = sheetRosters[guild];
-    if (!Array.isArray(roster)) return;  // no roster snapshot for this guild
-    withRoster++;
-    roster.forEach(m => {
-      if (participants.has(m.nick)) return;
-      const jk = weekKeyFor(m.joined_weeks);
-      if (sheetKey && jk && jk > sheetKey) { joinedLater++; return; }
-      missingByGuild[guild].push({
-        nick: m.nick, cp: m.cp, cls: m.cls, guild,
-        joined: m.joined || null,
-        // mapleidle's per-mode best scores, fetched onto the roster member by
-        // tools/shoes-player-scores.user.js. Rides along in the snapshot, so
-        // this costs no extra call — see miFactor.
-        mi: m.mi || null,
-        // Joined during this very week: they were mid-run at best, so they don't
-        // contribute to the projection. Kept in the list (struck through) rather
-        // than dropped, so it's visible why the guild's total is what it is.
-        excluded: !!(sheetKey && jk && jk === sheetKey),
-      });
-    });
-
-    // The mirror case: someone who left in a LATER week was still a member during
-    // this one, but is gone from today's snapshot — so they're silently missing from
-    // the projection. Their CP left with them, so we can only report the gap.
-    const log = (sheetChanges && sheetChanges[guild]) || [];
-    if (!sheetKey || !log.length) return;
-    const onRoster = new Set(roster.map(m => m.nick));
-    log.forEach(c => {
-      if (c.action !== 'leave') return;
-      if (participants.has(c.nick) || onRoster.has(c.nick)) return;  // played, or rejoined
-      const wk = weekKeyFor(c.weeks);
-      if (wk && wk > sheetKey) departed++;
-    });
+    const list = absenteesFor(guild, participantsLc, sheetKey, tally);
+    missingByGuild[guild] = list || [];   // null: no roster snapshot for this guild
+    if (list) withRoster++;
   });
 
   lastPrediction = { guilds, missingByGuild, isGW };
@@ -466,9 +588,12 @@ function computeAndRender() {
   const midWeek = flat.length - totalMissing;
   const without = guilds.length - withRoster;
   const rosterNote = without ? '  ·  ' + without + ' guild(s) have no roster (try Refresh rosters)' : '';
-  const joinNote = joinedLater ? '  ·  skipped ' + joinedLater + ' who joined after this week' : '';
-  const midNote = midWeek ? '  ·  ' + midWeek + ' joined mid-week (struck through, not counted)' : '';
-  const leftNote = departed ? '  ·  ' + departed + ' left since (no CP to project)' : '';
+  const joinNote = tally.notMember
+    ? '  ·  skipped ' + tally.notMember + ' not in the guild that week (joined after / left before)' : '';
+  const midNote = midWeek ? '  ·  ' + midWeek + ' joined or left mid-week (struck through, not counted)' : '';
+  const leftNote =
+    (tally.departed ? '  ·  ' + tally.departed + ' who left since projected from their last CP' : '') +
+    (tally.departedNoCp ? '  ·  ' + tally.departedNoCp + ' left since (no CP to project)' : '');
   // Say so when Last-week wasn't an option: this content type had a break, so the
   // "previous" sheet is a different era of the guild and History took over.
   const prevGap = prevSheetName() ? sheetGapDays(currentSheet, prevSheetName()) : null;
@@ -523,6 +648,9 @@ function renderAll() {
 
 // "Refresh rosters" button: re-pull the roster snapshot from the ROSTERS store
 // into the current sheet's chart data, then update the in-memory sheetRosters.
+// Returns the request's promise so a caller (the scores userscript, via the bridge)
+// can wait for the new snapshot before re-running the prediction — without it the
+// re-run projects from the old one.
 function refreshRosters() {
   if (!IS_REMOTE) {
     setPredictionStatus('Needs live data (remote mode).', '#f87171');
@@ -532,11 +660,15 @@ function refreshRosters() {
     setPredictionStatus('Load a sheet first.', '#f87171');
     return;
   }
+  if (PREDICTION_NO_ROSTERS.includes(currentContentType)) {
+    setPredictionStatus('Rosters are off for ' + currentContentType + '.', '#facc15');
+    return;
+  }
   const btn = document.getElementById('refresh-rosters-btn');
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing…'; }
   setPredictionStatus('Refreshing rosters from store…');
 
-  apiCall('refreshRosters', { contentType: currentContentType, sheet: currentSheet }).then(json => {
+  return apiCall('refreshRosters', { contentType: currentContentType, sheet: currentSheet }).then(json => {
     const data = typeof json === 'string' ? JSON.parse(json) : json;
     sheetRosters = rostersOf(data);
     sheetChanges = rosterChangesOf(data);
@@ -718,7 +850,7 @@ function buildMissingFlat(missingByGuild, isGW) {
       const projGw = (isGW && !m.excluded) ? (projAbsentGwPoints[m.nick] || 0) : null;
       missingFlat.push({
         _idx: missingFlat.length, nick: m.nick, cp: m.cp, cls: m.cls, guild, projGw,
-        joined: m.joined, excluded: m.excluded, ...p,
+        excluded: m.excluded, tag: m.tag, why: m.why, ...p,
       });
     });
   });
@@ -774,17 +906,18 @@ function renderMissingRows() {
     const color = GUILD_COLORS[row.guild] || GUILD_COLORS['default'];
     const nickHref = 'https://mapleidle.gg/characters/bera/' + encodeURIComponent(row.nick);
     const ovrVal = row.overridePct == null ? '' : row.overridePct;
-    // Joined during this very week: struck through and left out of every total —
-    // shown anyway so it's visible why they aren't counted. The "new" pill says
-    // WHY the row is struck, so it opts out of the strike itself to stay legible.
+    // Joined or left during this very week: struck through and left out of every
+    // total — shown anyway so it's visible why they aren't counted. The pill ("new"
+    // / "left") says WHY, so it opts out of the strike itself to stay legible. An
+    // ex-member projected for a week they were still in gets the "left" pill unstruck.
     const tr = document.createElement('tr');
-    const newPill = row.excluded
-      ? ` <span class="wp-pill" style="text-decoration:none">new</span>` : '';
+    const newPill = row.tag
+      ? ` <span class="wp-pill" style="text-decoration:none">${row.tag}</span>` : '';
     if (row.excluded) {
       tr.style.textDecoration = 'line-through';
       tr.style.opacity = '0.55';
-      tr.title = 'Joined ' + row.joined + ' — mid-week, so not counted toward the projection';
     }
+    if (row.why) tr.title = row.why;
     let html =
       `<td><span class="p-swatch" style="background:${color}"></span>` +
         `<a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(row.guild)}" target="_blank" rel="noopener">${row.guild}</a></td>` +
@@ -792,7 +925,7 @@ function renderMissingRows() {
       `<td style="text-align:right">${toGamingNotation(row.cp)}</td>` +
       `<td style="text-align:right">${fmtScore(row.base)}</td>` +
       `<td style="text-align:right">${factorText(row.factor, row.source)}</td>` +
-      `<td style="text-align:center"><input class="wp-ovr" type="number" step="5" value="${ovrVal}" placeholder="0" data-idx="${row._idx}" onchange="onOverrideInput(this)" aria-label="Override % for ${row.nick}"${row.excluded ? ' disabled title="Not counted — joined mid-week"' : ''}></td>`;
+      `<td style="text-align:center"><input class="wp-ovr" type="number" step="5" value="${ovrVal}" placeholder="0" data-idx="${row._idx}" onchange="onOverrideInput(this)" aria-label="Override % for ${row.nick}"${row.excluded ? ` disabled title="Not counted — ${row.tag === 'new' ? 'joined' : 'left'} mid-week"` : ''}></td>`;
     if (isGW) html += `<td style="text-align:right">${row.projGw != null ? Math.round(row.projGw).toLocaleString() : '—'}</td>`;
     html += `<td style="text-align:right"><strong>${fmtScore(row.final)}</strong></td>`;
     tr.innerHTML = html;

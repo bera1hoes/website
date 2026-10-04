@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         (s)hoes — pull mapleidle player scores
 // @namespace    https://hoes.fyi/
-// @version      2.2.0
+// @version      2.3.0
 // @description  From the (s)hoes charts page: find the absentees Win Prediction has no history for, fetch their best scores off mapleidle, store them, and re-run the projection.
 // @author       bera1hoes
 // Cloudflare's asset binding 307s /charts to the canonical asset path /Charts, so
@@ -122,8 +122,10 @@
   }
 
   // The whole reason for running here: everyone prediction would project RAW.
-  // A member qualifies when they sat this run out, we hold no history factor for
-  // them under either adjust mode, and we have no fresh mapleidle block either.
+  // A member qualifies when prediction projects them (absent from the run AND in
+  // the guild that week — `absentees` from the page, which knows who joined after
+  // or had left before), we hold no history factor for them under either adjust
+  // mode, and we have no fresh mapleidle block either.
   function findTargets() {
     const c = chart();
     if (!c) return { error: 'page bridge missing — is the site up to date?' };
@@ -136,11 +138,15 @@
     }
 
     const played = new Set(c.participants.map(lc));
+    // Who prediction projects, per guild. An older page without it falls back to
+    // "everyone absent", which also fetches joiners-after and leavers-before.
+    const counted = c.absentees ? new Set(Object.entries(c.absentees)
+      .flatMap(([g, nicks]) => nicks.map((n) => g + '\n' + lc(n)))) : null;
     const perf = c.perf || {};
     const lastWk = c.lastWeekPerf || {};
     const byGuild = {};
     const guilds = [];
-    let members = 0, absent = 0, haveHistory = 0, haveScores = 0;
+    let members = 0, absent = 0, notMember = 0, haveHistory = 0, haveScores = 0;
 
     for (const [guild, roster] of Object.entries(rosters)) {
       if (!Array.isArray(roster) || !roster.length) continue;
@@ -148,6 +154,7 @@
       members += roster.length;
       for (const m of roster) {
         if (!m || !m.nick || played.has(lc(m.nick))) continue;
+        if (counted && !counted.has(guild + '\n' + lc(m.nick))) { notMember++; continue; }
         absent++;
         if (perf[m.nick] != null || lastWk[m.nick] != null) { haveHistory++; continue; }
         if (m.mi && m.mi.modes && daysSince(m.mi.fetchedAt) <= STALE_DAYS) { haveScores++; continue; }
@@ -164,7 +171,7 @@
     const total = Object.values(byGuild).reduce((s, a) => s + a.length, 0);
     // `guilds` drives the run, not `byGuild`: every guild gets its one call so
     // CP is refreshed even where no scores are needed.
-    return { guilds, missing, byGuild, total, members, absent, haveHistory, haveScores };
+    return { guilds, missing, byGuild, total, members, absent, notMember, haveHistory, haveScores };
   }
 
   // Whether we already know how a player performs, so their scores aren't worth
@@ -366,8 +373,10 @@
     const t = findTargets();
     if (t.error) { say(t.error, '#facc15'); return null; }
     const miss = t.missing.length ? `  +${t.missing.length} with no roster: ${t.missing.join(', ')}` : '';
+    const notIn = t.notMember ? `, ${t.notMember} absent but not in the guild that week` : '';
     say(`${t.guilds.length} guild(s), ${t.members} members — CP refresh for all, ` +
-        `scores for ${t.total} (${t.absent} absent, ${t.haveHistory} have history, ${t.haveScores} stored).${miss}`);
+        `scores for ${t.total} (${t.absent} projected absentees${notIn}, ${t.haveHistory} have history, ` +
+        `${t.haveScores} stored).${miss}`);
     return t;
   }
 
@@ -390,7 +399,7 @@
       const t = summarize();
       if (!t || (!t.guilds.length && !t.missing.length)) return;
 
-      let pushed = 0, refreshed = 0;
+      let pushed = 0, refreshed = 0, marked = 0;
       const problems = [];
       const createdGuilds = [];
       const leftGuild = [];    // on our roster, gone from mapleidle
@@ -432,12 +441,24 @@
         // gave us, so it could not add anything even for a member who IS present.
         // Per-player is therefore only a fallback for when the guild call failed.
         let leftovers = [];
+        let goneNicks = [];
         if (live) {
           // Against the WHOLE roster, not just the score-targets: someone who left
           // is on our roster whether or not we wanted their scores, and prediction
-          // projects them either way.
-          const gone = (rosters[guild] || []).map((m) => m.nick).filter((n) => !live.has(lc(n)));
-          if (gone.length) leftGuild.push(`${guild}: ${gone.join(', ')}`);
+          // projects them either way — until they're marked gone (see push below).
+          const roster = rosters[guild] || [];
+          const gone = roster.map((m) => m.nick).filter((n) => !live.has(lc(n)));
+          // Only trust the list as a departure signal when it plausibly IS this
+          // guild's — an empty or mostly-disjoint response (a renamed guild, an API
+          // hiccup) would otherwise mark the whole roster gone.
+          const kept = roster.length - gone.length;
+          if (gone.length && kept * 2 >= roster.length) {
+            goneNicks = gone;
+            leftGuild.push(`${guild}: ${gone.join(', ')}`);
+          } else if (gone.length) {
+            problems.push(`${guild}: mapleidle lists only ${kept}/${roster.length} of our roster — ` +
+                          `skipped marking departures`);
+          }
           if (joinedNicks && joinedNicks.length) newMembers.push(`${guild}: ${joinedNicks.join(', ')}`);
         } else {
           leftovers = nicks.filter((n) => !covered.has(lc(n)));
@@ -456,51 +477,61 @@
         }
 
         const n = Object.keys(out).length;
-        if (!n) continue;
+        if (!n && !goneNicks.length) continue;
         // Push per guild so a stopped run keeps what it already fetched. `complete`
         // is only set for a guild whose whole member list came back in one call —
-        // never for a per-player top-up, which would invent a tiny roster.
-        say(`${guild}: storing ${n}…`);
+        // never for a per-player top-up, which would invent a tiny roster. `gone`
+        // stamps the departures with today's week, so prediction stops projecting
+        // them for this week on (it can't say when they left — only that they had).
+        say(`${guild}: storing ${n}${goneNicks.length ? `, ${goneNicks.length} departed` : ''}…`);
         const body = { world: region(), guilds: { [guild]: out } };
         if (isNew && covered.size + Object.keys(out).length > 0) body.complete = [guild];
+        if (goneNicks.length) body.gone = { [guild]: goneNicks };
         const res = await push(body, key);
         const rec = (res && res.stored && res.stored[0]) || {};
         if (rec.created) createdGuilds.push(`${guild} (${rec.members})`);
         pushed += rec.matched || 0;
         refreshed += rec.refreshed || 0;
+        marked += rec.gone || 0;
         if (rec.error) problems.push(`${guild}: ${rec.error}`);
         if (rec.unmatched && rec.unmatched.length) {
           problems.push(`${guild}: ${rec.unmatched.length} nick(s) not on the stored roster`);
         }
       }
 
-      if (!pushed && !refreshed && !createdGuilds.length) {
+      if (!pushed && !refreshed && !marked && !createdGuilds.length) {
         say(problems.length ? problems.join('\n') : 'nothing changed — already up to date.',
             problems.length ? '#facc15' : '#4ade80');
         return;
       }
 
       // Close the loop: pull the fresh CP + scores into this sheet's snapshot and
-      // re-project, so the numbers move in front of you.
+      // re-project, so the numbers move in front of you. refreshRosters resolves
+      // once the new snapshot is in (older pages returned nothing, so the re-run
+      // there still projects from the old snapshot until you predict again).
       say('storing — refreshing…');
       await chart().refreshRosters();
       chart().runPrediction();
       const parts = [];
       if (pushed) parts.push(`${pushed} score(s)${t.total ? ` of ${t.total}` : ''}`);
       if (refreshed) parts.push(`${refreshed} CP updated`);
+      if (marked) parts.push(`${marked} marked gone`);
       if (createdGuilds.length) parts.push(`built rosters for ${createdGuilds.join(', ')}`);
       const head = `${stopping ? 'stopped' : 'done'} — ${parts.join(', ')}, projection refreshed.`;
 
-      // Roster drift is worth saying out loud: these members are still being
-      // projected as absentees (or missed entirely), and only a SwissKnife
-      // re-capture can fix it — this script deliberately doesn't add or remove
-      // members, because mapleidle's guild response carries no join/leave dates
-      // and prediction needs those to tell "was in the guild that week" from
-      // "joined since".
+      // Roster drift is worth saying out loud. Departures are handled here — they're
+      // stamped `gone`, so prediction stops projecting them from this week on — but
+      // this script never ADDS members: mapleidle's guild response carries no join
+      // dates, and prediction needs those to tell "was in the guild that week" from
+      // "joined since". Joiners, and join dates for a roster built here, only come
+      // from a capture of the guild page (the roster userscript or SwissKnife),
+      // whose Member Changes card dates every join and leave.
       const drift = [];
-      if (leftGuild.length) drift.push('no longer in the guild — ' + leftGuild.join(' · '));
+      if (leftGuild.length) drift.push('left the guild (marked gone) — ' + leftGuild.join(' · '));
       if (newMembers.length) drift.push('joined since our capture — ' + newMembers.join(' · '));
-      if (drift.length) drift.push('re-capture in SwissKnife to sync membership.');
+      if (newMembers.length || createdGuilds.length) {
+        drift.push('capture the guild page (roster userscript / SwissKnife) to add joiners with join dates.');
+      }
 
       const tail = [...problems, ...drift];
       say(tail.length ? `${head}\n${tail.join('\n')}` : head,

@@ -29,6 +29,13 @@ const MAPLEIDLE_COHORTS = ['fourth', 'sub'];
 // excluded — they have no comparable week-over-week per-player performance.
 const PERF_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Guild Training Ground'];
 
+// Content types whose sheets carry NO roster snapshot. A Guild Conquest sheet is a
+// whole world's ladder (500+ guilds), and pullRosters costs 2 KV reads per guild —
+// past ~497 guilds that breaks Cloudflare's 1000-KV-operations-per-invocation cap
+// and the upload dies with error 1101. Mirrored by PREDICTION_NO_ROSTERS in
+// public/js/prediction.js.
+const NO_ROSTER_TYPES = ['Guild Conquest'];
+
 // Recency weight for the multi-week performance profile: the most-recent prior
 // week counts 1, the next DECAY, then DECAY², … (an exponential decay).
 const PERF_DECAY = 0.6;
@@ -39,8 +46,8 @@ const PERF_DECAY = 0.6;
 // rankings and POSTs them to /chart, which writes these key shapes:
 //   names:<type>        -> { updated: <ISO>, sheets: ["MM-DD-YYYY", …] }
 //   data:<type>:<sheet> -> { rows: [ {rank, nick, score, …}, … ],
-//                            rosters:      { "<guild>": [ {nick,cp,cls,level,joined?,joined_weeks?}, … ] },
-//                            rosterChanges:{ "<guild>": [ {nick,action,date,guild,weeks}, … ] }, (optional)
+//                            rosters:      { "<guild>": [ {nick,cp,cls,level,joined?,joined_weeks?,gone?,gone_weeks?,mi?}, … ] },
+//                            rosterChanges:{ "<guild>": [ {nick,action,date,guild,weeks,cp?,cls?,level?,mi?}, … ] }, (optional)
 //                            perfProfile:  { "<nick>": <factor> },            (optional)
 //                            guildHistory: { "<guild>": [ {sheet,total,members}, … ] } }  (optional)
 //   guildweeks:<type>   -> { "<guild>": ["MM-DD-YYYY", …] }   (all content types)
@@ -48,9 +55,12 @@ const PERF_DECAY = 0.6;
 // namespace), embedded on /chart ingest and carried over on updates so Win
 // Prediction reads it with no extra KV call. Legacy bare-array entries are still
 // served (rows with no rosters) until refreshed. `rosterChanges` rides along with
-// it — mapleidle's 30-day join/leave log per guild, each entry pre-labeled with
-// the week bucket it falls in for every content type, so prediction can tell a
-// member who wasn't in the guild yet from one who simply skipped the run.
+// it — mapleidle's join/leave log per guild (30 days per capture, merged across
+// captures up to CHANGE_LOG_DAYS), each entry pre-labeled with the week bucket it
+// falls in for every content type, so prediction can tell a member who wasn't in
+// the guild yet from one who simply skipped the run. A leave carries the leaver's
+// last roster CP (carryLeavers), so one who left after a week can still be
+// projected for it.
 // `perfProfile` is a
 // recency-weighted per-player over/under-performance factor built from the PRIOR
 // sheets where the current guilds appeared (buildPerfProfile), embedded here and
@@ -276,6 +286,7 @@ async function handleApi(url, env) {
   // data:<type>:<sheet> entry (the chart's "Refresh rosters" button). The data
   // rows are left as-is; only `rosters` is refreshed.
   if (action === 'refreshRosters') {
+    if (NO_ROSTER_TYPES.includes(type)) return jsonError(400, 'Rosters are disabled for ' + type);
     const sheet = params.get('sheet') || '';
     const stored = await env.CHART_DATA.get(dataKey(type, sheet));
     if (!stored) return jsonError(404, 'No data for that sheet yet — load it first');
@@ -394,13 +405,17 @@ async function handleChartUpload(request, env) {
     && prevGuilds.length === guilds.length
     && new Set([...prevGuilds, ...guilds]).size === guilds.length;
 
-  let rosters, rosterChanges, perfProfile, guildHistory;
+  // NO_ROSTER_TYPES skip the roster half of this entirely (see its comment).
+  const withRosters = !NO_ROSTER_TYPES.includes(type);
+  let rosters = {}, rosterChanges, perfProfile, guildHistory;
   if (sameGuilds) {
-    rosters = obj.rosters || {};
-    rosterChanges = obj.rosterChanges;
+    if (withRosters) {
+      rosters = obj.rosters || {};
+      rosterChanges = obj.rosterChanges;
+    }
     perfProfile = obj.perfProfile;
     guildHistory = obj.guildHistory;
-  } else {
+  } else if (withRosters) {
     const pulled = await pullRosters(env, 'bera', guilds);
     rosters = pulled.rosters;
     if (Object.keys(pulled.changes).length) rosterChanges = pulled.changes;
@@ -582,6 +597,14 @@ function cleanMiEntry(entry, fetchedAt) {
 // entry may carry either or both — a member whose scores we already hold still gets
 // their CP brought up to date, which is why the fetcher sends CP for everyone the
 // guild response covers and scores only for those who need them.
+//
+// Optional `gone: { "<guild>": ["<nick>", …] }` names roster members missing from
+// mapleidle's current member list. They're stamped `gone` / `gone_weeks` with the
+// time of this upload: an upper bound on when they left, which is all the member
+// list can say. Prediction stops projecting them for weeks after that (see
+// membershipAt in prediction.js); without it a roster no one has re-captured keeps
+// projecting players who are long gone. The first sighting is kept — it's the
+// tightest bound — and a member who shows up in `guilds` again is cleared.
 async function handlePlayerScoresUpload(request, env) {
   if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
   const auth = request.headers.get('authorization') || '';
@@ -604,9 +627,14 @@ async function handlePlayerScoresUpload(request, env) {
   // roster from that would invent a two-member guild.
   const complete = new Set(Array.isArray(body.complete) ? body.complete.map(String) : []);
 
-  for (const [guild, players] of Object.entries(guilds)) {
+  const gone = (body.gone && typeof body.gone === 'object' && !Array.isArray(body.gone)) ? body.gone : {};
+  const now = pacificWeeksNow();
+
+  // A guild can arrive with departures and no player entries at all.
+  for (const guild of new Set([...Object.keys(guilds), ...Object.keys(gone)])) {
+    const players = guilds[guild] || {};
     const g = String(guild || '').trim();
-    if (!g || !players || typeof players !== 'object') continue;
+    if (!g || typeof players !== 'object') continue;
 
     let roster = await env.ROSTERS.get(rosterKvKey(world, g), { type: 'json' });
     let created = false;
@@ -659,7 +687,20 @@ async function handlePlayerScoresUpload(request, env) {
 
       const mi = cleanMiEntry(entry, fetchedAt);
       if (mi) { member.mi = mi; matched++; touched = true; }
+
+      // In mapleidle's member list, so not gone (any more).
+      if (member.gone) { delete member.gone; delete member.gone_weeks; touched = true; }
       if (touched) member._t = 1;
+    }
+
+    let departed = 0;
+    for (const nick of Array.isArray(gone[guild]) ? gone[guild] : []) {
+      const member = idx.get(String(nick).toLowerCase());
+      if (!member || member.gone) continue;
+      member.gone = now.date;
+      member.gone_weeks = now.weeks;
+      member._t = 1;
+      departed++;
     }
 
     const changed = created || roster.some((m) => m._t);
@@ -667,6 +708,7 @@ async function handlePlayerScoresUpload(request, env) {
     if (changed) await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
 
     const rec = { guild: g, matched, refreshed, members: roster.length };
+    if (departed) rec.gone = departed;
     if (created) rec.created = true;
     // Surfaced rather than swallowed: a nick that never matches is usually a
     // rename or a guild the roster is stale for, and it would otherwise look
@@ -700,6 +742,45 @@ const CONTENT_MODE = {
 };
 
 const WEEK_RE = /^\d{2}-\d{2}-\d{4}$/;
+
+// mode -> [end_weekday, boundary_weekday, boundary_hour]; Mon=0 … Sun=6, hour in
+// Pacific local time. Mirror of _MODE_SCHEDULE in SwissKnife's guild_wars.py (and of
+// MODE_SCHEDULE in its roster userscript): a week is labelled with end_weekday's date
+// and rolls forward once that week's collection boundary has passed. The uploaders
+// label changes themselves; the Worker only needs this for stamps it makes on its
+// own clock (`gone`, see /playerscores).
+const MODE_SCHEDULE = {
+  GW:   [0, 3, 13],
+  GBB:  [2, 4, 13],
+  GGBB: [2, 4, 13],
+  GC:   [0, 0, 1],
+  GTG:  [2, 4, 13],
+};
+
+const DAY_MS = 86400000;
+
+// Right now in Pacific time, as { date: "YYYY-MM-DD", weeks: { GW: "MM-DD-YYYY", … } }
+// — the week each content type is collecting at this moment.
+function pacificWeeksNow(now = new Date()) {
+  const p = {};
+  for (const { type, value } of new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', hourCycle: 'h23',
+  }).formatToParts(now)) p[type] = value;
+  const pad = (n) => String(n).padStart(2, '0');
+  // Date.UTC keeps the rest pure calendar arithmetic on the Pacific date.
+  const utc = Date.UTC(+p.year, +p.month - 1, +p.day);
+  const wd = (new Date(utc).getUTCDay() + 6) % 7;   // Mon=0 … Sun=6
+  const monday = utc - wd * DAY_MS;
+  const hour = +p.hour;
+  const weeks = {};
+  for (const [mode, [endWd, bWd, bHour]] of Object.entries(MODE_SCHEDULE)) {
+    const before = wd < bWd || (wd === bWd && hour < bHour);
+    const end = new Date(monday + (endWd + (before ? 0 : 7)) * DAY_MS);
+    weeks[mode] = `${pad(end.getUTCMonth() + 1)}-${pad(end.getUTCDate())}-${end.getUTCFullYear()}`;
+  }
+  return { date: `${p.year}-${p.month}-${p.day}`, weeks };
+}
 
 // KV key for a guild roster. World + guild are lowercased so the chart's
 // exact-case names and the captured-from-URL names map to one entry.
@@ -752,6 +833,56 @@ function cleanChanges(changes) {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+// How long a change stays in the stored log. mapleidle's card only ever shows the
+// last 30 days, so a capture's log is merged into the stored one rather than
+// replacing it — otherwise a sheet whose rosters are refreshed a month on has lost
+// the very change that dates one of its members.
+const CHANGE_LOG_DAYS = 120;
+
+// Union of the stored log and a fresh capture's, deduped on (date, nick, action) —
+// the same tuple the uploaders dedupe on — newest first, trimmed to CHANGE_LOG_DAYS.
+// A stored entry's extra fields (a leaver's carried CP, see carryLeavers) survive
+// the fresh copy of the same change.
+function mergeChanges(stored, fresh) {
+  const keyOf = (c) => `${c.date}|${c.nick.toLowerCase()}|${c.action}`;
+  const byKey = new Map();
+  for (const c of Array.isArray(stored) ? stored : []) {
+    if (c && c.nick && ISO_DATE_RE.test(String(c.date || ''))) byKey.set(keyOf(c), c);
+  }
+  for (const c of fresh) byKey.set(keyOf(c), { ...(byKey.get(keyOf(c)) || {}), ...c });
+  const cutoff = new Date(Date.now() - CHANGE_LOG_DAYS * DAY_MS).toISOString().slice(0, 10);
+  return [...byKey.values()]
+    .filter(c => c.date >= cutoff)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+// A member who leaves takes their CP with them: the capture that no longer lists
+// them rebuilds the roster without them. Yet for every week BEFORE they left they
+// were a member, and one who sat that week's run out is an absentee prediction
+// should project. So copy what the roster they left last knew about them onto their
+// newest leave entry, where prediction can find it. Skipped for anyone still (or
+// again) on the new roster, and for a leave that already carries a CP.
+function carryLeavers(log, prevRoster, roster) {
+  const prev = byNick(prevRoster);
+  if (!prev.size) return log;
+  const current = byNick(roster);
+  const seen = new Set();
+  for (const c of log) {                        // newest first
+    if (c.action !== 'leave') continue;
+    const k = c.nick.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    if (c.cp > 0 || current.has(k)) continue;
+    const was = prev.get(k);
+    if (!was || !(Number(was.cp) > 0)) continue;
+    c.cp = Number(was.cp);
+    c.cls = String(was.cls || '');
+    c.level = Number(was.level) || 0;
+    if (was.mi) c.mi = was.mi;
+  }
+  return log;
+}
+
 // Normalize an uploaded member list to [{nick, cp, cls, level}] (cp numeric > 0),
 // plus the optional `joined` / `joined_weeks` pair when the uploader saw the
 // member's join in mapleidle's 30-day change log.
@@ -801,9 +932,12 @@ function carryMi(roster, prevRoster) {
 // POST /guild  (Authorization: Bearer <ROSTER_WRITE_KEY>) — SwissKnife uploads
 // captured rosters here. Body: { world, guild, members:[…], changes:[…] } or a
 // batch { world, rosters: { "<guild>": [members] }, changes: { "<guild>": [entries] } }.
-// Stores each guild's roster in KV, and its join/leave log beside it. An upload
-// that carries no `changes` for a guild leaves that guild's stored log untouched
-// (an older uploader shouldn't wipe data a newer one wrote).
+// Stores each guild's roster in KV, and its join/leave log beside it. A capture's
+// `changes` are merged into the stored log (mergeChanges) rather than replacing it,
+// and anyone who dropped off the roster keeps their last CP on their leave entry
+// (carryLeavers). An upload that carries no `changes` for a guild leaves that
+// guild's stored log untouched (an older uploader shouldn't wipe data a newer one
+// wrote).
 async function handleRosterUpload(request, env) {
   if (!env.ROSTERS) return jsonError(503, 'Roster store (KV) not configured');
   const auth = request.headers.get('authorization') || '';
@@ -825,7 +959,8 @@ async function handleRosterUpload(request, env) {
     await env.ROSTERS.put(rosterKvKey(world, g), JSON.stringify(roster));
     const entry = { guild: g, count: roster.length };
     if (changes !== undefined) {
-      const log = cleanChanges(changes);
+      const was = await env.ROSTERS.get(changesKvKey(world, g), { type: 'json' });
+      const log = carryLeavers(mergeChanges(was, cleanChanges(changes)), prev, roster);
       await env.ROSTERS.put(changesKvKey(world, g), JSON.stringify(log));
       entry.changes = log.length;
     }

@@ -15,7 +15,9 @@
 // sheet has rosters for, who sat the run out, and which of those we have no
 // history for — then writes the fetched scores back in via refreshRosters().
 // Keep this a *data* surface: the decision of who is worth fetching belongs to
-// the script, not here.
+// the script, not here. (`absentees` is data in that sense — who prediction
+// projects — and lives on the page because a copy of that logic in the script
+// would drift from the real one.)
 
 window.shoesChart = {
   // What's on screen right now.
@@ -38,6 +40,13 @@ window.shoesChart = {
   // absentee, and absentees are the only players prediction has to project.
   get participants() { return currentData ? currentData.map((d) => d.nick) : []; },
 
+  // The absentees prediction will actually project: { "<guild>": [nick, …] } — not
+  // everyone absent, since the change log and join/leave stamps rule out members
+  // who joined after this week or had left before it. Computed by prediction.js
+  // (predictionAbsentees) so the fetcher's target list can't drift from what
+  // prediction counts. null until a sheet with rosters is loaded.
+  get absentees() { return predictionAbsentees(); },
+
   // The two per-player history maps prediction tunes projections with. A nick in
   // neither is one we know nothing about — exactly the gap mapleidle fills.
   get perf() { return sheetPerf; },
@@ -48,7 +57,8 @@ window.shoesChart = {
   get miMode() { return PREDICTION_MI_MODE[currentContentType] || null; },
 
   // Re-pull the roster snapshot (picks up freshly-stored scores) and re-run the
-  // projection, so a fetch can close its own loop.
+  // projection, so a fetch can close its own loop. refreshRosters resolves once the
+  // new snapshot is in — await it before runPrediction.
   refreshRosters: () => refreshRosters(),
   runPrediction: () => runPrediction(),
   buildLastWeekPerf: () => buildLastWeekPerf(),
