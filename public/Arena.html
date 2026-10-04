@@ -30,6 +30,7 @@
   <div id="results"></div>
 </main>
 
+<script src="/js/skill-effects.js"></script>
 <script>
 // ── Table loading (lazy, cached in-memory) ──────────────────────────────────
 let _tables = null;
@@ -38,7 +39,7 @@ async function loadTables() {
   if (_tables) return _tables;
   const base = '/TextAsset/';
   const [gearOption, gearFactor, starForce, abilityOption, addAbilityOption, artifactTable,
-         weaponOption, skillBuffs, skillLevelFactor] =
+         weaponOption, skillEffects, skillLevelFactor, creatureStat] =
     await Promise.all([
       fetch(base + 'GearOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearFactorTable.txt').then(r => r.json()),
@@ -46,17 +47,21 @@ async function loadTables() {
       fetch(base + 'GearAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'GearAddAbilityOptionTable.txt').then(r => r.json()),
       fetch(base + 'ArtifactTable.txt').then(r => r.json()),
-      // Equipped-weapon options (grade/tier stats) + pre-extracted always-on skill self-buffs
-      // (small JSON, not the 1.6 MB raw SkillTable) + skill level-scaling factors.
+      // Equipped-weapon options (grade/tier stats) + the class-skill subset of SkillTable that
+      // js/skill-effects.js walks (exported by SwissKnife, not the 2.3 MB raw table) + skill
+      // level-scaling factors.
       fetch(base + 'WeaponOptionTable.txt').then(r => r.json()),
-      fetch(base + 'SkillBuffTable.json').then(r => r.json()),
+      fetch(base + 'SkillEffectTable.json').then(r => r.json()),
       fetch(base + 'SkillLevelFactorTable.txt').then(r => r.json()),
+      // Each hero's base stats (30% crit damage, 10 defense), keyed by BuffInput.CreatureIndex.
+      fetch(base + 'CreatureStatTable.txt').then(r => r.json()),
     ]);
   // Map every artifact equip-skill id → artifact identity. The Artifact buff lists these ids
   // under PassiveSkillLevels, so this resolves a player's worn artifacts (see extractArtifacts).
+  // icon is the table's "<Atlas>:<Sprite>" path (iconUrl).
   const artifactBySkill = {};
   for (const e of artifactTable) {
-    const info = { index: e.Index, code: e.ArtifactCode, grade: e.GradeType };
+    const info = { index: e.Index, code: e.ArtifactCode, grade: e.GradeType, icon: e.IconPath || '' };
     for (const id of (e.EquipSkillIndices || [])) artifactBySkill[String(id)] = info;
   }
   _tables = {
@@ -68,36 +73,33 @@ async function loadTables() {
     abilityOption:    Object.fromEntries(abilityOption.map(e => [e.Index, e])),
     addAbilityOption: Object.fromEntries(addAbilityOption.map(e => [e.Index, e])),
     weaponOption:     Object.fromEntries(weaponOption.map(e => [e.OptionIndex, e.StatData])),
-    skillBuffs,       // { skillIndex: [[stat, base, factorCol|null], ...] }
+    skills:           skillEffects.skills,         // { skillIndex: SkillTable record }
+    skillProjectiles: skillEffects.projectiles,    // { projectileIndex: { SkillIndex } }
+    stateMaxStack:    skillEffects.stateMaxStack,  // { stateName: MaxStack } (1 when absent)
+    skillNames:       skillEffects.names,          // { skillIndex: English name }
     skillLevelFactor: Object.fromEntries(skillLevelFactor.map(e => [String(e.Level), e.Factor.map(Number)])),
     artifactBySkill,
+    creatureStat:     Object.fromEntries(creatureStat.map(e => [String(e.CreatureIndex), e.Stat || {}])),
   };
   return _tables;
 }
 
 // ── Stat calculations — ported from SwissKnife calc_stats.py (keep in sync) ──
 
-function calcCritResist(userInfo) {
-  let total = 0;
-  for (const hero of (userInfo.HeroInfos || [])) {
-    for (const buff of (hero.BuffInput?.PartyHeroBuffInfoContainer?.BuffInfos || [])) {
-      if (buff.BuffType === 'HeroPowerAbility')
-        total += buff.StatContainer?._stats?.CriticalResist || 0;
-    }
-  }
-  return total / 10;
-}
-
 function _gearOptionValue(optIdx, gl, sf, step, isMain, tables) {
   const sd = tables.gearOption[String(optIdx)];
   if (!sd) return [null, 0];
-  const minV = +sd.MinValue, maxV = +sd.MaxValue, maxStep = +sd.OptionStep, factorCol = +sd.Factor;
+  // Fresh datamine dumps OMIT zero-valued fields (StarForceTable rows 0-4 carry no
+  // SubOptionMultiply), so read optionals with `|| 0`: a bare `+undefined` is NaN and silently
+  // drops the whole option line. Same rule as calc_stats._gear_option_value. The client divides
+  // the step bonus by max(OptionStep, 1).
+  const minV = +sd.MinValue, maxV = +sd.MaxValue, maxStep = Math.max(+(sd.OptionStep || 0), 1), factorCol = +sd.Factor;
   const factors = tables.gearFactor[String(gl)];
   const F = factors ? factors[factorCol] : 1000;
-  const stepBonus = maxStep ? Math.floor((maxV - minV) * step / maxStep) : 0;
+  const stepBonus = Math.floor((maxV - minV) * step / maxStep);
   const base = Math.floor(minV * F / 1000) + stepBonus;
   const sfEntry = tables.starForce[String(sf)];
-  const sfBonus = sfEntry ? Math.floor(base * +sfEntry[isMain ? 'MainOptionMultiply' : 'SubOptionMultiply'] / 1000) : 0;
+  const sfBonus = sfEntry ? Math.floor(base * +(sfEntry[isMain ? 'MainOptionMultiply' : 'SubOptionMultiply'] || 0) / 1000) : 0;
   return [sd.Type, base + sfBonus];
 }
 
@@ -110,16 +112,17 @@ function _abilityStat(idx, statName, tables, tableKey) {
 }
 
 // Yield each individual (non-zero) statName contribution from a gear's options -- one per
-// main/sub/ability line, NOT summed. Additive stats sum these (_gearStatTotal); defense
-// penetration folds each as its own diminishing factor. Ported from calc_stats._gear_stat_lines.
+// main/sub/ability line, NOT summed: _gearPart folds them one at a time, as the game's gear
+// container does. Ported from calc_stats._gear_stat_lines.
 function* _gearStatLines(gear, statName, tables) {
-  const gl = +gear.GearLevel, sf = +gear.StarForce;
+  // Zero-valued fields are omitted from captures too (see _gearOptionValue).
+  const gl = +(gear.GearLevel || 0), sf = +(gear.StarForce || 0);
   for (const e of (gear.MainOptionList || [])) {
-    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, true, tables);
+    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +(e.OptionStep || 0), true, tables);
     if (t === statName && v) yield v;
   }
   for (const e of (gear.SubOptionList || [])) {
-    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +e.OptionStep, false, tables);
+    const [t, v] = _gearOptionValue(e.OptionIndex, gl, sf, +(e.OptionStep || 0), false, tables);
     if (t === statName && v) yield v;
   }
   for (const i of (gear.AbilityOptionIndices || [])) {
@@ -130,11 +133,6 @@ function* _gearStatLines(gear, statName, tables) {
     const v = _abilityStat(i, statName, tables, 'addAbilityOption');
     if (v) yield v;
   }
-}
-function _gearStatTotal(gear, statName, tables) {
-  let t = 0;
-  for (const v of _gearStatLines(gear, statName, tables)) t += v;
-  return t;
 }
 
 // Equipped-weapon stat: WeaponOptionTable keyed 1[grade][tier][slot] (slot 2 = HitChance, flat --
@@ -150,130 +148,259 @@ function _weaponStat(weaponsInfo, statName, tables) {
   return (sd && sd.Type === statName) ? +sd.Value : 0;
 }
 
-// Always-on passive/mastery/guild skill self-buffs (pre-extracted SkillBuffTable), scaled by
-// SkillLevelFactorTable[level].Factor[col]/1000. In NO buff _stats block. Ported from
-// calc_stats._skill_stat_lines / _learned_skill_levels.
-const _SKILL_BUFF_TYPES = ['SkillMastery', 'GuildNoblesseSkill', 'GuildMasterySkill', 'GuildMemberSkill'];
-function _learnedSkillLevels(hero) {
-  const levels = {};
-  for (const p of (hero.PassiveSkillLearnedInfos || []))
-    if (p && p.SkillIndex != null) levels[String(p.SkillIndex)] = +(p.SkillLevel || 1);
-  for (const buff of (hero.BuffInput?.HeroBuffInfoContainer?.BuffInfos || []))
-    if (_SKILL_BUFF_TYPES.includes(buff.BuffType))
-      for (const [id, lv] of Object.entries(buff.PassiveSkillLevels || {}))
-        if (!(id in levels)) levels[id] = +(lv || 1);
-  return levels;
+// The hero creature's own base statName (CreatureStatTable, keyed by BuffInput.CreatureIndex).
+// Every hero class starts at CriticalPower 300 and Defence 10; the other shown stats have no base.
+// Ported from calc_stats._base_stat.
+function _baseStat(bi, statName, tables) {
+  return +((tables.creatureStat || {})[String(bi.CreatureIndex)]?.[statName] || 0);
 }
-function* _skillStatLines(hero, statName, tables) {
-  const skillBuffs = tables.skillBuffs;
-  if (!skillBuffs) return;
-  const levels = _learnedSkillLevels(hero);
-  for (const [skillId, level] of Object.entries(levels)) {
-    for (const [stat, base, factorCol] of (skillBuffs[skillId] || [])) {
-      if (stat !== statName) continue;
-      let value = base;
-      if (factorCol != null) {
-        const row = tables.skillLevelFactor[String(level)];
-        const factor = (row && factorCol < row.length) ? row[factorCol] : 1000;
-        value = Math.floor(base * factor / 1000 * 10) / 10;
-      }
-      if (value) yield value;
+
+// The game's stat pipeline, transcribed from the decompiled PC client (not fitted to observed
+// numbers) -- see calc_stats.py for the function names. A hero's stat is two layers:
+//   1. Base layer -- what buffs, gear and weapons give. Every source is one container (the
+//      equipped weapon, all gear lines together, each buff) whose plus part (X) and mult part (XR)
+//      are truncated to whole raw units, then
+//        base = trunc(accum(creature base, sum of plus) * (1000 + sum of mult) / 1000)
+//   2. Skill layer -- permanent skill ops, applied to that finished base:
+//        total = trunc(accum(base * (1000 + sum of ModStatR) / 1000, sum of ModStat))
+//      floored at 0 unless the stat allows negatives, then capped at its MaxValue.
+// So a skill's DefenceR multiplies the buffed Defence and a skill's flat Defence lands after both
+// multipliers. accum is a plain sum except for Toughness and PiercePower, which chain
+// (r + (1000 - r) * p / 1000) and drop their mult parts entirely.
+const _CHAINED_STATS = new Set(['Toughness', 'PiercePower']);
+const _ALLOW_NEGATIVE = new Set(['Toughness', 'CriticalResist']);  // StatTypeTable.AllowNegative
+const _MAX_VALUE = { Toughness: 950, PiercePower: 999 };           // StatTypeTable.MaxValue
+
+// BattleStatAccumCalculator.AccumPlusStat: fold one value into a running total.
+function _accum(stat, total, value) {
+  return _CHAINED_STATS.has(stat) ? total + (1000 - total) * value / 1000 : total + value;
+}
+
+// The hero's buffs. A captured PartyUserInfo serializes the one container under two names
+// (HeroBuffInfoContainer and PartyHeroBuffInfoContainer), so only one is read.
+function _buffInfos(bi) {
+  for (const k of ['HeroBuffInfoContainer', 'PartyHeroBuffInfoContainer']) {
+    const c = bi[k];
+    if (c && Object.keys(c).length) return c.BuffInfos || [];
+  }
+  return [];
+}
+
+// The gear container: every main/sub/ability line of every gear folded in, then truncated.
+function _gearPart(bi, stat, tables) {
+  let plus = 0, mult = 0;
+  for (const gear of (bi.GearInfos || [])) {
+    for (const v of _gearStatLines(gear, stat, tables)) plus = _accum(stat, plus, v);
+    for (const v of _gearStatLines(gear, stat + 'R', tables)) mult = _accum(stat, mult, v);
+  }
+  return [Math.trunc(plus), Math.trunc(mult)];
+}
+
+// The equipped weapon's stat, scaled by the WeaponEquipOptionRatio a hero's buffs can carry.
+function _weaponPart(bi, stat, tables) {
+  const value = Math.trunc(_weaponStat(bi.WeaponsInfo, stat, tables));
+  if (!value) return 0;
+  const ratio = _baseLayer(bi, 'WeaponEquipOptionRatio', tables);
+  return Math.trunc(value * (1000 + ratio) / 1000);
+}
+
+// [name, plus, mult] for each container the base layer adds up.
+function _sources(bi, stat, tables) {
+  const out = [['Weapon', _weaponPart(bi, stat, tables), 0], ['Gear', ..._gearPart(bi, stat, tables)]];
+  for (const buff of _buffInfos(bi)) {
+    const s = buff.StatContainer?._stats || {};
+    out.push([buff.BuffType || '?', Math.trunc(s[stat] || 0), Math.trunc(s[stat + 'R'] || 0)]);
+  }
+  return out;
+}
+
+// Layer 1: the stat buffs, gear and weapons give, on top of the creature's base.
+function _baseLayer(bi, stat, tables) {
+  let plus = 0, mult = 0;
+  for (const [, p, m] of _sources(bi, stat, tables)) {
+    plus = _accum(stat, plus, p);
+    mult += m;
+  }
+  if (_CHAINED_STATS.has(stat)) mult = 0;
+  return Math.trunc(_accum(stat, _baseStat(bi, stat, tables), plus) * (1000 + mult) / 1000);
+}
+
+// Layer 2: effects (skill ops on stat or stat + 'R') applied to a finished base.
+function _skillLayer(stat, base, effects) {
+  let plus = 0, mult = 0;
+  for (const e of effects) {
+    if (e.stat === stat) plus = _accum(stat, plus, e.value);
+    else if (e.stat === stat + 'R') mult += e.value;
+  }
+  if (_CHAINED_STATS.has(stat)) mult = 0;
+  let total = _accum(stat, base * (1000 + mult) / 1000, plus);
+  if (!_ALLOW_NEGATIVE.has(stat)) total = Math.max(total, 0);
+  total = Math.trunc(total);
+  return stat in _MAX_VALUE ? Math.min(total, _MAX_VALUE[stat]) : total;
+}
+
+// The skill ops on all fight long -- class passives, masteries, guild and artifact skills, none of
+// which sit in any buff _stats block (heroSkillEffects in js/skill-effects.js finds them). A
+// conversion ("CritDmg by 42% of Crit") is resolved at the hero's total of the stat it reads,
+// taken without conversions.
+function _permanentEffects(hero, tables) {
+  const effects = heroSkillEffects(hero, tables).filter(e => e.permanent);
+  const plain = effects.filter(e => !e.scalesWith);
+  const sources = [...new Set(effects.filter(e => e.scalesWith).map(e => e.scalesWith))];
+  if (!sources.length) return plain;
+  const bi = hero.BuffInput || {};
+  const finals = Object.fromEntries(sources.map(s => [s, _skillLayer(s, _baseLayer(bi, s, tables), plain)]));
+  return [...plain, ...effects.filter(e => e.scalesWith).map(e => _converted(e, finals))];
+}
+
+// One hero's stat as the game shows it, in raw units.
+function _heroTotal(hero, stat, tables) {
+  return _skillLayer(stat, _baseLayer(hero.BuffInput || {}, stat, tables), _permanentEffects(hero, tables));
+}
+function _total(userInfo, stat, tables) {
+  return (userInfo.HeroInfos || []).reduce((t, h) => t + _heroTotal(h, stat, tables), 0);
+}
+
+// One hero's standing totals in raw units, for the final-stat conditions and conversions that
+// read them (heroSkillEffects' finals).
+function _finalStats(hero, tables) {
+  return { CriticalChance: _heroTotal(hero, 'CriticalChance', tables),
+           CriticalPower: _heroTotal(hero, 'CriticalPower', tables) };
+}
+
+// A conversion ("x% of your final crit rate") as the amount it grants at finals, with the share
+// named in its text: Book of Ancient's 420 at 124.9% crit is +52.5% crit damage.
+function _converted(e, finals) {
+  const source = e.scalesWith || '';
+  const share = `${_g(e.value / 10)}% of ${(_SKILL_STAT_LABELS[source] || [source])[0]}`;
+  return { ...e, value: e.value * (finals[source] || 0) / 1000, scalesWith: null,
+           when: e.when ? `${share}, ${e.when}` : share };
+}
+
+function calcAvoidChance(userInfo, tables) { return _total(userInfo, 'AvoidChance', tables); }
+function calcAccuracy(userInfo, tables) { return _total(userInfo, 'HitChance', tables); }
+function calcCritChance(userInfo, tables) { return _total(userInfo, 'CriticalChance', tables) / 10; }
+function calcCritResist(userInfo, tables) { return _total(userInfo, 'CriticalResist', tables) / 10; }
+// Every hero starts from the creature's 30%; conversions of crit rate (Book of Ancient) are taken
+// at the hero's total crit rate.
+function calcCritDamage(userInfo, tables) { return _total(userInfo, 'CriticalPower', tables) / 10; }
+// (creature base 10 + flat Defence) x (1 + DefenceR) from buffs and gear, then a skill's DefenceR
+// multiplies that and a skill's flat Defence adds last.
+function calcDefense(userInfo, tables) { return _total(userInfo, 'Defence', tables); }
+// Chained like PiercePower, capped at 95%, may be negative.
+function calcDamageTakenDecrease(userInfo, tables) { return _total(userInfo, 'Toughness', tables) / 10; }
+// Chained: the gear lines fold into one container, each buff is another, and permanent skills fold
+// onto the truncated result. Capped at 99.9%.
+function calcDefensePenetration(userInfo, tables) { return _total(userInfo, 'PiercePower', tables) / 10; }
+
+// ── What the totals leave out — ported from calc_stats.calc_skill_extras (keep in sync) ──
+
+// Stat key -> [StatType, raw units per displayed unit]. The keys are SwissKnife's row keys, so
+// the two implementations can be compared field for field.
+const _ROW_STATS = {
+  avoid_chance:        ['AvoidChance', 1],
+  accuracy:            ['HitChance', 1],
+  crit_chance:         ['CriticalChance', 10],
+  crit_resistance:     ['CriticalResist', 10],
+  crit_damage:         ['CriticalPower', 10],
+  defense:             ['Defence', 1],
+  defense_penetration: ['PiercePower', 10],
+  dtd:                 ['Toughness', 10],
+};
+
+// How each skill stat reads on screen: [label, raw units per displayed unit, suffix]. Weakness
+// ("damage taken") is not a stat the page shows, but it is how most debuffs hurt you.
+const _SKILL_STAT_LABELS = {
+  AvoidChance:    ['Avoid', 1, ''],
+  HitChance:      ['Acc', 1, ''],
+  CriticalChance: ['Crit', 10, '%'],
+  CriticalResist: ['CritRes', 10, '%'],
+  CriticalPower:  ['CritDmg', 10, '%'],
+  Defence:        ['Def', 1, ''],
+  DefenceR:       ['Def', 10, '%'],
+  PiercePower:    ['DefPen', 10, '%'],
+  Toughness:      ['DTD', 10, '%'],
+  Weakness:       ['Dmg taken', 10, '%'],
+};
+
+// "+20" / "−14.8" / "+10.9%" — at most one decimal, a real minus sign.
+function signedAmount(value, suffix = '') {
+  const text = Math.abs(value).toFixed(1).replace(/0+$/, '').replace(/\.$/, '');
+  return (value < 0 ? '−' : '+') + text + suffix;
+}
+
+// Two ops applying the same State are one buff re-applying itself (Elemental Adaptation's opener
+// and its every-20s repeat): keep the stronger, first-seen order; on a tie the later (steady state).
+function _dedupeStates(effects) {
+  const kept = new Map();
+  effects.forEach((e, i) => {
+    const key = e.state ? [e.side === 'enemy', e.stat, e.state].join('|') : 'op:' + i;
+    if (!kept.has(key) || Math.abs(e.value) >= Math.abs(kept.get(key).value)) kept.set(key, e);
+  });
+  return [...kept.values()];
+}
+
+// { conditional: { key: [up, down] }, debuffs: [[label, amount, suffix]],
+//   breakdown: { included, conditional, debuffs } } in display units:
+// - conditional: how far a stat can rise (up >= 0) or fall (down <= 0) while this player's
+//   situational skills are up (cast buffs, timers, procs, stacks, HP thresholds). They seldom all
+//   overlap, so read it as a ceiling. Each is the change in the shown total, worked through the
+//   same two layers (a DefenceR multiplies, a pierce chains).
+// - debuffs: summed per stat — what this player's skills do to YOUR stats when they land.
+// - breakdown: one text line per effect naming its skill (and the mastery that switched it on).
+function calcSkillExtras(userInfo, tables) {
+  // Judged at each hero's standing totals: a final-stat threshold they fail drops its effect
+  // (Ring of Cycles' crit, for heroes under 100%), and a conversion becomes the amount it grants.
+  // Only stats with a label: a ratio op on some other stat would have no line to print.
+  const permanent = [], conditional = [];
+  let debuffs = [];
+  const moved = {};  // key -> [up, down], raw units
+  for (const h of (userInfo.HeroInfos || [])) {
+    const finals = _finalStats(h, tables);
+    const mine = heroSkillEffects(h, tables, finals)
+      .filter(e => e.stat in _SKILL_STAT_LABELS)
+      .map(e => e.scalesWith ? _converted(e, finals) : e);
+    const situational = _dedupeStates(mine.filter(e => !e.permanent && e.side !== 'enemy'));
+    permanent.push(...mine.filter(e => e.permanent));
+    conditional.push(...situational);
+    debuffs.push(...mine.filter(e => e.side === 'enemy'));
+    // A conditional skill lands in the skill layer like a permanent one, so its "+ (x)" is the
+    // total it would make minus the total there is.
+    const bi = h.BuffInput || {}, held = _permanentEffects(h, tables);
+    for (const [key, [stat]] of Object.entries(_ROW_STATS)) {
+      const base = _baseLayer(bi, stat, tables);
+      const now = _skillLayer(stat, base, held);
+      [true, false].forEach((rising, i) => {
+        const extra = situational.filter(e => (e.stat === stat || e.stat === stat + 'R') && (e.value > 0) === rising);
+        if (extra.length) (moved[key] ||= [0, 0])[i] += _skillLayer(stat, base, [...held, ...extra]) - now;
+      });
     }
   }
-}
-function _skillStat(hero, statName, tables) {
-  let t = 0;
-  for (const v of _skillStatLines(hero, statName, tables)) t += v;
-  return t;
-}
+  debuffs = _dedupeStates(debuffs);
+  const extras = {};
+  for (const [key, [up, down]] of Object.entries(moved))
+    if (up || down) extras[key] = [up / _ROW_STATS[key][1], down / _ROW_STATS[key][1]];
 
-// AvoidChance: a curated subset of buffs + gear options.
-function calcAvoidChance(userInfo, tables) {
-  let total = 0;
-  for (const hero of (userInfo.HeroInfos || [])) {
-    const bi = hero.BuffInput || {};
-    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
-      if (['HeroPowerAbility', 'Artifact', 'JourneyStep'].includes(buff.BuffType))
-        total += buff.StatContainer?._stats?.AvoidChance || 0;
-    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'AvoidChance', tables);
+  const lowered = [];
+  for (const [stat, [label, unit, suffix]] of Object.entries(_SKILL_STAT_LABELS)) {
+    const amount = debuffs.filter(e => e.stat === stat).reduce((t, e) => _accum(stat, t, e.value), 0);
+    if (amount) lowered.push([label, amount / unit, suffix]);
   }
-  return Math.floor(total);
-}
-
-// Accuracy (HitChance): every HeroBuffInfoContainer buff + gear options + the equipped weapon.
-function calcAccuracy(userInfo, tables) {
-  let total = 0;
-  for (const hero of (userInfo.HeroInfos || [])) {
-    const bi = hero.BuffInput || {};
-    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
-      total += buff.StatContainer?._stats?.HitChance || 0;
-    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'HitChance', tables);
-    total += _weaponStat(bi.WeaponsInfo, 'HitChance', tables);
-  }
-  return Math.floor(total);
-}
-
-// Crit Rate (CriticalChance): buff + gear + always-on skill crit, /10 (x10 internal percent).
-function calcCritChance(userInfo, tables) {
-  let total = 0;
-  for (const hero of (userInfo.HeroInfos || [])) {
-    const bi = hero.BuffInput || {};
-    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || []))
-      total += buff.StatContainer?._stats?.CriticalChance || 0;
-    for (const gear of (bi.GearInfos || [])) total += _gearStatTotal(gear, 'CriticalChance', tables);
-    total += _skillStat(hero, 'CriticalChance', tables);
-  }
-  return total / 10;
-}
-
-// Total Defense = flatDefence x (1 + DefenceR%/100). DefenceR is x10 internal percent (/10).
-function calcDefense(userInfo, tables) {
-  let flat = 0, ratio = 0;
-  for (const hero of (userInfo.HeroInfos || [])) {
-    const bi = hero.BuffInput || {};
-    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || [])) {
-      const s = buff.StatContainer?._stats || {};
-      flat += s.Defence || 0;
-      ratio += s.DefenceR || 0;
-    }
-    for (const gear of (bi.GearInfos || [])) {
-      flat += _gearStatTotal(gear, 'Defence', tables);
-      ratio += _gearStatTotal(gear, 'DefenceR', tables);
-    }
-  }
-  return flat * (1 + (ratio / 10) / 100);
-}
-
-// Damage Taken Decrease ("Toughness"): buff-only, /10 (x10 internal percent).
-function calcDamageTakenDecrease(userInfo) {
-  let total = 0;
-  const KEYS = ['Toughness', 'DamageTolerance', 'DamageTakenDecrease'];
-  for (const hero of (userInfo.HeroInfos || []))
-    for (const buff of (hero.BuffInput?.HeroBuffInfoContainer?.BuffInfos || [])) {
-      const s = buff.StatContainer?._stats || {};
-      for (const k of KEYS) total += s[k] || 0;
-    }
-  return total / 10;
-}
-
-// Defense Penetration ("PiercePower"): DIMINISHING, 100*(1 - prod(1 - dp_i/100)); each line (buff,
-// gear option, skill) is its own factor. /10 (x10 internal). Ported from calc_defense_penetration.
-function calcDefensePenetration(userInfo, tables) {
-  let total = 0;
-  const fold = raw => { if (raw) { const pct = raw / 10; total = (1 - (1 - total / 100) * (1 - pct / 100)) * 100; } };
-  const PIERCE = ['PiercePower', 'DamagePenetrateRate'];
-  for (const hero of (userInfo.HeroInfos || [])) {
-    const bi = hero.BuffInput || {};
-    for (const buff of (bi.HeroBuffInfoContainer?.BuffInfos || [])) {
-      const s = buff.StatContainer?._stats || {};
-      for (const k of PIERCE) fold(s[k] || 0);
-    }
-    for (const gear of (bi.GearInfos || []))
-      for (const k of PIERCE)
-        for (const v of _gearStatLines(gear, k, tables)) fold(v);
-    for (const v of _skillStatLines(hero, 'PiercePower', tables)) fold(v);
-  }
-  return total;
+  const line = e => {
+    const [label, unit, suffix] = _SKILL_STAT_LABELS[e.stat];
+    const via = e.via ? ` (${skillName(e.via, tables)})` : '';
+    const when = e.when ? `: ${e.when}` : '';
+    return `${label} ${signedAmount(e.value / unit, suffix)}  ${skillName(e.skill, tables)}${via}${when}`;
+  };
+  return {
+    conditional: extras,
+    debuffs: lowered,
+    breakdown: {
+      included: permanent.filter(e => e.side === 'self' && e.stat !== 'Weakness').map(line),
+      conditional: conditional.filter(e => e.stat !== 'Weakness').map(line),
+      debuffs: debuffs.map(line),
+    },
+  };
 }
 
 // Friendly artifact display names keyed by ArtifactCode (ported from calc_stats.py — the in-game
@@ -291,6 +418,7 @@ const ARTIFACT_NAMES = {
   'ARTIFACT_4_6':  "Athena Pierce's Old Gloves",
   'ARTIFACT_4_7':  "Zakum's Stone Piece",
   'ARTIFACT_4_8':  "Horntail's Scale",
+  'ARTIFACT_4_9':  "Pink Bean's Giant Rib",
   'ARTIFACT_5_1':  'Chalice',
   'ARTIFACT_5_2':  'Old Music Box',
   'ARTIFACT_5_3':  'Silver Pendant',
@@ -331,11 +459,31 @@ function extractArtifacts(userInfo, tables) {
         const info = bySkill[skillId];
         if (!info || seen.has(info.index)) continue;
         seen.add(info.index);
-        artifacts.push({ code: info.code, grade: info.grade, name: ARTIFACT_NAMES[info.code] || info.code });
+        artifacts.push({ code: info.code, grade: info.grade, name: ARTIFACT_NAMES[info.code] || info.code,
+                         icon: info.icon || '' });
       }
     }
   }
   return artifacts;
+}
+
+// The active skills a player has equipped, as [{ index, name, icon, stun }]. ActiveSkillLearnedInfosInSlot
+// is the hero's skill bar: twelve slots, an empty one is null. Listed in slot order, empties
+// skipped; icon is the "<Atlas>:<Sprite>" path (skillIcon), and stun is heroStuns' note
+// ("Stuns 1s (Covering Fire - Stun)") for a skill that stuns with this hero's masteries, else ''.
+// Ported from calc_stats.py extract_skills.
+function extractSkills(userInfo, tables) {
+  const skills = [];
+  for (const hero of (userInfo.HeroInfos || [])) {
+    const stuns = heroStuns(hero, tables);
+    for (const info of (hero.ActiveSkillLearnedInfosInSlot || [])) {
+      const sid = _int((info || {}).SkillIndex);
+      if (sid === null) continue;
+      skills.push({ index: sid, name: skillName(sid, tables), icon: skillIcon(sid, tables),
+                    stun: stuns.get(sid) || '' });
+    }
+  }
+  return skills;
 }
 
 // ── Autocomplete dropdown ────────────────────────────────────────────────────
@@ -462,36 +610,105 @@ async function selectSnapshot(row, evt) {
   try {
     const tables = await loadTables();
     const userInfo = JSON.parse(row.raw_json);
-    const avoid = calcAvoidChance(userInfo, tables);
-    const accuracy = calcAccuracy(userInfo, tables);
-    const critChance = calcCritChance(userInfo, tables);
-    const critResist = calcCritResist(userInfo);
-    const defense = calcDefense(userInfo, tables);
-    const defPen = calcDefensePenetration(userInfo, tables);
-    const dtd = calcDamageTakenDecrease(userInfo);
-    const artifacts = extractArtifacts(userInfo, tables);
+    const extras = calcSkillExtras(userInfo, tables);
+    const pct = v => v.toFixed(1) + '%';
+    // [label, total, extras key, format] — the format renders the total AND its "+ (x)".
+    const cards = [
+      ['Evasion', calcAvoidChance(userInfo, tables), 'avoid_chance', v => Math.trunc(v).toLocaleString()],
+      ['Accuracy', calcAccuracy(userInfo, tables), 'accuracy', v => Math.trunc(v).toLocaleString()],
+      ['Crit Rate', calcCritChance(userInfo, tables), 'crit_chance', pct],
+      ['Critical Resistance', calcCritResist(userInfo, tables), 'crit_resistance', pct],
+      ['Critical Damage', calcCritDamage(userInfo, tables), 'crit_damage', pct],
+      ['Defense', calcDefense(userInfo, tables), 'defense', v => Math.round(v).toLocaleString()],
+      ['Defense Penetration', calcDefensePenetration(userInfo, tables), 'defense_penetration', pct],
+      ['Damage Taken Decrease', calcDamageTakenDecrease(userInfo, tables), 'dtd', pct],
+    ];
     panel.innerHTML = `
-      <div class="stat-cards">
-        <div class="stat-card"><span class="stat-label">Evasion</span><span class="stat-value">${avoid.toLocaleString()}</span></div>
-        <div class="stat-card"><span class="stat-label">Accuracy</span><span class="stat-value">${accuracy.toLocaleString()}</span></div>
-        <div class="stat-card"><span class="stat-label">Crit Rate</span><span class="stat-value">${critChance.toFixed(1)}%</span></div>
-        <div class="stat-card"><span class="stat-label">Critical Resistance</span><span class="stat-value">${critResist.toFixed(1)}%</span></div>
-        <div class="stat-card"><span class="stat-label">Defense</span><span class="stat-value">${Math.round(defense).toLocaleString()}</span></div>
-        <div class="stat-card"><span class="stat-label">Defense Penetration</span><span class="stat-value">${defPen.toFixed(1)}%</span></div>
-        <div class="stat-card"><span class="stat-label">Damage Taken Decrease</span><span class="stat-value">${dtd.toFixed(1)}%</span></div>
+      <div class="stat-cards">${cards.map(([label, value, key, fmt]) => `
+        <div class="stat-card"><span class="stat-label">${label}</span><span class="stat-value">${fmt(value)}</span>${renderStatExtra(extras.conditional[key], fmt)}</div>`).join('')}
       </div>
-      ${renderArtifacts(artifacts)}`;
+      ${renderDebuffs(extras.debuffs)}
+      ${renderArtifacts(extractArtifacts(userInfo, tables))}
+      ${renderSkills(extractSkills(userInfo, tables))}
+      ${renderSkillBreakdown(extras.breakdown)}`;
   } catch (e) {
     panel.innerHTML = `<p class="error">Calc failed: ${e.message}</p>`;
   }
 }
 
+// "+ (20)" / "− (6)" under a total: what this player's conditional class skills can add or take
+// away. Left off when it rounds to nothing in the stat's own format.
+function renderStatExtra(extra, fmt) {
+  const [up, down] = extra || [0, 0];
+  const parts = [];
+  if (fmt(up) !== fmt(0)) parts.push(`+ (${fmt(up)})`);
+  if (fmt(Math.abs(down)) !== fmt(0)) parts.push(`− (${fmt(Math.abs(down))})`);
+  if (!parts.length) return '';
+  return `<span class="stat-extra" title="Conditional class skills — the most they add or remove while up; see Class skills &amp; masteries below">${parts.join(' ')}</span>`;
+}
+
+// What this player's skills do to YOUR stats when they land.
+function renderDebuffs(debuffs) {
+  if (!debuffs.length) return '';
+  const chips = debuffs.map(([label, amount, suffix]) =>
+    `<span class="debuff-chip">${escapeHtml(label)} ${signedAmount(amount, suffix)}</span>`).join('');
+  return `<div class="debuffs-section"><p class="debuffs-label">Debuffs you</p><div class="artifact-list">${chips}</div></div>`;
+}
+
+// Every class-skill effect behind the numbers, by skill name. Collapsed by default.
+function renderSkillBreakdown(breakdown) {
+  const sections = [
+    ['included', 'Always on — already in the totals'],
+    ['conditional', 'Conditional — the + ( ) / − ( ) values, if all were up at once'],
+    ['debuffs', 'Debuffs you when they land'],
+  ].filter(([key]) => (breakdown[key] || []).length);
+  if (!sections.length) return '';
+  const body = sections.map(([key, title]) =>
+    `<p class="breakdown-title">${title}</p><ul>${breakdown[key].map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>`).join('');
+  return `<details class="skill-breakdown"><summary>Class skills &amp; masteries</summary>${body}</details>`;
+}
+
+// The PNG for a table icon path ("Artifact:ARTIFACT_5_5" -> /icons/Artifact/ARTIFACT_5_5.png,
+// "SkillIcon:91030" -> /icons/SkillIcon/91030.png), copied from SwissKnife's nexon_overlay/icons/
+// (tools/extract_icons.py). '' for anything that isn't a plain atlas:sprite pair, so a table value
+// never becomes an arbitrary URL.
+function iconUrl(iconPath) {
+  const m = /^([A-Za-z0-9_]+):([A-Za-z0-9_]+)$/.exec(iconPath || '');
+  return m ? `/icons/${m[1]}/${m[2]}.png` : '';
+}
+
+// Each worn artifact as its in-game icon + name. The sprites are authored at 22-37px inside a
+// 38px box and drawn at their own size, so they keep their in-game proportions; an icon that
+// hasn't been copied over yet (a newer artifact) drops out and leaves the name.
 function renderArtifacts(artifacts) {
   if (!artifacts.length) return '';
-  const chips = artifacts.map(a =>
-    `<span class="artifact-chip ${(a.grade || '').toLowerCase()}">${escapeHtml(a.name)}</span>`
-  ).join('');
+  const chips = artifacts.map(a => {
+    const url = iconUrl(a.icon);
+    const icon = url
+      ? `<span class="artifact-icon"><img src="${url}" alt="" onerror="this.parentNode.remove()"></span>`
+      : '';
+    return `<span class="artifact-chip ${(a.grade || '').toLowerCase()}">${icon}${escapeHtml(a.name)}</span>`;
+  }).join('');
   return `<div class="artifacts-section"><p class="artifacts-label">Artifacts</p><div class="artifact-list">${chips}</div></div>`;
+}
+
+// The equipped skill bar in slot order, laid out as the SwissKnife overlay draws it: the in-game
+// icons in a grid three wide, read left to right (a full twelve-slot bar is four rows). A tile names
+// its skill in a tip on hover, tap or keyboard focus; one that stuns carries the overlay's red
+// undertone, and its tip says how long and which mastery makes it stun. The icons are 32px framed
+// tiles; one not copied over yet leaves the overlay's "?" cell showing.
+function renderSkills(skills) {
+  if (!skills.length) return '';
+  const tiles = skills.map((s, i) => {
+    const url = iconUrl(s.icon);
+    const icon = url ? `<img src="${url}" alt="" onerror="this.remove()">` : '';
+    const stun = s.stun ? `<span class="skill-stun">${escapeHtml(s.stun)}</span>` : '';
+    const label = `Slot ${i + 1}: ${s.name}${s.stun ? ' — ' + s.stun : ''}`;
+    return `<li class="skill-tile${s.stun ? ' stun' : ''}" tabindex="0" aria-label="${escapeHtml(label)}">` +
+      `<span class="skill-fallback" aria-hidden="true">?</span>${icon}` +
+      `<span class="skill-tip" aria-hidden="true">${escapeHtml(s.name)}${stun}</span></li>`;
+  }).join('');
+  return `<div class="artifacts-section"><p class="artifacts-label">Skills</p><ol class="skill-grid">${tiles}</ol></div>`;
 }
 </script>
 </body>

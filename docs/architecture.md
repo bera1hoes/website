@@ -28,7 +28,7 @@ flowchart TB
         handleGuild["handleGuild (POST/GET)"]
         handleApi["handleApi (GET /api)"]
         assets["env.ASSETS → public/"]
-        userinfo["UserInfo Worker proxy<br/>(owner-only)"]
+        userinfo["UserInfo Worker proxy<br/>(owner-only, ARENA_PASSWORD)"]
         router -->|POST /chart| handleChart
         router -->|/guild| handleGuild
         router -->|GET /api| handleApi

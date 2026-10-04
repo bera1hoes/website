@@ -938,6 +938,12 @@ export default {
       // the route simply doesn't exist there (404) rather than throwing when the
       // binding is undefined. No effect on the owner's deploy (binding present).
       if (!env.USERINFO_WORKER) return jsonError(404, 'Not found');
+      // Same password gate as /arena. These routes attach USERINFO_READ_KEY, so left
+      // open they'd hand the data (and the D1 read budget) to anyone who found the URL.
+      // The page's own fetches still pass: the browser re-sends the credentials entered
+      // for /arena, whose Basic-Auth protection space covers the whole origin.
+      const denied = arenaAuthDenied(request, env);
+      if (denied) return denied;
       if (!env.USERINFO_READ_KEY) {
         return new Response(JSON.stringify({ error: 'USERINFO_READ_KEY not configured' }), {
           status: 500,

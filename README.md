@@ -97,7 +97,8 @@ routes a few same-origin paths:
 - `/guild` → guild-roster KV store (binding `ROSTERS`) for the Win Prediction
   feature, also fed by SwissKnife.
 - `/charts` → `Charts.html`, `/arena` → `Arena.html`
-- `/userinfo` + `/userinfo/suggest` → a separate UserInfo Worker (Arena lookups)
+- `/userinfo` + `/userinfo/suggest` → a separate UserInfo Worker (Arena lookups;
+  behind the same `ARENA_PASSWORD` gate as `/arena` when that secret is set)
 - everything else → `public/` assets (`/` serves `index.html`)
 
 No build step, no bundler. The chart JavaScript lives in `public/js/` as plain
