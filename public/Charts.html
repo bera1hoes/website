@@ -87,6 +87,15 @@
   <!-- Chart -->
   <div class="chart-wrap">
     <div class="top-bar">
+      <!-- Legend search (legend.js) — shown only when the legend collapses -->
+      <div class="legend-search" id="legend-search" hidden>
+        <input class="player-filter" id="legend-search-input" type="text" autocomplete="off" spellcheck="false"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="legend-search-list"
+          aria-label="Find a guild in the legend" placeholder="Find guild…"
+          oninput="onLegendSearch(this.value)" onfocus="onLegendSearch(this.value)"
+          onkeydown="onLegendSearchKey(event)" onblur="closeLegendSearch()">
+        <ul class="legend-search-list" id="legend-search-list" role="listbox" aria-multiselectable="true" hidden></ul>
+      </div>
       <div id="legend"></div>
       <button id="zoom-indicator" class="zoom-badge" onclick="resetZoom()" style="display:none">↺ &nbsp;Reset zoom</button>
     </div>
@@ -95,7 +104,7 @@
     <p class="hint">log–log axes &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; click to pin</p>
   </div>
 
-  <!-- Guild Pivot Table (GW Points or Score depending on content type) -->
+  <!-- Guild Pivot Table (GW/GC Points or Score depending on content type) -->
   <div id="pivot-section" style="display:none">
     <div class="eyebrow" id="pivot-eyebrow" style="margin: 24px 0 12px">Guild War Points</div>
     <div class="pivot-wrap">
@@ -103,6 +112,7 @@
         <thead>
           <tr>
             <th>Guild</th>
+            <th id="pivot-th-tier" style="display:none" title="The guild's in-game rank title, from its place and its total GC Points">Rank Title</th>
             <th>Players</th>
             <th id="pivot-th-total">Total GW Points</th>
             <th id="pivot-th-avg">Avg GW Points</th>
@@ -113,6 +123,7 @@
         </thead>
         <tbody id="pivot-body"></tbody>
       </table>
+      <button class="table-more" id="pivot-more" type="button" aria-controls="pivot-body" aria-expanded="false" onclick="togglePivotRows()" hidden></button>
     </div>
   </div>
 
@@ -163,13 +174,14 @@
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="fitDiff" style="text-align:right">vs Fit <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="histDelta" id="player-th-vshist" style="text-align:right;display:none" title="This week's performance vs the player's historical norm (⚠ = likely sandbagger)">vs History <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="customFitDiff" id="player-th-customfit" style="text-align:right;display:none">vs Custom <span class="sort-icon">↕</span></th>
-            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="gwPoints" id="player-th-gwpoints" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
+            <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="points" id="player-th-points" style="text-align:right">GW Points <span class="sort-icon">↕</span></th>
             <th class="sortable" scope="col" tabindex="0" aria-sort="none" data-col="projGwPoints" id="player-th-projgw" style="text-align:right;display:none" title="Projected GW points after absent members are added to the ranking">Proj GW Pts <span class="sort-icon">↕</span></th>
           </tr>
         </thead>
         <tbody id="player-body"></tbody>
       </table>
       </div>
+      <div class="player-more" id="player-more" hidden></div>
     </div>
   </div>
 
@@ -210,7 +222,7 @@
   <div class="p-row"><span class="p-key">GUILD</span><span id="p-guild"></span></div>
   <div class="p-row"><span class="p-key">VS FIT</span><span id="p-fitdiff"></span></div>
   <div class="p-row" id="p-customfit-row" style="display:none"><span class="p-key">VS CUSTOM</span><span id="p-customfitdiff"></span></div>
-  <div class="p-row" id="p-gwpts-row"><span class="p-key">GW PTS</span><span id="p-gwpts"></span></div>
+  <div class="p-row" id="p-pts-row"><span class="p-key" id="p-pts-key">GW PTS</span><span id="p-pts"></span></div>
 </div>
 
 <!-- Experiments side panel -->
@@ -237,7 +249,7 @@
         <div class="est-exact" id="est-exact"></div>
         <div class="p-row" title="±1σ of the fit — the band drawn around the fit line"><span class="p-key">TYPICAL RANGE</span><span id="est-range"></span></div>
         <div class="p-row" id="est-rank-row"><span class="p-key">WOULD RANK</span><span id="est-rank"></span></div>
-        <div class="p-row" id="est-gw-row" hidden><span class="p-key">GW PTS</span><span id="est-gw"></span></div>
+        <div class="p-row" id="est-pts-row" hidden><span class="p-key" id="est-pts-key">GW PTS</span><span id="est-pts"></span></div>
         <div class="p-row" id="est-custom-row" hidden><span class="p-key">VS CUSTOM</span><span id="est-custom"></span></div>
         <div class="est-note" id="est-note"></div>
       </div>
@@ -345,6 +357,7 @@
 <script src="/js/util.js"></script>
 <script src="/js/colors.js"></script>
 <script src="/js/gw-points.js"></script>
+<script src="/js/gc-points.js"></script>
 <script src="/js/regression.js"></script>
 <script src="/js/data.js"></script>
 <script src="/js/io.js"></script>

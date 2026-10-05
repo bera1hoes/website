@@ -21,12 +21,13 @@ function showPanel(cx, cy, d, pin) {
   } else {
     customRow.style.display = 'none';
   }
-  const gwRow = document.getElementById('p-gwpts-row');
-  if (d.gwPoints) {
-    document.getElementById('p-gwpts').textContent = d.gwPoints.toLocaleString();
-    gwRow.style.display = '';
+  const ptsRow = document.getElementById('p-pts-row');
+  if (d.points) {
+    document.getElementById('p-pts-key').textContent = POINTS_LABELS[currentContentType].tag;
+    document.getElementById('p-pts').textContent = d.points.toLocaleString() + (d.tier ? ` · ${d.tier}` : '');
+    ptsRow.style.display = '';
   } else {
-    gwRow.style.display = 'none';
+    ptsRow.style.display = 'none';
   }
   setPanelHistory(d);
   const panel = document.getElementById('panel');
@@ -54,10 +55,10 @@ function closePanel() {
   panel.style.display = 'none';
   panel.classList.remove('pinned');
   if (activeEl && currentData) {
-    const pd = d3.select(activeEl).datum();
-    d3.select(activeEl).attr('r',5).attr('fill-opacity',0.75)
-      .attr('stroke', getColor(pd, colorMode)).attr('stroke-width',1);
+    // Back to its resting look and layer (dimmed, if a selection/search dims it).
+    const el = activeEl;
     activeEl = null;
+    restDot(el, d3.select(el).datum());
   }
   updateDeepLink();
 }

@@ -19,8 +19,9 @@ let deepLinkReady = false;
 
 const DEEPLINK_CONTENT_TYPES = ['Guild Wars', 'Guild Boss Battle', 'Global GBB', 'Guild Conquest', 'Guild Training Ground'];
 
-// Serialize the current view into the hash. Pin falls back to pendingPin while
-// a restore is still in flight so reloading mid-restore keeps the full link.
+// Serialize the current view into the hash. Pin and selection fall back to
+// pendingPin/pendingSel while a restore is still in flight so reloading
+// mid-restore keeps the full link.
 function updateDeepLink() {
   if (!deepLinkReady || !currentContentType) return;
   const p = new URLSearchParams();
@@ -32,7 +33,12 @@ function updateDeepLink() {
   // so that view stays shareable and refreshes back to itself.
   if (currentSheet && currentSheet !== latestSheet) p.set('sheet', currentSheet);
   if (colorMode !== 'guild') p.set('color', colorMode);
-  selectedGroups.forEach(g => p.append('sel', g));
+  const sel = pendingSel || [...selectedGroups];
+  sel.forEach(g => p.append('sel', g));
+  // Where the default selection is our guild alone (homeOnlyDefault), an empty
+  // selection is a deliberate "every guild": write a bare `sel=` for it, or the
+  // link would reopen on the default.
+  if (!sel.length && homeOnlyDefault()) p.set('sel', '');
   const pinnedNick = (isPinned && activeEl) ? d3.select(activeEl).datum().nick : pendingPin;
   if (pinnedNick) p.set('pin', pinnedNick);
   history.replaceState(null, '', '#' + p.toString());

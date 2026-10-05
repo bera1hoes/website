@@ -215,20 +215,21 @@ ES modules, no build step). `Charts.html` loads them in this order — d3 first,
 `main.js` (boot) **last**; everything in between only *declares* functions/state
 used at runtime, so cross-file references resolve regardless:
 
-`util` → `colors` → `gw-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `baselines` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `bridge` → `main`
+`util` → `colors` → `gw-points` → `gc-points` → `regression` → `data` → `io` → `legend` → `panel` → `chart` → `tables` → `experiments` → `estimate` → `baselines` → `deeplink` → `history` → `guild-history` → `search` → `prediction` → `bridge` → `main`
 
 | File | Responsibility |
 |---|---|
 | `util.js` | `$id`, `setStats`/`clearStats` (R²/exp/eq cards), `applyFitDiff`/`fitDiffColor`/`fitDiffText`, `toGamingNotation`/`parseGamingNotation` |
 | `colors.js` | `GUILD_PALETTE`/`GUILD_COLORS`/`CLASS_COLORS`, `assignGuildColors`, `getColor` |
 | `gw-points.js` | rank→points TSV literals + the sheet-dated picker: `GW_POINTS_DATA` (pre-09-03-2026), `GW_POINTS_DATA_V2` (09-03-2026 onwards — raised 1st–29th, splices the unchanged 30th+ tail off the old table), `gwPointsDataFor`/`gwPointsMap(sheet)` |
+| `gc-points.js` | Guild Conquest (rank **+ score**)→points: `GC_TIERS` (the datamine's `GuildBossRankTierTable`, highest tier first) + `gcTierAt(rank, score)`, the client's own walk (first tier whose `MinScore` the score reaches and whose `MaxVisualRank`, if any, the rank is within). Also the guild titles: `GC_GUILD_TIERS` (`GuildBossGuildRankTierTable`) + `gcGuildTierAt(rank, points)`, the same walk over a guild's place and total points. One schedule for every sheet — only the 1.16.0 tables have been seen |
 | `regression.js` | `powerRegression`, `computeClassBias`, `computeFitDiffs` |
 | `data.js` | `currentData`, `localFiles`, `parseTSV`, `parseGWPoints`, `getLocalData`, embedded-payload readers (`rowsOf`/`rostersOf`/`rosterChangesOf`/`perfOf`/`guildHistOf`) + caches |
 | `io.js` | env detection (`API_URL`/`IS_LOCAL`/`IS_REMOTE`), `apiCall`, `loadContentType`, `loadSheet`, reload + sheet/content state, `loadLocalFiles` |
-| `legend.js` | `colorMode`, `selectedGroups`, `setColorMode`, `updateColors`, `applyHighlights`, `buildLegend` |
+| `legend.js` | `colorMode`, `selectedGroups`, `setColorMode`, the default selection (`HOME_GUILD`/`HOME_ONLY_TYPES`, `applyDefaultSelection`), dot resting look + layer (`dotResting`/`restDot`), `toggleGroup`, `applyHighlights`, `buildLegend` (collapses past `LEGEND_MAX`), and the legend search (`onLegendSearch`/`pickLegendMatch`/`closeLegendSearch`) |
 | `panel.js` | `activeEl`, `isPinned`, `showPanel`, `positionPanel`, `closePanel` |
-| `chart.js` | chart render handles + fit state, `buildChart` and its helpers, `resetZoom` |
-| `tables.js` | player-table state, `buildPivotTable`, `buildPlayerTable`, `renderPlayerTable`, manual score overrides |
+| `chart.js` | chart render handles + fit state, `buildChart` and its helpers, `resetZoom`; per-player points (`POINTS_LABELS`, `pointsAt(rank, score)`, `joinPoints`) |
+| `tables.js` | player-table state, `buildPivotTable` (top `PIVOT_TOP` guilds + `togglePivotRows`), `buildPlayerTable`, `renderPlayerTable` (renders at most `playerRowLimit` rows — see **Large sheets**), manual score overrides |
 | `experiments.js` | custom-fit / CP-filter / regress / class-adjust state + handlers; the custom fit notifies Win Prediction (`onCustomFitChanged`) since it can serve as its projection base |
 | `estimate.js` | CP → expected score (runs `activeFit` forward): readout + chart marker (`renderEstimate`, `positionEstimateMarker`) |
 | `baselines.js` | mapleidle's game-wide baseline fit for the current content type: weekly-cached read of `getBaselines` + the MAPLEIDLE BASELINE stats card (`loadBaselines`, `renderBaselineCard`, `bustBaselineCache`) |
@@ -245,14 +246,23 @@ global** — keep them as plain `function name(){}` declarations (no IIFE, no
 `const name = () =>`).
 
 **`buildChart(data)` (chart.js)** is a thin orchestrator: `assignGuildColors` →
-`joinGwPoints` → `computeFit` → `buildPivotTable`/`buildPlayerTable` → `setStats`
+`joinPoints` → `computeFit` → `buildPivotTable`/`buildPlayerTable` → `setStats`
 → `buildLegend` → `renderScatter`. Supporting helpers:
 - `computeFit(data)` — runs `powerRegression`, freezes the baseline into
   `frozenFit`, sets `activeFit`, and annotates rows via `computeFitDiffs`.
 - `renderScatter(data, A, B, sigma)` — builds the whole SVG (scales, grid, axes,
-  fit line + band, dots, zoom); `renderDots(data)` plots+wires the circles.
-- `samplePower` / `bandFromFit` / `drawFit` / `drawBand` — shared fit-curve
-  geometry, reused by the zoom handler and the CP-filter code in `experiments.js`.
+  fit line + band, dots, zoom); `renderDots(data)` plots the circles and wires
+  their hover/pin handlers, **delegated** to `plot` (one listener per event, not
+  four per dot). Plot layers, bottom to top: `dotsDim` (greyed-out dots) →
+  `bandPath` (band fill) → `dotsLit` (highlighted dots) → `bandEdgePath` → `fitPath`
+  → custom fit line → estimate marker. The fit line and band edges sit over every
+  dot because a whole-world sheet's dot cloud buries anything beneath it.
+  `restDot` (legend.js) is the one place a dot gets its resting look and is filed
+  into `dotsDim`/`dotsLit`; the pinned dot (`activeEl`) is kept last in `dotsLit`.
+  Zoom redraws are coalesced to one per animation frame (`zoomFrame`).
+- `samplePower` / `bandFromFit` / `drawFit` / `drawBand` / `drawBandEdges` — shared
+  fit-curve geometry, reused by the zoom handler and the CP-filter code in
+  `experiments.js` (every `drawBand` call has a matching `drawBandEdges`).
 
 **Key state objects** (replacing the former scattered `frozenA`/`chartA`/… globals):
 - `frozenFit = { A, B, r2, sigma, fitPts, bandPts, classBias }` — baseline fit over the full dataset.
@@ -260,16 +270,24 @@ global** — keep them as plain `function name(){}` declarations (no IIFE, no
 - `custom = { A, B, path, pts }` — the Experiments custom fit.
 - `cpFilter = { dataMin, dataMax, low, high }` — dataset bounds + active slider bounds.
 
-**GW-specific features** (hidden when `currentContentType !== 'Guild Wars'`):
-- GW Points join in `joinGwPoints` (chart.js) — points come from `gwPointsMap(currentSheet)`, since the rank→points schedule changed on 09-03-2026; ranks are 0-indexed (rank 0 = 1st place) everywhere that touches it
-- Guild War Points pivot table (`#pivot-section`)
-- GW Points column in the player table (`#player-th-gwpoints`)
-- GW Points row in the info panel (`#p-gwpts-row`) — already gated on `d.gwPoints > 0`
+**Points features** (Guild Wars and Guild Conquest — the types in `POINTS_LABELS`, chart.js; hidden for the rest, whose guilds rank by raw Score):
+- Points join in `joinPoints` (chart.js) stamps `d.points` (and `d.tier`, GC only) via `pointsAt(rank, score)`. GW points come from `gwPointsAt(currentSheet, rank)`, since the rank→points schedule changed on 09-03-2026; the tables are 0-indexed (rank 0 = 1st place) and `gwPointsAt` does the one conversion. GC points come from `gcTierAt(rank, score)` (gc-points.js) — the tier hangs on score as well as rank, so a score override can change a GC player's points without moving their place
+- Points pivot table (`#pivot-section`) — guild total/avg of `d.points`, labelled "Guild War Points" / "Guild Conquest Points". GC rows also show the guild's place (`.pivot-rank`, in front of the name) and its **Rank Title** (`#pivot-th-tier`, `gcGuildTierAt`), and keep only the Hist Avg Score history column (`PIVOT_HIST_COLS_GC` — no Weeks Seen / Δ vs Hist). Place and title follow the rows the pivot is built from, so under the CP filter they're over the filtered subset
+- Points column in the player table (`#player-th-points`, `data-col="points"`) — header text set per type in `buildPlayerTable`
+- Points row in the info panel (`#p-pts-row`) and the Experiments estimate (`#est-pts-row`) — gated on there being points; GC appends the tier name
+- Win Prediction's GW-point projection (`computeGwProjection`, Proj GW Pts) stays **GW-only**: GC keeps no rosters, so it never projects
 
 **Color system:**
 - Guild colors: `hoes` is hardcoded pink; all other guilds are assigned from `GUILD_PALETTE` alphabetically on each `buildChart` call.
 - Class colors: hardcoded in `CLASS_COLORS`.
 - UI accent color (`#f0a500` amber) is used for stats cards, toggle buttons, and panel rank.
+- Default selection: on `HOME_ONLY_TYPES` (Guild Conquest) in guild color mode, the chart opens with `HOME_GUILD` (`hoes`) alone selected and every other dot greyed out. A deep link's `sel=` overrides it, and an explicitly empty selection is written as a bare `sel=` so "every guild" survives a share/reload.
+
+**Large sheets.** A Guild Conquest sheet is a whole world's ladder (~4.5k players, ~480 guilds), where the other types are a few hundred rows at most. What keeps the page responsive at that size:
+- The player table sorts and filters the full sheet but renders only `playerRowLimit` rows (`PLAYER_PAGE` = 200, which covers a whole GW/GTG/Global GBB sheet). The `#player-more` footer pages it ("Show 200 more" / "Show all"), and player search's Enter raises the cap to reach its hit (`revealPlayerRow`). Rows are built as one HTML string. A Score-cell click is a single delegated listener on `#player-body` that finds the row via `data-i` → `playerRowsSorted`.
+- The pivot lists the top `PIVOT_TOP` (20) guilds behind a `#pivot-more` expand/collapse bar. The legend lists the top `LEGEND_MAX` (15) groups, in pivot order, plus anything selected, behind "+N more".
+- A collapsible legend also gets a **"Find guild…"** combobox (`#legend-search`, legend.js). It lists up to 8 matches, prefix matches first and then substrings, each tagged with its rank and player count. ↑/↓ and Enter, or a click, toggle a group exactly like a legend click (`toggleGroup`), and a pick from beyond the top 15 joins the collapsed legend. It lives outside `#legend` on purpose: `buildLegend` wipes `#legend`, which would otherwise take the box's focus and text. Options select on `mousedown` + `preventDefault` so the input never blurs mid-pick. It's hidden whenever the legend fits (Guild Wars, class mode).
+- Measured on the real 10-05-2026 GC sheet (4,476 rows), headless Chrome at 4× CPU throttle: search keystroke 2.6 s → 0.19 s, sort 2.4 s → 0.13 s, sheet rebuild 5.7 s → 0.5 s, DOM nodes 213k → 21k.
 
 ## Deployment
 

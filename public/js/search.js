@@ -33,6 +33,8 @@ function onPlayerSearchEnter() {
   if (target) pinPlayerByName(target.nick);
   // Bring the first highlighted row into view so a match far down the table
   // isn't missed (only on Enter — never while typing, which would be jarring).
+  // It may sit past the table's row cap, so make sure it's rendered first.
+  revealPlayerRow(d => d.nick.toLowerCase().includes(searchQuery));
   const hit = document.querySelector('#player-body tr.search-hit');
   if (hit) hit.scrollIntoView({ block: 'center', behavior: 'smooth' });
 }

@@ -131,14 +131,20 @@ function applyFilters() {
     fitPts  = samplePower(A, B, cpFilter.dataMin * 0.7, cpFilter.dataMax * 1.4);
     if (fitPath) drawFit(fitPath, fitPts, xScale, yScale);
     bandPts = bandFromFit(fitPts, sigma);
-    if (bandPath) drawBand(bandPath, bandPts, xScale, yScale);
+    if (bandPath) {
+      drawBand(bandPath, bandPts, xScale, yScale);
+      drawBandEdges(bandEdgePath, bandPts, xScale, yScale);
+    }
   } else if (!regressOnFilter && (activeFit.A !== frozenFit.A || activeFit.B !== frozenFit.B)) {
     activeFit.A = frozenFit.A; activeFit.B = frozenFit.B;
     setStats(frozenFit.A, frozenFit.B, frozenFit.r2);
     fitPts = frozenFit.fitPts;
     if (fitPath) drawFit(fitPath, fitPts, xScale, yScale);
     bandPts = frozenFit.bandPts;
-    if (bandPath && bandPts) drawBand(bandPath, bandPts, xScale, yScale);
+    if (bandPath && bandPts) {
+      drawBand(bandPath, bandPts, xScale, yScale);
+      drawBandEdges(bandEdgePath, bandPts, xScale, yScale);
+    }
     computeFitDiffs(currentData, frozenFit.A, frozenFit.B, frozenFit.classBias);
   }
 

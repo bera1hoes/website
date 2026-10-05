@@ -16,8 +16,10 @@
 // The curve those projections run off is `predictionFit()` — normally the chart's
 // own fit, optionally the Experiments custom equation (see "Fit base" below).
 //
-// Metric per content type (mirrors buildPivotTable): GW Points for Guild Wars
-// (rank-based via GW_POINTS_DATA), total Score for everything else. The per-player
+// Metric per content type: GW Points for Guild Wars (rank-based via
+// GW_POINTS_DATA), total Score for everything else. (The pivot also shows GC
+// Points for Guild Conquest, but GC keeps no rosters — PREDICTION_NO_ROSTERS — so
+// it never reaches a projection.) The per-player
 // "Projected absentees" table (#missing-players-section) always shows raw projected
 // scores.
 //
@@ -731,7 +733,7 @@ function computeGwProjection(guilds, missingByGuild) {
   pop.sort((a, b) => b.score - a.score);
 
   // `pop` is sorted by score, so index i is 1-based place i + 1 — the same
-  // numbering joinGwPoints uses, so a projected #1 gets the real 1st-place value.
+  // numbering joinPoints uses, so a projected #1 gets the real 1st-place value.
   const guildPoints = {}, partByNick = {}, absentByNick = {};
   pop.forEach((p, i) => {
     const pts = pointsFor(i + 1);
@@ -745,7 +747,7 @@ function computeGwProjection(guilds, missingByGuild) {
 // computeGwProjection result (computed once in renderAll); recomputed if omitted.
 function aggregateGwPoints(guilds, missingByGuild, proj) {
   const current = {};
-  currentData.forEach(d => { current[d.guild] = (current[d.guild] || 0) + (d.gwPoints || 0); });
+  currentData.forEach(d => { current[d.guild] = (current[d.guild] || 0) + (d.points || 0); });
   const guildPoints = (proj || computeGwProjection(guilds, missingByGuild)).guildPoints;
 
   const rows = guilds.map(guild => {

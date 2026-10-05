@@ -4,20 +4,29 @@ let playerTableData = [];
 let playerSortCol = 'rank';
 let playerSortDir = 'asc';
 let playerFilter = '';
-const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'histDelta', 'customFitDiff', 'gwPoints', 'projGwPoints']);
+// The table renders at most `playerRowLimit` rows, PLAYER_PAGE more per "Show
+// more". Sort and filter still run over the whole sheet; only the DOM is capped
+// — a whole-world sheet is thousands of players, and rebuilding every row on each
+// keystroke or sort froze the page. 200 covers a full Guild Wars, GTG or Global
+// GBB sheet, so in practice only Guild Conquest pages. `playerRowsSorted` is the
+// last render's full sorted + filtered list (rows carry their index into it).
+const PLAYER_PAGE = 200;
+let playerRowLimit = PLAYER_PAGE;
+let playerRowsSorted = [];
+const NUMERIC_COLS = new Set(['rank', 'level', 'cp', 'score', 'fitDiff', 'histDelta', 'customFitDiff', 'points', 'projGwPoints']);
 
 // ── Column visibility ───────────────────────────────────────────────────────
 // Columns the user can hide via the "Columns" menu (Rank/Nick/Score stay on as
 // the identity columns). `hiddenCols` persists across sheet switches.
-const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'histDelta', 'customFitDiff', 'gwPoints', 'projGwPoints'];
+const TOGGLEABLE_COLS = ['guild', 'cls', 'level', 'cp', 'fitDiff', 'histDelta', 'customFitDiff', 'points', 'projGwPoints'];
 let hiddenCols = new Set();
 
 // Whether a column is structurally present right now (independent of the user's
-// hide choice): custom fit, GW points, history, and projected GW points only exist
-// in some states.
+// hide choice): custom fit, points (GW/GC), history, and projected GW points only
+// exist in some states.
 function colApplicable(col) {
   if (col === 'customFitDiff') return custom.A !== null;
-  if (col === 'gwPoints')      return currentContentType === 'Guild Wars';
+  if (col === 'points')        return !!POINTS_LABELS[currentContentType];
   if (col === 'histDelta')     return !!(currentData && currentData.some(d => d.histDelta != null));
   if (col === 'projGwPoints')  return currentContentType === 'Guild Wars' && !!(currentData && currentData.some(d => d.projGwPoints != null));
   return true;
@@ -73,16 +82,39 @@ function initColMenu() {
   });
 }
 
-function buildPivotTable(data) {
-  const section = document.getElementById('pivot-section');
-  const isGW = currentContentType === 'Guild Wars';
+// The pivot lists the top PIVOT_TOP guilds until "Show all" — a whole-world
+// sheet has hundreds. The choice sticks across rebuilds and sheet switches.
+// `pivotData` is what the table was last built from (the CP filter passes a
+// subset), so the toggle can rebuild the same view.
+const PIVOT_TOP = 20;
+let pivotExpanded = false;
+let pivotData = null;
 
-  if (isGW) {
-    const hasPoints = data.some(d => d.gwPoints > 0);
+// The guild-history columns (guild-history.js), keyed as in their `pivot-th-*`
+// header ids. Guild Conquest shows only Hist Avg Score.
+const PIVOT_HIST_COLS = ['seen', 'histavg', 'histdelta'];
+const PIVOT_HIST_COLS_GC = ['histavg'];
+
+function togglePivotRows() {
+  pivotExpanded = !pivotExpanded;
+  if (pivotData) buildPivotTable(pivotData);
+  // Collapsing from far down a long list would strand the viewer below it.
+  if (!pivotExpanded) document.getElementById('pivot-more').scrollIntoView({ block: 'nearest' });
+}
+
+function buildPivotTable(data) {
+  pivotData = data;
+  const section = document.getElementById('pivot-section');
+  const pts = POINTS_LABELS[currentContentType];  // GW / GC: guilds rank by summed points
+  // GC rows also get the guild's place and its in-game title (gc-points.js).
+  const isGC = currentContentType === 'Guild Conquest';
+
+  if (pts) {
+    const hasPoints = data.some(d => d.points > 0);
     if (!hasPoints) { section.style.display = 'none'; return; }
-    document.getElementById('pivot-eyebrow').textContent = 'Guild War Points';
-    document.getElementById('pivot-th-total').textContent = 'Total GW Points';
-    document.getElementById('pivot-th-avg').textContent = 'Avg GW Points';
+    document.getElementById('pivot-eyebrow').textContent = pts.name;
+    document.getElementById('pivot-th-total').textContent = 'Total ' + pts.short;
+    document.getElementById('pivot-th-avg').textContent = 'Avg ' + pts.short;
   } else {
     document.getElementById('pivot-eyebrow').textContent = currentContentType + ' Score';
     document.getElementById('pivot-th-total').textContent = 'Total Score';
@@ -93,8 +125,8 @@ function buildPivotTable(data) {
   data.forEach(d => {
     if (!guilds[d.guild]) guilds[d.guild] = { count: 0, total: 0, score: 0 };
     guilds[d.guild].count++;
-    guilds[d.guild].total += isGW ? (d.gwPoints || 0) : (d.score || 0);
-    guilds[d.guild].score += d.score || 0;  // history columns compare Score even on GW
+    guilds[d.guild].total += pts ? (d.points || 0) : (d.score || 0);
+    guilds[d.guild].score += d.score || 0;  // history columns compare Score even on GW/GC
   });
 
   const rows = Object.entries(guilds).sort((a, b) => b[1].total - a[1].total);
@@ -104,12 +136,14 @@ function buildPivotTable(data) {
   // only when at least one of this sheet's guilds appeared in a prior sheet.
   const gh = sheetGuildHist || {};
   const hasGuildHist = rows.some(([g]) => (gh[g] || []).length);
-  ['pivot-th-seen', 'pivot-th-histavg', 'pivot-th-histdelta'].forEach(id => {
-    const th = document.getElementById(id);
-    if (th) th.style.display = hasGuildHist ? '' : 'none';
+  const histCols = hasGuildHist ? (isGC ? PIVOT_HIST_COLS_GC : PIVOT_HIST_COLS) : [];
+  PIVOT_HIST_COLS.forEach(c => {
+    const th = document.getElementById('pivot-th-' + c);
+    if (th) th.style.display = histCols.includes(c) ? '' : 'none';
   });
+  document.getElementById('pivot-th-tier').style.display = isGC ? '' : 'none';
 
-  const fmt = isGW
+  const fmt = pts
     ? v => Math.round(v).toLocaleString()
     : v => {
         if (v >= 1e9) return (v / 1e9).toFixed(2).replace(/\.?0+$/, '') + 'B';
@@ -119,16 +153,19 @@ function buildPivotTable(data) {
 
   const tbody = document.getElementById('pivot-body');
   tbody.innerHTML = '';
-  rows.forEach(([guild, { count, total, score }]) => {
+  // `rows` is in total-points order, so a row's index + 1 is the guild's place.
+  rows.slice(0, pivotExpanded ? rows.length : PIVOT_TOP).forEach(([guild, { count, total, score }], i) => {
     const color = GUILD_COLORS[guild] || GUILD_COLORS['default'];
     const avg = total / count;
+    const tier = isGC ? gcGuildTierAt(i + 1, total) : null;
     const tr = document.createElement('tr');
     tr.innerHTML =
-      `<td><span class="p-swatch" style="background:${color}"></span><a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener">${guild}</a></td>` +
+      `<td>${isGC ? `<span class="pivot-rank">${i + 1}</span>` : ''}<span class="p-swatch" style="background:${color}"></span><a class="tlink" href="https://mapleidle.gg/guild/bera/${encodeURIComponent(guild)}" target="_blank" rel="noopener">${guild}</a></td>` +
+      (isGC ? `<td>${tier ? tier.name : '—'}</td>` : '') +
       `<td>${count}</td>` +
       `<td>${fmt(total)}</td>` +
       `<td>${fmt(avg)}</td>` +
-      (hasGuildHist ? guildHistCells(gh[guild], score) : '');
+      guildHistCells(gh[guild], score, histCols);
     tbody.appendChild(tr);
   });
 
@@ -136,20 +173,39 @@ function buildPivotTable(data) {
   totalTr.className = 'pivot-total-row';
   totalTr.innerHTML =
     `<td>All guilds</td>` +
+    (isGC ? '<td></td>' : '') +
     `<td>${data.length}</td>` +
     `<td>${fmt(grandTotal)}</td>` +
     `<td>${fmt(grandTotal / data.length)}</td>` +
-    (hasGuildHist ? '<td></td><td></td><td></td>' : '');
+    '<td></td>'.repeat(histCols.length);
   tbody.appendChild(totalTr);
+
+  const more = document.getElementById('pivot-more');
+  more.hidden = rows.length <= PIVOT_TOP;
+  more.textContent = pivotExpanded ? `Show top ${PIVOT_TOP} ▴` : `Show all ${rows.length} guilds ▾`;
+  more.setAttribute('aria-expanded', String(pivotExpanded));
 
   section.style.display = 'block';
 }
+
+let _playerBodyDelegated = false;
 
 function buildPlayerTable(data) {
   playerTableData = data;
   playerSortCol = 'rank';
   playerSortDir = 'asc';
   playerFilter = '';
+  playerRowLimit = PLAYER_PAGE;
+  // Click a Score cell to set a predicted value — one delegated listener on the
+  // body (survives re-renders) instead of one per row.
+  if (!_playerBodyDelegated) {
+    document.getElementById('player-body').addEventListener('click', e => {
+      const td = e.target.closest('td[data-col="score"]');
+      const d = td && playerRowsSorted[+td.parentNode.dataset.i];
+      if (d) beginScoreEdit(td, d);
+    });
+    _playerBodyDelegated = true;
+  }
   const filterInput = document.getElementById('player-filter');
   if (filterInput) filterInput.value = '';
   const clr = document.getElementById('player-filter-clear');
@@ -161,6 +217,10 @@ function buildPlayerTable(data) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sortPlayerTableBy(th.dataset.col); }
     };
   });
+  // The points header's leading text node ("GW Points " / "GC Points "); the sort
+  // icon span after it is left alone.
+  const pts = POINTS_LABELS[currentContentType];
+  if (pts) document.getElementById('player-th-points').firstChild.textContent = pts.short + ' ';
 
   initColMenu();
   document.getElementById('player-table-section').style.display = 'block';
@@ -235,22 +295,22 @@ function renderPlayerTable() {
     th.setAttribute('aria-sort', isActive ? (playerSortDir === 'asc' ? 'ascending' : 'descending') : 'none');
   });
 
-  const tbody = document.getElementById('player-body');
-  tbody.innerHTML = '';
+  playerRowsSorted = rows;
   // data-col on every cell keeps it aligned with its header for hide/show; the
   // inline display:none mirrors a user-hidden column without a second DOM pass.
   const td = (col, extra, content) =>
     `<td data-col="${col}" style="${hiddenCols.has(col) ? 'display:none;' : ''}${extra}">${content}</td>`;
   const histApplies = colApplicable('histDelta');
+  const pointsApply = colApplicable('points');
   const projGwApplies = colApplicable('projGwPoints');
-  rows.forEach(d => {
+  // One innerHTML assignment for the whole body (not a parse per row).
+  const out = [];
+  rows.slice(0, playerRowLimit).forEach((d, i) => {
     const color = getColor(d, 'guild');
-    const tr = document.createElement('tr');
     // Mirror the chart's player-search dim; flag likely sandbaggers with a row tint.
     const cls = [];
     if (searchQuery && d.nick.toLowerCase().includes(searchQuery)) cls.push('search-hit');
     if (d.sandbag) cls.push('sandbag-row');
-    if (cls.length) tr.className = cls.join(' ');
     const nickHref = `https://mapleidle.gg/characters/bera/${encodeURIComponent(d.nick)}`;
     const guildHref = `https://mapleidle.gg/guild/bera/${encodeURIComponent(d.guild)}`;
     let html =
@@ -268,17 +328,47 @@ function renderPlayerTable() {
       html += td('histDelta', `text-align:right;color:${histDeltaColor(d)}`, histDeltaText(d));
     if (custom.A !== null)
       html += td('customFitDiff', `text-align:right;color:${fitDiffColor(d.customFitDiff ?? 0)}`, d.customFitDiff !== undefined ? fitDiffText(d.customFitDiff) : '—');
-    if (currentContentType === 'Guild Wars')
-      html += td('gwPoints', 'text-align:right', d.gwPoints ? d.gwPoints.toLocaleString() : '—');
+    if (pointsApply)
+      html += td('points', 'text-align:right', d.points ? d.points.toLocaleString() : '—');
     if (projGwApplies)
       html += td('projGwPoints', 'text-align:right', projGwText(d));
-    tr.innerHTML = html;
-    tbody.appendChild(tr);
-    // Click the Score cell to set a predicted value (closure over this row's d,
-    // so no nick-escaping into attributes is needed).
-    const scoreTd = tr.querySelector('td[data-col="score"]');
-    if (scoreTd) scoreTd.addEventListener('click', () => beginScoreEdit(scoreTd, d));
+    // data-i ties the row back to playerRowsSorted for the Score-cell click, so
+    // no nick-escaping into attributes is needed.
+    out.push(`<tr data-i="${i}"${cls.length ? ` class="${cls.join(' ')}"` : ''}>${html}</tr>`);
   });
+  document.getElementById('player-body').innerHTML = out.join('');
+  renderPlayerMore(rows.length);
+}
+
+// "Showing N of M" + Show more / Show all (or Show first N once expanded) under
+// the player table; hidden when the whole list fits in one page.
+function renderPlayerMore(total) {
+  const el = document.getElementById('player-more');
+  if (total <= PLAYER_PAGE) { el.hidden = true; return; }
+  const shown = Math.min(total, playerRowLimit);
+  el.hidden = false;
+  el.innerHTML = `<span>Showing ${shown.toLocaleString()} of ${total.toLocaleString()} players</span>` +
+    (shown < total
+      ? `<button class="file-btn" type="button" onclick="setPlayerRowLimit(${playerRowLimit + PLAYER_PAGE})">Show ${Math.min(PLAYER_PAGE, total - shown)} more</button>` +
+        `<button class="file-btn" type="button" onclick="setPlayerRowLimit(Infinity)">Show all</button>`
+      : `<button class="file-btn" type="button" onclick="setPlayerRowLimit(PLAYER_PAGE)">Show first ${PLAYER_PAGE}</button>`);
+}
+
+function setPlayerRowLimit(n) {
+  const collapsing = n < playerRowLimit;
+  playerRowLimit = n;
+  renderPlayerTable();
+  // Collapsing from far down the list would strand the viewer below the table.
+  if (collapsing) document.getElementById('player-more').scrollIntoView({ block: 'nearest' });
+}
+
+// Raise the row cap until the first row matching `pred` (in the current sort and
+// filter order) is rendered, so player search can scroll to it on Enter.
+function revealPlayerRow(pred) {
+  const i = playerRowsSorted.findIndex(pred);
+  if (i < playerRowLimit) return;
+  playerRowLimit = Math.ceil((i + 1) / PLAYER_PAGE) * PLAYER_PAGE;
+  renderPlayerTable();
 }
 
 // "vs History" cell: how this week's performance compares to the player's recency-
@@ -297,7 +387,7 @@ function histDeltaText(d) {
 // signed change vs the player's actual points alongside.
 function projGwText(d) {
   if (d.projGwPoints == null) return '—';
-  const delta = d.projGwPoints - (d.gwPoints || 0);
+  const delta = d.projGwPoints - (d.points || 0);
   const tag = delta ? ` <span style="color:${delta > 0 ? '#4ade80' : '#f87171'}">(${delta > 0 ? '+' : ''}${delta.toLocaleString()})</span>` : '';
   return d.projGwPoints.toLocaleString() + tag;
 }
@@ -305,7 +395,7 @@ function projGwText(d) {
 // ── Manual score overrides ("predict the final score") ──────────────────────
 // Some players intentionally submit low scores to hide their true total until
 // the last minute. Overriding a Score in the player table re-ranks the whole
-// dataset, re-points the GW Points table, and refits the regression so the fit
+// dataset, re-points the GW/GC Points, and refits the regression so the fit
 // line / stats / "vs Fit" reflect the predicted standings. Overrides are scoped
 // to the current sheet and persisted in localStorage, so a page refresh keeps
 // them — but an override is retired once that player's real score actually
@@ -387,7 +477,8 @@ function ensureOverrideSnapshot() {
 // Re-derive rank from score (descending) after a score override. Ranks are
 // client-assigned 1..N (see assignRanks in chart.js), so an override simply
 // renumbers the population in its new order — the set of places is unchanged,
-// which keeps the rank→GW-points lookup aligned and conserves total points.
+// which keeps the rank→GW-points lookup aligned and conserves total GW points.
+// (GC totals can move: a GC tier also hangs on the overridden score itself.)
 function recomputeRanks(data) {
   [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = i + 1; });
 }
@@ -406,7 +497,7 @@ function applyScoreOverrides() {
     }
   });
   recomputeRanks(currentData);
-  joinGwPoints(currentData);   // GW Points follow the new ranking (Guild Wars only)
+  joinPoints(currentData);     // points follow the new ranking (and, for GC, the new score)
 }
 
 function setScoreOverride(d, value) {
@@ -434,7 +525,7 @@ function clearScoreOverrides() {
   restoreOriginals(currentData);
   scoreOverrides = {};
   overridesActive = false;
-  joinGwPoints(currentData);   // ranks restored → GW Points back to originals
+  joinPoints(currentData);     // ranks + scores restored → points back to originals
   rerenderAfterOverride();
   updateOverrideUI();
   saveOverridesToStorage();    // empty map → removes the stored entry for this sheet
@@ -505,7 +596,7 @@ function saveOverridesToStorage() {
 }
 
 // Re-apply persisted overrides for the current sheet onto `data` (called from
-// buildChart after joinGwPoints, before the fit/render, so a single pass reflects
+// buildChart after joinPoints, before the fit/render, so a single pass reflects
 // them). Resets in-memory override state first, then prunes stale entries.
 function restoreStoredOverrides(data) {
   scoreOverrides = {};

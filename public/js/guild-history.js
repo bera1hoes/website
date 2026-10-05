@@ -80,25 +80,33 @@ function loadGuildHistory() {
 }
 
 // ── Pivot cells ──────────────────────────────────────────────────────────────
-// The three history cells for one guild row: weeks seen (tooltip = per-week
-// breakdown), average total Score across prior appearances, and this week's
-// total Score vs that average. `hist` may be empty/undefined for a first-time
-// guild — those rows show em-dashes under the (visible) columns.
+// The history cells for one guild row, for the columns in `cols` (keys of
+// PIVOT_HIST_COLS, tables.js): `seen` = weeks seen (tooltip = per-week
+// breakdown), `histavg` = average total Score across prior appearances,
+// `histdelta` = this week's total Score vs that average. `hist` may be
+// empty/undefined for a first-time guild — those rows show em-dashes under the
+// (visible) columns.
 
-function guildHistCells(hist, scoreNow) {
+function guildHistCells(hist, scoreNow, cols) {
+  let cells;
   if (!hist || !hist.length) {
-    return '<td style="color:var(--text-muted)">—</td>'.repeat(3);
+    const dash = '<td style="color:var(--text-muted)">—</td>';
+    cells = { seen: dash, histavg: dash, histdelta: dash };
+  } else {
+    const avg = hist.reduce((s, e) => s + e.total, 0) / hist.length;
+    const tip = hist.map(e => `${e.sheet} · ${fmtScore(e.total)} (${e.members}p)`).join('\n');
+    let delta = '<span style="color:var(--text-muted)">—</span>';
+    if (avg > 0) {
+      const pct = (scoreNow / avg - 1) * 100;
+      const color = pct > 0 ? '#4ade80' : pct < 0 ? '#f87171' : 'var(--text-muted)';
+      const sign = pct > 0 ? '+' : '';
+      delta = `<span style="color:${color}">${sign}${pct.toFixed(1)}%</span>`;
+    }
+    cells = {
+      seen:      `<td title="${tip}">${hist.length}×</td>`,
+      histavg:   `<td title="${tip}">${fmtScore(avg)}</td>`,
+      histdelta: `<td>${delta}</td>`,
+    };
   }
-  const avg = hist.reduce((s, e) => s + e.total, 0) / hist.length;
-  const tip = hist.map(e => `${e.sheet} · ${fmtScore(e.total)} (${e.members}p)`).join('\n');
-  let delta = '<span style="color:var(--text-muted)">—</span>';
-  if (avg > 0) {
-    const pct = (scoreNow / avg - 1) * 100;
-    const color = pct > 0 ? '#4ade80' : pct < 0 ? '#f87171' : 'var(--text-muted)';
-    const sign = pct > 0 ? '+' : '';
-    delta = `<span style="color:${color}">${sign}${pct.toFixed(1)}%</span>`;
-  }
-  return `<td title="${tip}">${hist.length}×</td>` +
-         `<td title="${tip}">${fmtScore(avg)}</td>` +
-         `<td>${delta}</td>`;
+  return cols.map(c => cells[c]).join('');
 }

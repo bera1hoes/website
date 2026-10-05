@@ -5,11 +5,16 @@
 let fitPath = null;
 let fitPts = null;
 let bandPath = null, bandPts = null;
+let bandEdgePath = null;
 let xScale = null;
 let yScale = null;
 let plot = null;
+// Dots live in two layers: greyed-out ones below the band fill, highlighted ones
+// above it (restDot in legend.js files each dot into one).
+let dotsDim = null, dotsLit = null;
 let zoomBehavior = null;
 let zoomSvg = null;
+let zoomFrame = null;  // pending requestAnimationFrame for a zoom redraw
 
 // The frozen baseline fit (full dataset) and the fit currently shown. They
 // differ only while "recalculate on CP filter" is active; otherwise activeFit
@@ -45,6 +50,12 @@ function drawFit(sel, pts, x, y) {
 function drawBand(sel, pts, x, y) {
   sel.datum(pts).attr('d', d3.area().x(d => x(d.x)).y0(d => y(d.yLo)).y1(d => y(d.yHi)).curve(d3.curveCatmullRom));
 }
+// The band's upper and lower edges as one path (two subpaths). Drawn above the
+// dots, so the band still reads where a dense dot cloud covers its fill.
+function drawBandEdges(sel, pts, x, y) {
+  const edge = key => d3.line().x(d => x(d.x)).y(d => y(d[key])).curve(d3.curveCatmullRom)(pts);
+  sel.attr('d', edge('yHi') + edge('yLo'));
+}
 
 // ── Build chart ─────────────────────────────────────────────────────────────
 
@@ -53,8 +64,8 @@ function buildChart(data) {
   clearPrediction();  // stale win-prediction must not carry across sheets/content
   selectedGroups.clear();
   assignGuildColors(data);
-  assignRanks(data);   // must precede joinGwPoints — points are keyed off rank
-  joinGwPoints(data);
+  assignRanks(data);   // must precede joinPoints — points are keyed off rank
+  joinPoints(data);
   restoreStoredOverrides(data);  // fold in any persisted score overrides for this sheet
 
   const { A, B, r2, sigma } = computeFit(data);
@@ -63,27 +74,30 @@ function buildChart(data) {
   buildPivotTable(data);
   buildPlayerTable(data);
   setStats(A, B, r2);
-  buildLegend(data);
 
-  renderScatter(data, A, B, sigma);
-
-  // Deep-link restore: legend selection and pin can only apply once the dots
-  // exist. Selection goes first — pinDot then re-applies the pinned dot's
-  // emphasis on top of the dimming. Unknown groups/nicks are dropped silently.
+  // Settle the legend selection before the legend and dots are drawn, so both
+  // render in their final state: a deep link's selection (unknown groups are
+  // dropped silently; an empty `sel=` means "every group"), else the content
+  // type's default.
   if (pendingSel) {
     const key = colorMode === 'guild' ? 'guild' : 'cls';
     const seen = new Set(data.map(d => d[key]));
     pendingSel.filter(g => seen.has(g)).forEach(g => selectedGroups.add(g));
     pendingSel = null;
-    if (selectedGroups.size) applyHighlights();
+  } else {
+    applyDefaultSelection(data);
   }
+  buildLegend(data);
+
+  // Dots render through dotResting, so the selection and a search dim (the
+  // input keeps its text across sheets) apply as they're drawn.
+  renderScatter(data, A, B, sigma);
+
+  // Deep-link pin can only apply once the dots exist (unknown nicks are dropped).
   if (pendingPin) {
     pinPlayerByName(pendingPin);
     pendingPin = null;
   }
-  // A search dim must survive a sheet/content rebuild (the input keeps its
-  // text), so re-apply it against the freshly rendered dots.
-  if (searchQuery) applyHighlights();
   // Sync the hash with what actually applied (stale pin/sel entries drop out).
   updateDeepLink();
 }
@@ -98,15 +112,40 @@ function assignRanks(data) {
   [...data].sort((a, b) => b.score - a.score).forEach((d, i) => { d.rank = i + 1; });
 }
 
-// Join GW points by rank — Guild Wars only; other content types get 0. The
-// points table depends on the sheet's date (see gw-points.js), and `gwPointsAt`
-// owns the 1-based-rank → 0-indexed-table conversion.
-function joinGwPoints(data) {
+// ── Per-player points ──────────────────────────────────────────────────────
+// Two content types rank guilds by their members' summed points rather than raw
+// Score: Guild Wars (by rank, gw-points.js) and Guild Conquest (by rank AND
+// score, gc-points.js). Labels for the pivot, player column, info panel and
+// estimate readout come from here; a type with no entry has no points.
+const POINTS_LABELS = {
+  'Guild Wars':     { name: 'Guild War Points',      short: 'GW Points', tag: 'GW PTS' },
+  'Guild Conquest': { name: 'Guild Conquest Points', short: 'GC Points', tag: 'GC PTS' },
+};
+
+// What one player earns at 1-based `rank` with `score` under the current content
+// type and sheet: { points, tier } (`tier` names the GC tier, null for GW), or
+// null when the content has no points or that place earns none. GW's table
+// depends on the sheet's date (see gw-points.js), and `gwPointsAt` owns the
+// 1-based-rank → 0-indexed-table conversion.
+function pointsAt(rank, score) {
   if (currentContentType === 'Guild Wars') {
-    data.forEach(d => { d.gwPoints = gwPointsAt(currentSheet, d.rank) || 0; });
-  } else {
-    data.forEach(d => { d.gwPoints = 0; });
+    const points = gwPointsAt(currentSheet, rank);
+    return points ? { points, tier: null } : null;
   }
+  if (currentContentType === 'Guild Conquest') {
+    const t = gcTierAt(rank, score);
+    return t ? { points: t.points, tier: t.name } : null;
+  }
+  return null;
+}
+
+// Stamp `points` (0 when none) and `tier` on every row from its rank and score.
+function joinPoints(data) {
+  data.forEach(d => {
+    const p = pointsAt(d.rank, d.score);
+    d.points = p ? p.points : 0;
+    d.tier = p ? p.tier : null;
+  });
 }
 
 // Run the regression over the full dataset, freeze it as the baseline, and
@@ -136,6 +175,9 @@ function renderScatter(data, A, B, sigma) {
 
   d3.select('#chart').selectAll('*').remove();
   $id('zoom-indicator').style.display = 'none';
+  // A zoom redraw still queued from the old chart would apply its transform to
+  // the new fit line.
+  if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
 
   const svg = d3.select('#chart').append('svg')
     .attr('width',  W + margin.left + margin.right)
@@ -192,12 +234,19 @@ function renderScatter(data, A, B, sigma) {
     .attr('letter-spacing','.04em')
     .text('Score ↑');
 
-  // Fit line + ±1σ band. Band appended first so it sits beneath line and dots.
+  // Layers, bottom to top: greyed-out dots, the ±1σ band fill, highlighted dots,
+  // then the band edges and fit line over every dot — a whole-world sheet's dot
+  // cloud is dense enough to bury anything drawn beneath it. The custom fit line
+  // and the estimate marker are appended later, so they land on top.
   fitPts  = samplePower(A, B, cpFilter.dataMin * 0.7, cpFilter.dataMax * 1.4);
   bandPts = bandFromFit(fitPts, sigma);
+  dotsDim  = plot.append('g');
   bandPath = plot.append('path').attr('class','fit-band');
   drawBand(bandPath, bandPts, xScale, yScale);
   frozenFit.bandPts = bandPts;
+  dotsLit  = plot.append('g');
+  bandEdgePath = plot.append('path').attr('class','fit-band-edge');
+  drawBandEdges(bandEdgePath, bandPts, xScale, yScale);
   fitPath = plot.append('path').attr('class','fit-line');
   drawFit(fitPath, fitPts, xScale, yScale);
   frozenFit.fitPts = fitPts;
@@ -208,7 +257,7 @@ function renderScatter(data, A, B, sigma) {
   cpFilter.high = null;
   resetCpSlider();
 
-  renderDots(data);
+  const dots = renderDots(data);
 
   // Appended after the dots so the CP→score marker reads on top of them.
   estimateMarker = null;  // the old handle died with the cleared SVG
@@ -219,6 +268,7 @@ function renderScatter(data, A, B, sigma) {
     .attr('fill', 'none').attr('pointer-events', 'all')
     .on('click', closePanel);
 
+  let zoomT = null;  // latest transform, drawn by drawZoom on the next frame
   zoomBehavior = d3.zoom()
     .scaleExtent([1, 50])
     .extent([[0, 0], [W, H]])
@@ -230,83 +280,101 @@ function renderScatter(data, A, B, sigma) {
       return (!event.ctrlKey || event.type === 'wheel') && !event.button;
     })
     .on('zoom', function(event) {
-      const t  = event.transform;
-      const zx = t.rescaleX(xScale);
-      const zy = t.rescaleY(yScale);
-
-      xAxisG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickFormat(fmt));
-      yAxisG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickFormat(fmt));
-      xGridG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickSize(-H).tickFormat(''));
-      yGridG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickSize(-W).tickFormat(''));
-
-      plot.selectAll('.dot')
-        .attr('cx', d => zx(d.cp))
-        .attr('cy', d => zy(d.score));
-
-      drawFit(fitPath, fitPts, zx, zy);
-      if (bandPath && bandPts) drawBand(bandPath, bandPts, zx, zy);
-      if (custom.path && custom.pts) drawFit(custom.path, custom.pts, zx, zy);
-      positionEstimateMarker(zx, zy);
-
-      const isZoomed = t.k !== 1 || t.x !== 0 || t.y !== 0;
-      $id('zoom-indicator').style.display = isZoomed ? 'flex' : 'none';
+      // Wheel and drag can fire several zoom events per frame; with thousands of
+      // dots, only each frame's last transform is worth drawing.
+      zoomT = event.transform;
+      if (!zoomFrame) zoomFrame = requestAnimationFrame(drawZoom);
     });
+
+  function drawZoom() {
+    zoomFrame = null;
+    const t  = zoomT;
+    const zx = t.rescaleX(xScale);
+    const zy = t.rescaleY(yScale);
+
+    xAxisG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickFormat(fmt));
+    yAxisG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickFormat(fmt));
+    xGridG.call(d3.axisBottom(zx).tickValues(logTicks(zx.domain())).tickSize(-H).tickFormat(''));
+    yGridG.call(d3.axisLeft(zy).tickValues(logTicks(zy.domain())).tickSize(-W).tickFormat(''));
+
+    dots
+      .attr('cx', d => zx(d.cp))
+      .attr('cy', d => zy(d.score));
+
+    drawFit(fitPath, fitPts, zx, zy);
+    if (bandPath && bandPts) {
+      drawBand(bandPath, bandPts, zx, zy);
+      drawBandEdges(bandEdgePath, bandPts, zx, zy);
+    }
+    if (custom.path && custom.pts) drawFit(custom.path, custom.pts, zx, zy);
+    positionEstimateMarker(zx, zy);
+
+    const isZoomed = t.k !== 1 || t.x !== 0 || t.y !== 0;
+    $id('zoom-indicator').style.display = isZoomed ? 'flex' : 'none';
+  }
 
   zoomSvg = svg;
   svg.call(zoomBehavior);
 }
 
-// Plot the dots and wire their hover / pin interactions.
+// Plot the dots (restDot paints each and files it into the dim or lit layer)
+// and wire their hover / pin interactions. The handlers are delegated to the
+// plot, one listener per event rather than four per dot, which adds up on a
+// whole-world sheet. Over leaf circles, mouseover/mouseout behave exactly like
+// mouseenter/mouseleave. Returns the dots selection (the zoom redraw moves it).
 function renderDots(data) {
   activeEl = null;
-  plot.selectAll('.dot').data(data).enter().append('circle')
+  const dots = dotsLit.selectAll('.dot').data(data).enter().append('circle')
     .attr('class','dot')
     .attr('cx', d => xScale(d.cp))
     .attr('cy', d => yScale(d.score))
-    .attr('r', 5)
-    .attr('fill',   d => getColor(d, colorMode))
-    .attr('stroke', d => getColor(d, colorMode))
-    .attr('stroke-width', 1)
-    .attr('fill-opacity', 0.75)
-    .style('cursor','pointer')
-    .on('mouseenter', function(e, d) {
-      if (activeEl !== this) {
-        d3.select(this).attr('r', 7.5).attr('fill-opacity', 1).attr('stroke','white').attr('stroke-width', 1.5);
+    .each(function(d) { restDot(this, d); });
+
+  const dotOf = e => (e.target.classList && e.target.classList.contains('dot')) ? e.target : null;
+  plot
+    .on('mouseover', function(e) {
+      const el = dotOf(e);
+      if (!el) return;
+      if (activeEl !== el) {
+        d3.select(el).attr('r', 7.5).attr('fill-opacity', 1).attr('stroke','white').attr('stroke-opacity', 1).attr('stroke-width', 1.5);
       }
-      if (!isPinned) showPanel(e.clientX, e.clientY, d, false);
+      if (!isPinned) showPanel(e.clientX, e.clientY, d3.select(el).datum(), false);
     })
-    .on('mousemove', function(e, d) {
-      if (!isPinned) positionPanel(e.clientX, e.clientY);
+    .on('mousemove', function(e) {
+      if (dotOf(e) && !isPinned) positionPanel(e.clientX, e.clientY);
     })
-    .on('mouseleave', function(e, d) {
-      if (activeEl !== this) {
-        const rest = dotResting(d);
-        d3.select(this).attr('r', 5).attr('fill-opacity', rest.opacity).attr('fill', rest.color).attr('stroke', rest.color).attr('stroke-width', 1);
-      }
+    .on('mouseout', function(e) {
+      const el = dotOf(e);
+      if (!el) return;
+      if (activeEl !== el) restDot(el, d3.select(el).datum());
       if (!isPinned) document.getElementById('panel').style.display = 'none';
     })
-    .on('click', function(e, d) {
-      if (activeEl === this && isPinned) {
+    .on('click', function(e) {
+      const el = dotOf(e);
+      if (!el) return;
+      e.stopPropagation();
+      if (activeEl === el && isPinned) {
         closePanel();
-        e.stopPropagation();
         return;
       }
-      pinDot(this, d, e.clientX, e.clientY);
-      e.stopPropagation();
+      pinDot(el, d3.select(el).datum(), e.clientX, e.clientY);
     });
+  return dots;
 }
 
 // Pin the panel on a dot element. Shared by the dot click handler and
 // pinPlayerByName; cx/cy are viewport coords for positioning the panel.
 function pinDot(el, d, cx, cy) {
   if (activeEl && activeEl !== el) {
-    const prev = d3.select(activeEl);
-    const pd = prev.datum();
-    const rest = dotResting(pd);
-    prev.attr('r',5).attr('fill-opacity',rest.opacity).attr('fill',rest.color).attr('stroke', rest.color).attr('stroke-width',1);
+    const prev = activeEl;
+    activeEl = null;
+    restDot(prev, d3.select(prev).datum());
   }
   activeEl = el;
-  d3.select(el).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-width',2);
+  // Lift the pinned dot to the top of the lit layer so nothing draws over it,
+  // even when it's one of the greyed-out ones.
+  dotsLit.node().appendChild(el);
+  d3.select(el).attr('r',8).attr('fill-opacity',1).attr('stroke','white').attr('stroke-opacity',1).attr('stroke-width',2);
   showPanel(cx, cy, d, true);
   updateDeepLink();
 }

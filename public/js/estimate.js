@@ -73,13 +73,17 @@ function renderEstimate() {
     $id('est-rank').textContent = `#${beat + 1} of ${currentData.length + 1}`;
     rankRow.hidden = false;
     // Beating `beat` players puts you in 1-based place `beat + 1` — the same
-    // number shown above, and now the same one the points lookup takes.
-    const pts = gwPointsForRank(beat + 1);
-    $id('est-gw').textContent = pts != null ? pts.toLocaleString() : '';
-    $id('est-gw-row').hidden = pts == null;
+    // number shown above, and now the same one the points lookup takes (GC also
+    // reads the score itself; see gc-points.js).
+    const p = pointsAt(beat + 1, estimateScore);
+    if (p) {
+      $id('est-pts-key').textContent = POINTS_LABELS[currentContentType].tag;
+      $id('est-pts').textContent = p.points.toLocaleString() + (p.tier ? ` · ${p.tier}` : '');
+    }
+    $id('est-pts-row').hidden = !p;
   } else {
     rankRow.hidden = true;
-    $id('est-gw-row').hidden = true;
+    $id('est-pts-row').hidden = true;
   }
 
   // Custom fit, when one is set — the whole point of the Experiments equation
@@ -100,14 +104,6 @@ function renderEstimate() {
     : '';
 
   drawEstimateMarker();
-}
-
-// `rank` is 1-based (rank 1 = 1st place), like the Rank column on screen.
-// gwPointsAt handles the conversion to the 0-indexed points table.
-function gwPointsForRank(rank) {
-  if (currentContentType !== 'Guild Wars') return null;
-  const pts = gwPointsAt(currentSheet, rank);
-  return pts === undefined ? null : pts;
 }
 
 // ── Chart marker ───────────────────────────────────────────────────────────
